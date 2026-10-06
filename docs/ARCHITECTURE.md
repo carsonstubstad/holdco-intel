@@ -35,12 +35,11 @@ Havas (HAVAS.AS), Dentsu (4324.T), Stagwell (STGW).
     │   ├── config.py                 load_watchlist()
     │   ├── util.py                   fetch(), now_iso(), classify()
     │   ├── prices.py                 get_price_history(), get_fx(), append_latest()
-    │   ├── news.py                   get_news()
+    │   ├── news.py                   get_news() (parked: news.google.com robots.txt disallows /rss)
     │   ├── press_releases.py         get_press_releases(), routes to adapters/
     │   ├── adapters/                 one file per company, same interface
     │   │   ├── __init__.py
     │   │   ├── wpp.py  omnicom.py  stagwell.py  publicis.py  havas.py  dentsu.py
-    │   │   ├── _gnews_site.py        shared Google News site: fallback for any adapter
     │   ├── events.py                 get_events()
     │   ├── guidance.py               get_guidance()
     │   ├── kpis.py                   get_kpis()
@@ -270,8 +269,9 @@ deterministic. Registered in Claude Code with
   dropped (access denied, robots disallow). Alpha Vantage free key is the named fallback,
   added only if yfinance fails on the runner for several days.
 - No EDGAR in v1: organic growth is non-GAAP and absent from XBRL for all six.
-- Sources: yfinance, Google News RSS and company IR sites only, for all six companies.
-  Google News restricted to the company's domain (`site:`) is the press release fallback.
+- Sources: yfinance and company IR sites only, for all six companies. Press releases come
+  from each company's own IR site (RSS/Atom, JSON endpoint or static HTML); there is no
+  Google News fallback because news.google.com robots.txt disallows the RSS path.
   EDGAR and LSE RNS were dropped to keep pulls uniform and avoid a public contact email.
 - Guidance is structured and quote-verified by a script, not freeform bullets.
 - Six panels in v1 to keep curation to one file (guidance.json) plus events.
@@ -282,6 +282,6 @@ deterministic. Registered in Claude Code with
 ## 10. Known risks
 
 IR sites that render client-side (Havas, Dentsu, possibly Publicis) may need an RSS/JSON
-endpoint hunt or the Google News `site:` fallback; Omnicom and Stagwell IR may need it too. Google News and Yahoo are unofficial.
+endpoint hunt (no third-party fallback); Omnicom and Stagwell IR may need it too. Yahoo is unofficial.
 Shares outstanding drift with buybacks. Omnicom organic growth is not comparable across
 the IPG close. Record every surprise in docs/FAILURES.md.

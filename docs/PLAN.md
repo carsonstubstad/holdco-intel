@@ -45,12 +45,13 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   changed its token format in 2024, so zero decoded is acceptable if logged in
   FAILURES.md); test passes offline.
   Commit: `step 04: Google News RSS collector`.
+  Blocked: news.google.com robots.txt disallows the RSS path; collector parked, `core/util.py` landed.
 
 - [ ] **05 Press releases: framework, classifier, first two adapters.** `core/util.classify`,
   `core/press_releases.py` router, `core/adapters/wpp.py` and `core/adapters/omnicom.py`
   with fixtures and tests. Channel per adapter is chosen by the discovery order on the
   company's IR site: RSS/Atom, then static HTML, then a JSON endpoint the IR page itself
-  loads, then the Google News `site:<IR domain>` fallback; recorded in FAILURES.md.
+  loads; recorded in FAILURES.md. No third-party fallback.
   Acceptance: both adapters return at least 10 items from fixtures; classifier test covers
   one title per category; `press_releases.json` validates. Commit:
   `step 05: press release framework, classifier, WPP and Omnicom adapters`.
@@ -79,9 +80,9 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 - [ ] **08 Events calendar and remaining adapters.** Fill `data/events.yaml` from each
   company's published financial calendar (hand). Add `stagwell.py`, `publicis.py`,
   `havas.py`, `dentsu.py`, each with fixture and test; record any client-side-rendered site
-  and the endpoint found (or the switch to the Google News `site:` fallback) in
-  FAILURES.md. Acceptance: status.json shows 6 of 6 press release sources ok (the
-  fallback counts, and its channel is visible in `source`); events panel shows the next
+  and the endpoint found in
+  FAILURES.md. Acceptance: status.json shows 6 of 6 press release sources ok (each
+  from the company's own IR site, channel visible in `source`); events panel shows the next
   results date for all six.
   Commits: `step 08a: events calendar, stagwell and publicis adapters`, then
   `step 08b: havas and dentsu adapters` (ticks the box).
