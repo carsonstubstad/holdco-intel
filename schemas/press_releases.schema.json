@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "press_releases.schema.json",
+  "title": "press_releases.json",
+  "type": "object",
+  "required": ["as_of", "items", "new_since_last_curate", "last_curate_at"],
+  "properties": {
+    "as_of": {"type": "string", "format": "date-time"},
+    "last_curate_at": {"type": ["string", "null"], "format": "date-time"},
+    "new_since_last_curate": {
+      "type": "array",
+      "description": "ids of flagged items published after last_curate_at; consumed by /curate.",
+      "items": {"type": "string"}
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "company", "title", "url", "published", "category", "flagged", "source", "fetched_at"],
+        "properties": {
+          "id": {"type": "string", "description": "sha1 of company + url, first 12 hex chars."},
+          "company": {"type": "string"},
+          "title": {"type": "string"},
+          "url": {"type": "string", "format": "uri"},
+          "published": {"type": "string", "format": "date"},
+          "summary": {"type": ["string", "null"]},
+          "category": {"type": "string", "enum": ["results", "guidance", "m_and_a", "capital_markets", "leadership", "client", "other"]},
+          "flagged": {"type": "boolean"},
+          "source": {"type": "string", "description": "Adapter name plus channel, e.g. wpp:rss, omnicom:html, havas:gnews_site."},
+          "fetched_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    }
+  }
+}

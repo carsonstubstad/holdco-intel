@@ -1,0 +1,5 @@
+# Hand-maintained calendar. /curate adds confirmed dates it finds in press releases.
+# type: results | agm | capital_markets_day | deal | other
+# confirmed: true only when a company source states the date; false for estimates.
+# Fill from each company's published financial calendar (docs/PLAN.md step 08).
+items: []

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "guidance.schema.json",
+  "title": "data/guidance.json (also copied to docs/data/guidance.json)",
+  "type": "object",
+  "required": ["records"],
+  "properties": {
+    "as_of": {"type": "string", "format": "date-time"},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "company", "metric", "period", "value", "status", "set_date", "quote", "source_url", "curated_at"],
+        "properties": {
+          "id": {"type": "string", "description": "company-metric-period-setdate, lowercase, e.g. pub-organic_growth-fy2026-2026-07-17"},
+          "company": {"type": "string"},
+          "metric": {"type": "string", "enum": ["organic_growth", "operating_margin", "revenue", "free_cash_flow", "eps", "other"]},
+          "period": {"type": "string", "description": "FY2026, H2 2026, Q4 2026, medium_term"},
+          "value": {"type": "string", "description": "As stated, e.g. '+4% to +5%', 'around 18%', 'low single digit decline'."},
+          "unit": {"type": ["string", "null"], "description": "pct, pct_points, currency_m, text"},
+          "status": {"type": "string", "enum": ["new", "raised", "held", "cut", "withdrawn"]},
+          "set_date": {"type": "string", "format": "date"},
+          "quote": {"type": "string", "minLength": 20, "description": "Verbatim sentence(s) from the source. verify_quote.py must find it."},
+          "source_url": {"type": "string", "format": "uri"},
+          "supersedes": {"type": ["string", "null"], "description": "id of the record this one replaces."},
+          "curated_at": {"type": "string", "format": "date-time"},
+          "verified": {"type": "boolean", "description": "True only when verify_quote.py passed."}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kpis.schema.json",
+  "title": "data/kpis.yaml and docs/data/kpis.json",
+  "type": "object",
+  "required": ["rows"],
+  "properties": {
+    "as_of": {"type": "string", "format": "date-time"},
+    "definitions": {
+      "type": "object",
+      "description": "Per company, how it defines organic growth and its margin metric.",
+      "additionalProperties": {"type": "string"}
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["company", "period", "source_url"],
+        "properties": {
+          "company": {"type": "string"},
+          "period": {"type": "string", "pattern": "^(Q[1-4]|H[12]|FY) ?20[0-9]{2}$"},
+          "organic_growth_pct": {"type": ["number", "null"]},
+          "revenue_local_m": {"type": ["number", "null"]},
+          "currency": {"type": ["string", "null"]},
+          "margin_metric": {"type": ["string", "null"]},
+          "margin_pct": {"type": ["number", "null"]},
+          "source_url": {"type": "string", "format": "uri"},
+          "note": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

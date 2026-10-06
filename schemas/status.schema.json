@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "status.schema.json",
+  "title": "status.json",
+  "type": "object",
+  "required": ["run_at", "runtime_ms", "sources", "guidance_age_days", "counts"],
+  "properties": {
+    "run_at": {"type": "string", "format": "date-time"},
+    "runtime_ms": {"type": "integer", "minimum": 0},
+    "run_id": {"type": ["string", "null"], "description": "GitHub Actions run id, null when run locally."},
+    "sources": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["ok", "items", "ms"],
+        "properties": {
+          "ok": {"type": "boolean"},
+          "items": {"type": "integer", "minimum": 0},
+          "ms": {"type": "integer", "minimum": 0},
+          "error": {"type": ["string", "null"]},
+          "last_ok": {"type": ["string", "null"], "format": "date-time"}
+        }
+      }
+    },
+    "guidance_age_days": {"type": ["integer", "null"]},
+    "counts": {
+      "type": "object",
+      "properties": {
+        "companies": {"type": "integer"},
+        "sources_total": {"type": "integer"},
+        "sources_ok": {"type": "integer"},
+        "press_releases": {"type": "integer"},
+        "flagged_new": {"type": "integer"},
+        "news": {"type": "integer"},
+        "events_upcoming": {"type": "integer"}
+      }
+    }
+  }
+}

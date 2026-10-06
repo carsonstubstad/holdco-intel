@@ -1,0 +1,121 @@
+# Holdco Intel watchlist. This is the ONLY place companies are defined.
+# A second dashboard (e.g. the AI value chain) is a second file with the same shape.
+#
+# Fields marked "verify" are best-effort starting values. docs/PLAN.md step 02 checks
+# tickers and FX symbols; step 11 verifies shares_outstanding_m against the latest results.
+
+dashboard:
+  name: Holdco Intel
+  base_currency: USD
+  fx_pairs:                 # yfinance symbols; all quoted vs USD
+    - EURUSD=X
+    - GBPUSD=X
+    - JPY=X                 # USD/JPY
+  user_agent: "holdco-intel/0.1 (+https://github.com/carsonstubstad/holdco-intel)"   # sent by core.util.fetch()
+
+# Global title patterns applied to every company. Per-company patterns below add to these.
+# category is the first match in this order; flagged = category in flagged_categories.
+classification:
+  flagged_categories: [results, guidance, m_and_a, capital_markets]
+  categories:
+    results:         ["results", "revenue", "trading update", "quarter", "half[- ]year", "full[- ]year", "annual report", "Q[1-4]\\b", "H[12]\\b", "FY ?20\\d\\d"]
+    guidance:        ["guidance", "outlook", "upgrade", "downgrade", "raises", "lowers", "reiterates"]
+    m_and_a:         ["acqui", "to acquire", "merger", "combination", "divest", "disposal", "sale of", "stake in", "completes"]
+    capital_markets: ["capital markets day", "investor day", "investor presentation", "strategy update"]
+    leadership:      ["appoint", "names .* as", "chief executive", "ceo", "cfo", "chair", "board", "steps down", "to leave"]
+    client:          ["wins", "selected", "appointed by", "agency of record", "aor", "account"]
+  default_category: other
+
+companies:
+  - code: PUB
+    name: Publicis Groupe
+    ticker: PUB.PA
+    exchange: Euronext Paris
+    currency: EUR
+    color: "#1f77b4"
+    shares_outstanding_m: 254.0        # verify
+    shares_verified: false
+    news_query: '"Publicis Groupe"'
+    press_releases:
+      adapter: publicis
+      url: https://www.publicisgroupe.com/en/news/press-releases   # verify; may need an RSS/JSON endpoint
+    results_title_patterns: ["revenue", "organic growth", "results"]
+    fiscal_year_end: "12-31"
+
+  - code: OMC
+    name: Omnicom Group (incl. IPG)
+    ticker: OMC
+    exchange: NYSE
+    currency: USD
+    color: "#ff7f0e"
+    shares_outstanding_m: 323.0        # verify; post-IPG close (Nov 2025)
+    shares_verified: false
+    news_query: '"Omnicom"'
+    press_releases:
+      adapter: omnicom
+      url: https://www.omnicomgroup.com/newsroom/   # verify; IR site, look for RSS first
+    results_title_patterns: ["results", "quarter"]
+    fiscal_year_end: "12-31"
+    notes: "Organic growth not comparable across the IPG close; label pre/post."
+
+  - code: WPP
+    name: WPP plc
+    ticker: WPP.L
+    exchange: London Stock Exchange
+    currency: GBP
+    color: "#2ca02c"
+    shares_outstanding_m: 1078.0       # verify
+    shares_verified: false
+    news_query: '"WPP"'
+    press_releases:
+      adapter: wpp
+      url: https://www.wpp.com/en/news   # verify; IR site, look for RSS first
+    results_title_patterns: ["trading update", "results", "like-for-like"]
+    fiscal_year_end: "12-31"
+    notes: "WPP.L quotes in pence (GBX). Divide by 100 before FX conversion."
+
+  - code: HAVAS
+    name: Havas N.V.
+    ticker: HAVAS.AS
+    exchange: Euronext Amsterdam
+    currency: EUR
+    color: "#d62728"
+    shares_outstanding_m: 1000.0       # verify
+    shares_verified: false
+    news_query: '"Havas"'
+    press_releases:
+      adapter: havas
+      url: https://www.havas.com/investors   # verify; likely client-side rendered
+    results_title_patterns: ["revenue", "results", "net revenue"]
+    fiscal_year_end: "12-31"
+    notes: "Listed December 2024; price history starts then."
+
+  - code: DENTSU
+    name: Dentsu Group Inc.
+    ticker: 4324.T
+    exchange: Tokyo Stock Exchange
+    currency: JPY
+    color: "#9467bd"
+    shares_outstanding_m: 262.0        # verify
+    shares_verified: false
+    news_query: '"Dentsu"'
+    press_releases:
+      adapter: dentsu
+      url: https://www.group.dentsu.com/en/news/   # verify; check for an RSS feed first
+    results_title_patterns: ["consolidated financial results", "results", "quarter"]
+    fiscal_year_end: "12-31"
+
+  - code: STGW
+    name: Stagwell Inc.
+    ticker: STGW
+    exchange: NASDAQ
+    currency: USD
+    color: "#8c564b"
+    shares_outstanding_m: 262.0        # verify; Class A + Class C
+    shares_verified: false
+    news_query: '"Stagwell"'
+    press_releases:
+      adapter: stagwell
+      url: https://www.stagwellglobal.com/news/   # verify; IR site, look for RSS first
+    results_title_patterns: ["results", "quarter", "net revenue"]
+    fiscal_year_end: "12-31"

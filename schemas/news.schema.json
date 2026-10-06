@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "news.schema.json",
+  "title": "news.json",
+  "type": "object",
+  "required": ["as_of", "items"],
+  "properties": {
+    "as_of": {"type": "string", "format": "date-time"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["company", "title", "url", "published", "source", "fetched_at"],
+        "properties": {
+          "company": {"type": "string"},
+          "title": {"type": "string"},
+          "url": {"type": "string", "format": "uri", "description": "Decoded publisher URL, not a Google redirect."},
+          "publisher": {"type": ["string", "null"]},
+          "published": {"type": "string", "format": "date-time"},
+          "source": {"type": "string", "const": "google_news_rss"},
+          "fetched_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    }
+  }
+}

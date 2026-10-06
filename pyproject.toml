@@ -1,0 +1,32 @@
+[project]
+name = "holdco-intel"
+version = "0.1.0"
+description = "Zero-cost intelligence dashboard, pipeline and MCP server for advertising holding companies"
+requires-python = ">=3.12"
+dependencies = [
+  "requests>=2.32",
+  "feedparser>=6.0",
+  "beautifulsoup4>=4.12",
+  "pyyaml>=6.0",
+  "yfinance>=0.2.50",
+  "jsonschema>=4.23",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+  "pdfplumber>=0.11",
+  "mcp>=1.2",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.uv]
+package = false   # run modules from the repo root with `uv run python -m ...`; no build backend needed

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prices.schema.json",
+  "title": "prices.json",
+  "type": "object",
+  "required": ["as_of", "base_currency", "series", "market_cap_usd_m"],
+  "properties": {
+    "as_of": {"type": "string", "format": "date-time"},
+    "base_currency": {"type": "string", "const": "USD"},
+    "series": {
+      "type": "object",
+      "description": "Keyed by yfinance symbol (equities and FX pairs).",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["currency", "dates", "closes", "stale_days", "source"],
+        "properties": {
+          "currency": {"type": "string"},
+          "dates": {"type": "array", "items": {"type": "string", "format": "date"}},
+          "closes": {"type": "array", "items": {"type": ["number", "null"]}},
+          "stale_days": {"type": "integer", "minimum": 0},
+          "source": {"type": "string", "enum": ["yfinance", "alphavantage", "backfill", "forward_fill"]},
+          "fetched_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "market_cap_usd_m": {
+      "type": "object",
+      "description": "Keyed by company code; approximate; null when shares or FX missing.",
+      "additionalProperties": {"type": ["number", "null"]}
+    }
+  }
+}

@@ -1,0 +1,10 @@
+# Hand-curated quarterly KPIs, as reported by each company. Never computed.
+# period: Q1 2026 | H1 2026 | FY 2025. One row per company per period.
+definitions:
+  PUB: "Organic growth: net revenue growth at constant scope and FX. Margin: operating margin on net revenue."
+  OMC: "Organic growth: revenue growth excluding acquisitions, disposals and FX. Margin: adjusted EBITA margin. Not comparable across the IPG close (Nov 2025)."
+  WPP: "Like-for-like revenue less pass-through costs growth. Margin: headline operating margin."
+  HAVAS: "Organic net revenue growth. Margin: adjusted EBIT margin on net revenue."
+  DENTSU: "Organic growth of net revenue. Margin: underlying operating margin."
+  STGW: "Organic net revenue growth. Margin: adjusted EBITDA margin on net revenue."
+rows: []
