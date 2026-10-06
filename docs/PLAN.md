@@ -21,7 +21,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Acceptance: `make check` prints 0 ruff errors and 2 passed; `make validate` exits 0.
   Commit: `step 01: bootstrap repo, tooling and schemas`.
 
-- [ ] **02 Config loader and symbol check.** `core/config.py` with `load_watchlist` and
+- [x] **02 Config loader and symbol check.** `core/config.py` with `load_watchlist` and
   `get_company`, `tests/test_config.py`. A local script `pipeline/check_symbols.py` calls
   yfinance once for all 6 tickers and 3 FX pairs and prints last close and date per symbol.
   Acceptance: all 9 symbols return a close dated within the last 5 trading days (note any
