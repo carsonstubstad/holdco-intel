@@ -58,7 +58,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Note: Omnicom is on Q4 IR RSS (investor.omc.com; exactly 10 items), WPP on static HTML with
   dates from the inline Next.js payload. No Google News fallback. Adapters raise on zero items.
 
-- [ ] **06 Pipeline, validation and the live workflow.** `pipeline/run.py` (tolerant
+- [x] **06 Pipeline, validation and the live workflow.** `pipeline/run.py` (tolerant
   orchestration, status.json, new_since_last_curate, companies.json, runs.jsonl),
   `pipeline/nudge.py`, core readers for events, guidance, kpis and status, a new
   `.github/workflows/daily.yml` with SHA-pinned actions and least-privilege permissions
@@ -69,6 +69,8 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Acceptance: Actions run is green, `docs/data/status.json` is committed by the bot, Pages
   URL serves `/data/status.json`. Commit: `step 06: pipeline runner, validation, live workflow`.
   Account/secret note: none needed. GitHub Pages and Actions are free on public repos.
+  Note: no news source (step 04 parked); press releases from WPP and OMC only, others
+  skipped until step 08; bot commit message has no `[skip ci]` (it could skip Pages).
 
 - [ ] **07 Site v1.** `docs/index.html`, `app.js`, `style.css`: scan strip, base-100 chart
   with window selector and event markers (Plotly via CDN), guidance tracker (empty state),
