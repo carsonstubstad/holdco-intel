@@ -1,0 +1,151 @@
+{
+ "as_of": "2026-10-06T23:34:40Z",
+ "last_curate_at": null,
+ "new_since_last_curate": [],
+ "items": [
+  {
+   "id": "bd14c1014f56",
+   "company": "WPP",
+   "title": "Jon Cook to leave WPP and transition VML CEO role to long-time partner Eric Campbell",
+   "url": "https://www.wpp.com/en/news/jon-cook-to-leave-wpp-and-transition-vml-ceo-role-to-long-time-partner-eric-campbell",
+   "published": "2026-10-02",
+   "summary": null,
+   "category": "leadership",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "efed794cb826",
+   "company": "WPP",
+   "title": "WPP launches flagship production hub in East London",
+   "url": "https://www.wpp.com/en/news/2026/09/wpp-launches-flagship-production-hub-in-east-london",
+   "published": "2026-09-23",
+   "summary": null,
+   "category": "other",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "0e461c73575d",
+   "company": "WPP",
+   "title": "Directorate Change \u2013 Chief Financial Officer Succession",
+   "url": "https://www.wpp.com/en/news/directorate-change-chief-financial-officer-succession",
+   "published": "2026-09-23",
+   "summary": null,
+   "category": "leadership",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "f40debfc58f0",
+   "company": "WPP",
+   "title": "WPP appointed by Nestl\u00e9 to lead end-to-end content operating model across Greater China",
+   "url": "https://www.wpp.com/en/news/2026/09/wpp-appointed-by-nestle-to-lead-end-to-end-content-operating-model-across-greater-china",
+   "published": "2026-09-22",
+   "summary": null,
+   "category": "client",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "137897d1231d",
+   "company": "WPP",
+   "title": "2026 Interim Results",
+   "url": "https://www.wpp.com/en/news/2026-interim-results",
+   "published": "2026-08-06",
+   "summary": null,
+   "category": "results",
+   "flagged": true,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "904caae32302",
+   "company": "WPP",
+   "title": "WPP announces expansion plans for WPP Enterprise Solutions, its global business unit for AI-driven transformation",
+   "url": "https://www.wpp.com/en/news/wpp-announces-expansion-plans-for-wpp-enterprise-solutions-its-global-business-unit-for-ai-driven-transformation",
+   "published": "2026-07-01",
+   "summary": null,
+   "category": "other",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "e95ee8fba2fb",
+   "company": "WPP",
+   "title": "WPP agencies triumph at Cannes Lions 2026, with Ogilvy and VML claiming the top two creative network honours",
+   "url": "https://www.wpp.com/en/news/wpp-agencies-triumph-at-cannes-lions-2026-with-ogilvy-and-vml-claiming-the-top-two-creative-network-honours",
+   "published": "2026-06-26",
+   "summary": null,
+   "category": "other",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "f6c1e89ae8ba",
+   "company": "WPP",
+   "title": "Empowering the next creative frontier with AI research",
+   "url": "https://www.wpp.com/en/news/ai-research-as-the-next-creative-frontier",
+   "published": "2026-06-25",
+   "summary": null,
+   "category": "other",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "c25a87fc0094",
+   "company": "WPP",
+   "title": "WPP named first launch partner to pilot Meta\u2019s newest creative solution, integrated within WPP Open",
+   "url": "https://www.wpp.com/en/news/wpp-named-first-launch-partner-to-pilot-metas-newest-creative-solution-integrated-within-wpp-open",
+   "published": "2026-06-23",
+   "summary": null,
+   "category": "other",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "f97e1886aa45",
+   "company": "WPP",
+   "title": "WPP Enterprise Solutions signs strategic collaboration agreement with AWS to operationalise agentic AI for leading brands",
+   "url": "https://www.wpp.com/en/news/wpp-enterprise-solutions-signs-strategic-collaboration-agreement-with-aws-to-operationalise-agentic-ai-for-leading-brands",
+   "published": "2026-06-18",
+   "summary": null,
+   "category": "other",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "79e24bc9d508",
+   "company": "WPP",
+   "title": "WPP appoints Baiju Shah as group Chief Strategy Officer",
+   "url": "https://www.wpp.com/en/news/wpp-appoints-baiju-shah-as-group-chief-strategy-officer",
+   "published": "2026-06-11",
+   "summary": null,
+   "category": "leadership",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  },
+  {
+   "id": "215f5f4f58b1",
+   "company": "WPP",
+   "title": "WPP launches HEX, creating a new kind of talent pipeline designed for the AI era",
+   "url": "https://www.wpp.com/en/news/wpp-launches-hex-creating-a-new-kind-of-talent-pipeline-designed-for-the-ai-era",
+   "published": "2026-06-04",
+   "summary": null,
+   "category": "other",
+   "flagged": false,
+   "source": "wpp:html",
+   "fetched_at": "2026-10-06T23:34:46Z"
+  }
+ ]
+}
