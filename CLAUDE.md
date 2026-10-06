@@ -52,11 +52,11 @@ docs/PLAN.md at the start of every session.
   against the matching file in `schemas/`. Every record has `source` (where it came from)
   and `fetched_at` (UTC ISO 8601).
 - Source routing lives inside `core/`. Callers never know whether a number came from
-  Yahoo, Google News, an IR page or a YAML file.
-- Sources are limited to Yahoo Finance via yfinance, Google News RSS and each company's
-  own IR website. No EDGAR, no LSE RNS, no newswires. If an IR site has no usable feed or
-  static list, the fallback is Google News RSS restricted to the company's domain
-  (`site:`).
+  Yahoo, an IR page or a YAML file.
+- Sources are limited to Yahoo Finance via yfinance and each company's own IR website
+  (RSS/Atom, a JSON endpoint the IR page loads, or static HTML). No EDGAR, no LSE RNS, no
+  newswires, no Google News (its robots.txt disallows the RSS path; see docs/FAILURES.md).
+  There is no third-party fallback for press releases.
 - Config-driven. Companies are defined only in `config/watchlist.yaml`. No ticker, URL
   or company name is hardcoded anywhere else.
 - Company display data (name, color, currency) reaches the site through
