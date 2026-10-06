@@ -63,6 +63,7 @@ companies:
     ticker: WPP.L
     exchange: London Stock Exchange
     currency: GBP
+    price_currency: GBX              # optional; unit of yfinance closes when it differs (pence)
     color: "#2ca02c"
     shares_outstanding_m: 1078.0       # verify
     shares_verified: false
@@ -80,7 +81,7 @@ companies:
     exchange: Euronext Amsterdam
     currency: EUR
     color: "#d62728"
-    shares_outstanding_m: 1000.0       # verify
+    shares_outstanding_m: 97.7         # verify; post 1:10 consolidation (Nov 2025), Yahoo count
     shares_verified: false
     news_query: '"Havas"'
     press_releases:

@@ -27,7 +27,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Acceptance: all 9 symbols return a close dated within the last 5 trading days (note any
   that do not in docs/FAILURES.md). Commit: `step 02: config loader and symbol check`.
 
-- [ ] **03 Price history: backfill and append.** `pipeline/backfill.py` writes 2 years of
+- [x] **03 Price history: backfill and append.** `pipeline/backfill.py` writes 2 years of
   daily closes for all 9 symbols into `docs/data/prices.json` (run locally once).
   `core/prices.py` implements `fetch_latest_closes`, `append_latest` (no stored
   forward-fill, stale_days), `get_price_history`, `get_fx`, and market cap in USD using shares from config
@@ -35,6 +35,9 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   laptop (CLAUDE.md rule 4). Acceptance: `prices.json` validates against the schema, has ~500
   dates per equity, and running append twice in a row does not duplicate the last date.
   Commit: `step 03: price backfill, daily append and market cap`.
+  Note: Havas did a 1:10 consolidation in Nov 2025 (shares now ~97.7m); WPP pence unit is
+  config (`price_currency: GBX`); stale_days is always weekdays strictly between last date
+  and today, so append is idempotent.
 
 - [ ] **04 News collector.** `core/news.py` via Google News RSS with redirect decoding
   and title dedupe; fixture `tests/fixtures/news_pub.xml`; test. Acceptance: `get_news("PUB")`

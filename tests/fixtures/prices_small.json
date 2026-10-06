@@ -1,0 +1,31 @@
+{
+ "as_of": "2026-10-02T22:30:00Z",
+ "base_currency": "USD",
+ "series": {
+  "PUB.PA": {
+   "currency": "EUR",
+   "dates": ["2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02"],
+   "closes": [78.5, 79.0, 79.25, 79.6, 80.0],
+   "stale_days": 0,
+   "source": "backfill",
+   "fetched_at": "2026-10-02T22:30:00Z"
+  },
+  "WPP.L": {
+   "currency": "GBX",
+   "dates": ["2026-09-28", "2026-09-29", "2026-10-01", "2026-10-02"],
+   "closes": [395.0, 398.2, 401.0, 400.0],
+   "stale_days": 0,
+   "source": "backfill",
+   "fetched_at": "2026-10-02T22:30:00Z"
+  },
+  "EURUSD=X": {
+   "currency": "FX",
+   "dates": ["2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02"],
+   "closes": [1.09, 1.095, 1.1, 1.105, 1.1],
+   "stale_days": 0,
+   "source": "backfill",
+   "fetched_at": "2026-10-02T22:30:00Z"
+  }
+ },
+ "market_cap_usd_m": {"PUB": 22352, "WPP": null}
+}
