@@ -14,16 +14,17 @@ dashboard:
   user_agent: "holdco-intel/0.1 (+https://github.com/carsonstubstad/holdco-intel)"   # sent by core.util.fetch()
 
 # Global title patterns applied to every company. Per-company patterns below add to these.
-# category is the first match in this order; flagged = category in flagged_categories.
+# A company's results_title_patterns are checked first; then category is the first match in
+# this order (re.search, case-insensitive); flagged = category in flagged_categories.
 classification:
   flagged_categories: [results, guidance, m_and_a, capital_markets]
   categories:
-    results:         ["results", "revenue", "trading update", "quarter", "half[- ]year", "full[- ]year", "annual report", "Q[1-4]\\b", "H[12]\\b", "FY ?20\\d\\d"]
+    results:         ["results", "revenue", "trading update", "quarter\\b", "half[- ]year", "full[- ]year", "annual report", "Q[1-4]\\b", "H[12]\\b", "FY ?20\\d\\d"]
     guidance:        ["guidance", "outlook", "upgrade", "downgrade", "raises", "lowers", "reiterates"]
     m_and_a:         ["acqui", "to acquire", "merger", "combination", "divest", "disposal", "sale of", "stake in", "completes"]
     capital_markets: ["capital markets day", "investor day", "investor presentation", "strategy update"]
-    leadership:      ["appoint", "names .* as", "chief executive", "ceo", "cfo", "chair", "board", "steps down", "to leave"]
-    client:          ["wins", "selected", "appointed by", "agency of record", "aor", "account"]
+    client:          ["appointed by", "agency of record", "\\baor\\b", "wins .*(account|business|pitch|mandate)", "selected by"]
+    leadership:      ["appoint", "names .* as", "chief executive", "chief financial officer", "\\bceo\\b", "\\bcfo\\b", "\\bchair", "to the board", "joins .* board", "board of directors.*appoint", "steps down", "to leave", "succession", "leadership transition", "directorate change"]
   default_category: other
 
 companies:
@@ -53,8 +54,8 @@ companies:
     news_query: '"Omnicom"'
     press_releases:
       adapter: omnicom
-      url: https://www.omnicomgroup.com/newsroom/   # verify; IR site, look for RSS first
-    results_title_patterns: ["results", "quarter"]
+      url: https://investor.omc.com/rss/pressrelease.aspx   # Q4 IR platform RSS (step 05)
+    results_title_patterns: ["results", "quarter\\b"]
     fiscal_year_end: "12-31"
     notes: "Organic growth not comparable across the IPG close; label pre/post."
 
@@ -70,7 +71,7 @@ companies:
     news_query: '"WPP"'
     press_releases:
       adapter: wpp
-      url: https://www.wpp.com/en/news   # verify; IR site, look for RSS first
+      url: https://www.wpp.com/en/news   # static HTML list (step 05)
     results_title_patterns: ["trading update", "results", "like-for-like"]
     fiscal_year_end: "12-31"
     notes: "WPP.L quotes in pence (GBX). Divide by 100 before FX conversion."

@@ -47,7 +47,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Commit: `step 04: Google News RSS collector`.
   Blocked: news.google.com robots.txt disallows the RSS path; collector parked, `core/util.py` landed.
 
-- [ ] **05 Press releases: framework, classifier, first two adapters.** `core/util.classify`,
+- [x] **05 Press releases: framework, classifier, first two adapters.** `core/util.classify`,
   `core/press_releases.py` router, `core/adapters/wpp.py` and `core/adapters/omnicom.py`
   with fixtures and tests. Channel per adapter is chosen by the discovery order on the
   company's IR site: RSS/Atom, then static HTML, then a JSON endpoint the IR page itself
@@ -55,6 +55,8 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Acceptance: both adapters return at least 10 items from fixtures; classifier test covers
   one title per category; `press_releases.json` validates. Commit:
   `step 05: press release framework, classifier, WPP and Omnicom adapters`.
+  Note: Omnicom is on Q4 IR RSS (investor.omc.com; exactly 10 items), WPP on static HTML with
+  dates from the inline Next.js payload. No Google News fallback. Adapters raise on zero items.
 
 - [ ] **06 Pipeline, validation and the live workflow.** `pipeline/run.py` (tolerant
   orchestration, status.json, new_since_last_curate, companies.json, runs.jsonl),

@@ -2,6 +2,7 @@
 
 import datetime
 import functools
+import re
 from urllib.parse import urlparse
 
 import requests
@@ -67,6 +68,24 @@ def now_iso() -> str:
     return datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+@functools.cache
+def _compiled_rules(code: str, results_patterns: tuple[str, ...]) -> tuple[list, set, str]:
+    """Return ([(category, [regex])], flagged_categories, default) for one company, compiled once."""
+    rules = load_watchlist()["classification"]
+    ordered = [("results", [re.compile(p, re.IGNORECASE) for p in results_patterns])]
+    for category, patterns in rules["categories"].items():
+        ordered.append((category, [re.compile(p, re.IGNORECASE) for p in patterns]))
+    return ordered, set(rules["flagged_categories"]), rules["default_category"]
+
+
 def classify(title: str, company: dict) -> tuple[str, bool]:
     """Return (category, flagged) for a press release title from global and company patterns."""
-    raise NotImplementedError("classify is implemented in step 05")
+    ordered, flagged, default = _compiled_rules(
+        company["code"], tuple(company.get("results_title_patterns") or ())
+    )
+    category = default
+    for name, regexes in ordered:
+        if any(rx.search(title) for rx in regexes):
+            category = name
+            break
+    return category, category in flagged

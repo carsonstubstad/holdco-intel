@@ -154,7 +154,8 @@ def get_press_releases(code: str, since: str | None = None) -> list[dict]:
 
 # core/adapters/<company>.py   (identical interface in every adapter)
 def fetch_items(company: dict) -> list[dict]:
-    """Return raw items {title, url, published, summary} from the company's IR source; raise on failure."""
+    """Return raw items {title, url, published, summary, channel} from the company's IR source;
+    raise on failure, including when zero items parse (a format change must not look like ok)."""
 
 def parse_fixture(html_or_xml: str, company: dict) -> list[dict]:
     """Pure parser used by fetch_items and by tests; same return shape."""
