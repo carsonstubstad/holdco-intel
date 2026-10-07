@@ -12,6 +12,7 @@ dashboard:
     - GBPUSD=X
     - JPY=X                 # USD/JPY
   user_agent: "holdco-intel/0.1 (+https://github.com/carsonstubstad/holdco-intel)"   # sent by core.util.fetch()
+  site_url: https://carsonstubstad.github.io/holdco-intel/   # GitHub Pages; linked from Issues
 
 # Global title patterns applied to every company. Per-company patterns below add to these.
 # A company's results_title_patterns are checked first; then category is the first match in
@@ -40,6 +41,9 @@ companies:
     press_releases:
       adapter: publicis
       url: https://www.publicisgroupe.com/en/news/press-releases   # static HTML archive list (step 08)
+    calendar:
+      parser: publicis
+      url: https://www.publicisgroupe.com/en/investors/investors-analysts/events   # static HTML (step 08c)
     results_title_patterns: ["revenue", "organic growth", "results"]
     fiscal_year_end: "12-31"
 
@@ -56,6 +60,11 @@ companies:
       adapter: omnicom
       # Q4 IR JSON feed the IR news page loads; categoryId from its q4News module (step 08)
       url: "https://investor.omc.com/feed/PressRelease.svc/GetPressReleaseList?LanguageId=1&bodyType=0&pressReleaseDateFilter=3&categoryId=1cb807d2-208f-4bc3-9133-6a9ad45ac3b0&pageSize=20&pageNumber=0&tagList=&includeTags=true&year=-1&excludeSelection=1"
+    calendar:
+      parser: omnicom
+      # Q4 IR JSON the events page's q4Events widget loads; all dates, newest first (step 08c)
+      url: "https://investor.omc.com/feed/Event.svc/GetEventList?LanguageId=1&eventSelection=3&eventDateFilter=3&includeTags=true&year=-1&tagList=&excludeSelection=1&pageSize=20&pageNumber=0&sortOperator=1&includeFinancialReports=false&includePresentations=false&includePressReleases=false"
+      crawl_delay_s: 10                # robots.txt Crawl-delay; same host as press releases
     results_title_patterns: ["results", "quarter\\b"]
     fiscal_year_end: "12-31"
     notes: "Organic growth not comparable across the IPG close; label pre/post."
@@ -73,6 +82,9 @@ companies:
     press_releases:
       adapter: wpp
       url: https://www.wpp.com/en/news   # static HTML list (step 05)
+    calendar:
+      parser: wpp
+      url: https://www.wpp.com/en/investors/calendar-and-events   # static HTML (step 08c)
     results_title_patterns: ["trading update", "results", "like-for-like"]
     fiscal_year_end: "12-31"
     notes: "WPP.L quotes in pence (GBX). Divide by 100 before FX conversion."
@@ -89,6 +101,10 @@ companies:
     press_releases:
       adapter: havas
       url: https://www.havas.com/feed/?post_type=press_release   # WP press_release RSS (step 08)
+    calendar:
+      parser: havas
+      url: https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/
+      crawl_delay_s: 10                # robots.txt Crawl-delay; same host as press releases
     results_title_patterns: ["revenue", "results", "net revenue"]
     fiscal_year_end: "12-31"
     notes: "Listed December 2024; price history starts then."
@@ -105,6 +121,7 @@ companies:
     press_releases:
       adapter: dentsu
       url: https://www.group.dentsu.com/en/news/release/index.xml   # news release RSS (step 08)
+    # no calendar block: the IR calendar renders only via the robots-disallowed E-IR widget (FAILURES.md)
     results_title_patterns: ["consolidated financial results", "results", "quarter\\b"]
     fiscal_year_end: "12-31"
 
@@ -120,5 +137,8 @@ companies:
     press_releases:
       adapter: stagwell
       url: https://www.stagwellglobal.com/category/press/feed/   # WP press category RSS (step 08)
+    calendar:
+      parser: stagwell
+      url: https://www.stagwellglobal.com/investors/events-and-presentations/   # static HTML (step 08c)
     results_title_patterns: ["results", "quarter\\b", "net revenue"]
     fiscal_year_end: "12-31"

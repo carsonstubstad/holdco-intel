@@ -1,0 +1,84 @@
+{
+ "GetEventListResult": [
+  {
+   "EventId": 1047,
+   "Title": "Omnicom to Present at Goldman Sachs Communacopia Conference",
+   "StartDate": "09/10/2026 08:10:00",
+   "EndDate": "09/10/2026 09:10:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2026/Omnicom-to-Present-at-Goldman-Sachs-Communacopia-Conference/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  },
+  {
+   "EventId": 1044,
+   "Title": "Second Quarter 2026 Earnings Call",
+   "StartDate": "07/28/2026 16:30:00",
+   "EndDate": "07/28/2026 17:30:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2026/Second-Quarter-2026-Earnings-Call/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  },
+  {
+   "EventId": 1029,
+   "Title": " J.P. Morgan Global Technology, Media, and Communications Conference",
+   "StartDate": "05/19/2026 15:35:00",
+   "EndDate": "05/19/2026 16:35:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2026/-JP-Morgan-Global-Technology-Media-and-Communications-Conference/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  },
+  {
+   "EventId": 1026,
+   "Title": "First Quarter 2026 Earnings Call",
+   "StartDate": "04/28/2026 16:30:00",
+   "EndDate": "04/28/2026 17:30:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2026/First-Quarter-2026-Earnings-Call/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  },
+  {
+   "EventId": 1020,
+   "Title": "Omnicom Investor Day",
+   "StartDate": "03/12/2026 09:00:00",
+   "EndDate": "03/12/2026 10:00:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2026/Omnicom-Investor-Day/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  },
+  {
+   "EventId": 1019,
+   "Title": "Fourth Quarter and Full Year 2025 Earnings Call",
+   "StartDate": "02/18/2026 16:30:00",
+   "EndDate": "02/18/2026 17:30:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2026/Fourth-Quarter-and-Full-Year-2025-Earnings-Call/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  },
+  {
+   "EventId": 1006,
+   "Title": "Third Quarter 2025 Earnings Call",
+   "StartDate": "10/21/2025 16:30:00",
+   "EndDate": "10/21/2025 17:30:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2025/Third-Quarter-2025-Earnings-Call/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  },
+  {
+   "EventId": 992,
+   "Title": "Second Quarter 2025 Earnings Call",
+   "StartDate": "07/15/2025 16:30:00",
+   "EndDate": "07/15/2025 17:30:00",
+   "LinkToDetailPage": "/events-and-presentations/events/event-details/2025/Second-Quarter-2025-Earnings-Call/default.aspx",
+   "TagsList": [
+    "webcast"
+   ]
+  }
+ ]
+}
