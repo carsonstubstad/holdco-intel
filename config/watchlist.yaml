@@ -24,7 +24,7 @@ classification:
     m_and_a:         ["acqui", "to acquire", "merger", "combination", "divest", "disposal", "sale of", "stake in", "completes"]
     capital_markets: ["capital markets day", "investor day", "investor presentation", "strategy update"]
     client:          ["appointed by", "agency of record", "\\baor\\b", "wins .*(account|business|pitch|mandate)", "selected by"]
-    leadership:      ["appoint", "names .* as", "chief executive", "chief financial officer", "\\bceo\\b", "\\bcfo\\b", "\\bchair", "to the board", "joins .* board", "board of directors.*appoint", "steps down", "to leave", "succession", "leadership transition", "directorate change"]
+    leadership:      ["appoint", "names .* as", "chief executive", "chief financial officer", "chief [a-z]+ officer", "\\bceo\\b", "\\bcfo\\b", "\\bchair", "to the board", "joins .* board", "board of directors.*appoint", "steps down", "to leave", "succession", "leadership transition", "directorate change"]
   default_category: other
 
 companies:
@@ -39,7 +39,7 @@ companies:
     news_query: '"Publicis Groupe"'
     press_releases:
       adapter: publicis
-      url: https://www.publicisgroupe.com/en/news/press-releases   # verify; may need an RSS/JSON endpoint
+      url: https://www.publicisgroupe.com/en/news/press-releases   # static HTML archive list (step 08)
     results_title_patterns: ["revenue", "organic growth", "results"]
     fiscal_year_end: "12-31"
 
@@ -118,6 +118,6 @@ companies:
     news_query: '"Stagwell"'
     press_releases:
       adapter: stagwell
-      url: https://www.stagwellglobal.com/news/   # verify; IR site, look for RSS first
-    results_title_patterns: ["results", "quarter", "net revenue"]
+      url: https://www.stagwellglobal.com/category/press/feed/   # WP press category RSS (step 08)
+    results_title_patterns: ["results", "quarter\\b", "net revenue"]
     fiscal_year_end: "12-31"

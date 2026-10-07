@@ -1,4 +1,4 @@
-"""Tests for classify, the press release router and the WPP/Omnicom adapters: no network."""
+"""Tests for classify, the press release router and the IR adapters: no network."""
 
 import datetime
 import json
@@ -10,7 +10,7 @@ import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 
 from core import press_releases
-from core.adapters import omnicom, wpp
+from core.adapters import _rss, omnicom, publicis, stagwell, wpp
 from core.config import get_company
 from core.util import classify
 
@@ -43,7 +43,7 @@ def test_classify_company_results_pattern_only_applies_to_that_company():
     assert classify(title, get_company("WPP")) == ("other", False)
 
 
-# Every title in both fixtures with the category a human would give it.
+# Every title in every fixture with the category a human would give it.
 FIXTURE_TITLES = [
     ("WPP", "Jon Cook to leave WPP and transition VML CEO role to long-time partner Eric Campbell", "leadership"),
     ("WPP", "Directorate Change – Chief Financial Officer Succession", "leadership"),
@@ -66,6 +66,45 @@ FIXTURE_TITLES = [
     ("OMC", "Omnicom Launches Acxiom Fan Graph to Give Brands a More Complete View of Sports Fandom", "other"),
     ("OMC", "Omnicom Named World's Most Effective Holding Group in 2025 Effie Index", "other"),
     ("OMC", "OMNICOM TO PRESENT AT THE J.P. MORGAN GLOBAL TECHNOLOGY, MEDIA AND COMMUNICATIONS CONFERENCE", "other"),
+    ("STGW", "September Harvard Caps / Harris Poll: Democrats Hold A 2-Point Lead Among Likely Voters in Midterms Horserace, With Trump Approval Hitting a Low Of 42%", "other"),
+    ("STGW", "Stagwell Launches Intreego.ai to Transform the Hospitality Ecosystem into Dynamic Business and Engagement Tools", "other"),
+    ("STGW", "Code and Theory Honored by Fast Company’s Innovation by Design for Four Consecutive Years", "other"),
+    ("STGW", "Stagwell Strengthens Assembly Leadership with Two Key CEO Appointments", "leadership"),
+    ("STGW", "August Harvard CAPS / Harris Poll: Trump Approval Sees Slight Improvement at 44%", "other"),
+    ("STGW", "The People Platform Unveils New Identity as Numetrix", "other"),
+    ("STGW", "Stagwell Expands Strategic Partnership with Adobe to Build the Future of Enterprise Marketing Together", "other"),
+    ("STGW", "Stagwell (STGW) Appoints Beth J. Kaplan to Board of Directors", "leadership"),
+    ("STGW", "STAGWELL INC. (NASDAQ: STGW) REPORTS RESULTS FOR THE THREE AND SIX MONTHS ENDED JUNE 30, 2026", "results"),
+    ("STGW", "Stagwell to Acquire QStrauss Consulting to Expand Code and Theory’s Implementation of Adobe’s Suite of Solutions", "m_and_a"),
+    ("PUB", "Publicis Groupe - Invitation - Third Quarter 2026 Revenue", "results"),
+    ("PUB", "Publicis Groupe successfully prices EUR 500 million of bond issue", "other"),
+    ("PUB", "Publicis Sports and Travis Kelce's TEKTA Join Forces to Reimagine the Future of NIL Marketing", "other"),
+    ("PUB", "Half-Year 2026 Financial Report available", "results"),
+    ("PUB", "Publicis Groupe: First Half 2026 Results", "results"),
+    ("PUB", "Publicis Groupe - Invitation - First Half 2026 Results", "results"),
+    ("PUB", "Publicis takes to the Croisette to make the case for real business value in the age of artificial intelligence", "other"),
+    ("PUB", "Javier Campopiano Joins Leo Constellation as Chief Creative Officer for the Americas & Iberia", "leadership"),
+    ("PUB", "Publicis Groupe S.A. General Shareholders’ Meeting of may 27, 2026", "other"),
+    ("PUB", "Publicis Groupe Proposes Appointment of Jaime Teevan to its Board of Directors", "leadership"),
+    ("PUB", "Publicis to acquire LiveRamp to accelerate data co-creation for smarter agents", "m_and_a"),
+    ("PUB", "Availability of 2025 Universal Registration Document and Procedure for Consulting Preparatory Documents for General Shareholders’ Meeting", "other"),
+    ("PUB", "Publicis Groupe: First Quarter 2026 Revenue", "results"),
+    ("PUB", "Microsoft and Publicis Groupe expand their strategic partnership to power the future of agentic marketing for businesses worldwide", "other"),
+    ("PUB", "Publicis Groupe - Invitation - Third Quarter 2024 Revenue", "results"),
+]
+
+# (adapter, code, fixture, channel) for every adapter fixture.
+FIXTURES_BY_ADAPTER = [
+    (wpp, "WPP", "pr_wpp.html", "html"),
+    (omnicom, "OMC", "pr_omnicom.xml", "rss"),
+    (stagwell, "STGW", "pr_stagwell.xml", "rss"),
+    (publicis, "PUB", "pr_publicis.html", "html"),
+]
+
+# Latest results release per fixture: it must parse and classify as results (for /curate).
+LATEST_RESULTS = [
+    (stagwell, "STGW", "pr_stagwell.xml", "2026-07-30", "REPORTS RESULTS FOR THE THREE AND SIX MONTHS"),
+    (publicis, "PUB", "pr_publicis.html", "2026-07-16", "Publicis Groupe: First Half 2026 Results"),
 ]
 
 
@@ -75,9 +114,19 @@ def test_classify_fixture_titles(code, title, category):
 
 
 def test_fixture_title_table_covers_every_fixture_item():
-    parsed = {("WPP", i["title"]) for i in _parse(wpp, "WPP", "pr_wpp.html")}
-    parsed |= {("OMC", i["title"]) for i in _parse(omnicom, "OMC", "pr_omnicom.xml")}
+    parsed = {
+        (code, i["title"])
+        for adapter, code, fixture, _ in FIXTURES_BY_ADAPTER
+        for i in _parse(adapter, code, fixture)
+    }
     assert parsed == {(code, title) for code, title, _ in FIXTURE_TITLES}
+
+
+@pytest.mark.parametrize(("adapter", "code", "fixture", "published", "title"), LATEST_RESULTS)
+def test_latest_results_release_is_in_fixture(adapter, code, fixture, published, title):
+    matches = [i for i in _parse(adapter, code, fixture) if title in i["title"]]
+    assert [i["published"] for i in matches] == [published]
+    assert classify(matches[0]["title"], get_company(code)) == ("results", True)
 
 
 def _parse(adapter, code: str, fixture: str) -> list[dict]:
@@ -85,10 +134,7 @@ def _parse(adapter, code: str, fixture: str) -> list[dict]:
     return adapter.parse_fixture(text, get_company(code))
 
 
-@pytest.mark.parametrize(
-    ("adapter", "code", "fixture", "channel"),
-    [(wpp, "WPP", "pr_wpp.html", "html"), (omnicom, "OMC", "pr_omnicom.xml", "rss")],
-)
+@pytest.mark.parametrize(("adapter", "code", "fixture", "channel"), FIXTURES_BY_ADAPTER)
 def test_parse_fixture_shape(adapter, code, fixture, channel):
     items = _parse(adapter, code, fixture)
     assert len(items) >= 10
@@ -114,19 +160,61 @@ def test_omnicom_summary_is_plain_text():
     assert item["summary"] is None
 
 
+def test_publicis_dates_are_month_first():
+    items = {i["title"]: i for i in _parse(publicis, "PUB", "pr_publicis.html")}
+    assert items["Publicis Groupe - Invitation - First Half 2026 Results"]["published"] == "2026-07-03"
+    pdf = items["Publicis Groupe - Invitation - Third Quarter 2024 Revenue"]
+    assert (pdf["published"], pdf["url"].endswith(".pdf")) == ("2024-10-07", True)
+
+
+def test_publicis_titles_without_dates_raise():
+    page = (
+        '<ul><li class="archive-element"><p class="archive-element__title">T</p>'
+        '<span class="archive-element__date">2026-07-16</span>'
+        '<div class="archive-element__links"><a href="/x">Read more</a></div></li></ul>'
+    )
+    with pytest.raises(ValueError, match="no MM/DD/YYYY dates"):
+        publicis.parse_fixture(page, get_company("PUB"))
+
+
+def test_rss_local_date_relative_link_and_wordpress_boilerplate():
+    feed = (
+        '<?xml version="1.0"?><rss version="2.0"><channel>'
+        "<item><title>A</title><link>/en/news/release/a.pdf</link>"
+        "<pubDate>Mon, 31 Aug 2026 08:00:00 +0900</pubDate></item>"
+        "<item><title>B</title><link>https://example.com/b</link>"
+        "<pubDate>Tue, 15 Sep 2026 15:41:03 +0000</pubDate>"
+        "<description><![CDATA[<p>The post <a href=\"https://example.com/b\">B</a> appeared first "
+        "on <a href=\"https://example.com\">Example</a>.</p>]]></description></item>"
+        "</channel></rss>"
+    )
+    a, b = _rss.parse_rss(feed, "https://www.group.dentsu.com/en/news/release/index.xml")
+    assert (a["published"], a["url"]) == (
+        "2026-08-31", "https://www.group.dentsu.com/en/news/release/a.pdf"
+    )
+    assert (b["summary"], b["channel"]) == (None, "rss")
+
+
 def test_wpp_anchors_without_dates_raise():
     page = '<html><body><a href="/en/news/2026-interim-results">2026 Interim Results</a></body></html>'
     with pytest.raises(ValueError, match="no publish dates"):
         wpp.parse_fixture(page, get_company("WPP"))
 
 
+EMPTY_RSS = '<rss version="2.0"><channel /></rss>'
+
+
 @pytest.mark.parametrize(
-    ("adapter", "body"),
-    [(wpp, "<html><body></body></html>"), (omnicom, '<rss version="2.0"><channel /></rss>')],
+    ("adapter", "code", "body"),
+    [
+        (wpp, "WPP", "<html><body></body></html>"),
+        (omnicom, "OMC", EMPTY_RSS),
+        (stagwell, "STGW", EMPTY_RSS),
+        (publicis, "PUB", "<html><body></body></html>"),
+    ],
 )
-def test_fetch_items_with_zero_items_raises(adapter, body, monkeypatch):
+def test_fetch_items_with_zero_items_raises(adapter, code, body, monkeypatch):
     monkeypatch.setattr(adapter, "fetch", lambda url: types.SimpleNamespace(text=body))
-    code = "WPP" if adapter is wpp else "OMC"
     with pytest.raises(ValueError, match="no items"):
         adapter.fetch_items(get_company(code))
 

@@ -53,6 +53,8 @@ def _fake_closes(codes: list[str], fx_pairs: list[str]) -> dict:
 def repo(tmp_path, monkeypatch):
     for name in ["config", "data", "docs/data"]:
         shutil.copytree(ROOT / name, tmp_path / name)
+    watchlist = tmp_path / "config" / "watchlist.yaml"  # one company with no adapter module
+    watchlist.write_text(watchlist.read_text().replace("adapter: havas", "adapter: not_built"))
     out = tmp_path / "docs" / "data"
     previous = {
         "as_of": "2026-01-01T00:00:00Z",
@@ -97,10 +99,10 @@ def test_pipeline_tolerates_failure_and_writes_everything(repo, capsys):
     assert omc["last_ok"] == "2026-01-02T00:00:00Z"
     assert status["sources"]["press_releases:WPP"]["ok"] is True
     assert status["sources"]["prices"]["ok"] is True
-    assert "press_releases:PUB" not in status["sources"]
+    assert "press_releases:HAVAS" not in status["sources"]
     assert status["counts"]["news"] == 0
-    assert status["counts"]["sources_total"] == 7
-    assert status["counts"]["sources_ok"] == 6
+    assert status["counts"]["sources_total"] == 9
+    assert status["counts"]["sources_ok"] == 8
 
     press = _load(repo, "press_releases")
     ids = {i["id"] for i in press["items"]}
@@ -115,7 +117,7 @@ def test_pipeline_tolerates_failure_and_writes_everything(repo, capsys):
 
     printed = capsys.readouterr().out
     assert "[pipeline] press_releases:OMC FAIL 0 items" in printed
-    assert "[pipeline] press_releases:PUB skip (no adapter)" in printed
+    assert "[pipeline] press_releases:HAVAS skip (no adapter)" in printed
 
 
 def test_never_curated_uses_30_day_window(repo):
