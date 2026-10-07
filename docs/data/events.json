@@ -1,4 +1,245 @@
 {
- "as_of": "2026-10-06T23:34:40Z",
- "items": []
+ "as_of": "2026-10-07T01:09:44Z",
+ "items": [
+  {
+   "company": "HAVAS",
+   "date": "2025-10-14",
+   "type": "results",
+   "title": "Q3 2025 revenue",
+   "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
+  },
+  {
+   "company": "OMC",
+   "date": "2025-10-21",
+   "type": "results",
+   "title": "Q3 2025 results",
+   "confirmed": true,
+   "source_url": "https://investor.omc.com/events-and-presentations/default.aspx"
+  },
+  {
+   "company": "WPP",
+   "date": "2025-10-30",
+   "type": "results",
+   "title": "Q3 2025 trading update",
+   "confirmed": true,
+   "source_url": "https://www.wpp.com/en/investors/calendar-and-events/previous-events"
+  },
+  {
+   "company": "STGW",
+   "date": "2025-11-06",
+   "type": "results",
+   "title": "Q3 2025 results",
+   "confirmed": true,
+   "source_url": "https://www.stagwellglobal.com/investors/events-and-presentations/"
+  },
+  {
+   "company": "DENTSU",
+   "date": "2025-11-14",
+   "type": "results",
+   "title": "Q3 FY2025 results",
+   "confirmed": true,
+   "source_url": "https://www.group.dentsu.com/en/ir/calendar/"
+  },
+  {
+   "company": "DENTSU",
+   "date": "2026-02-13",
+   "type": "results",
+   "title": "FY2025 results",
+   "confirmed": true,
+   "source_url": "https://www.group.dentsu.com/en/ir/calendar/"
+  },
+  {
+   "company": "HAVAS",
+   "date": "2026-02-17",
+   "type": "results",
+   "title": "FY 2025 results",
+   "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
+  },
+  {
+   "company": "OMC",
+   "date": "2026-02-18",
+   "type": "results",
+   "title": "Q4 and FY 2025 results",
+   "confirmed": true,
+   "source_url": "https://investor.omc.com/events-and-presentations/default.aspx"
+  },
+  {
+   "company": "WPP",
+   "date": "2026-02-26",
+   "type": "results",
+   "title": "FY 2025 preliminary results and strategy update",
+   "confirmed": true,
+   "source_url": "https://www.wpp.com/en/investors/calendar-and-events"
+  },
+  {
+   "company": "STGW",
+   "date": "2026-03-10",
+   "type": "results",
+   "title": "Q4 and FY 2025 results",
+   "confirmed": true,
+   "source_url": "https://www.stagwellglobal.com/investors/events-and-presentations/"
+  },
+  {
+   "company": "OMC",
+   "date": "2026-03-12",
+   "type": "capital_markets_day",
+   "title": "Investor Day 2026",
+   "confirmed": true,
+   "source_url": "https://investor.omc.com/events-and-presentations/default.aspx"
+  },
+  {
+   "company": "DENTSU",
+   "date": "2026-03-27",
+   "type": "agm",
+   "title": "177th Annual Shareholders Meeting",
+   "confirmed": true,
+   "source_url": "https://www.group.dentsu.com/en/ir/calendar/"
+  },
+  {
+   "company": "HAVAS",
+   "date": "2026-04-14",
+   "type": "results",
+   "title": "Q1 2026 revenue",
+   "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
+  },
+  {
+   "company": "OMC",
+   "date": "2026-04-28",
+   "type": "results",
+   "title": "Q1 2026 results",
+   "confirmed": true,
+   "source_url": "https://investor.omc.com/events-and-presentations/default.aspx"
+  },
+  {
+   "company": "WPP",
+   "date": "2026-04-28",
+   "type": "results",
+   "title": "Q1 2026 trading update",
+   "confirmed": true,
+   "source_url": "https://www.wpp.com/en/investors/calendar-and-events"
+  },
+  {
+   "company": "STGW",
+   "date": "2026-04-30",
+   "type": "results",
+   "title": "Q1 2026 results",
+   "confirmed": true,
+   "source_url": "https://www.stagwellglobal.com/investors/events-and-presentations/"
+  },
+  {
+   "company": "WPP",
+   "date": "2026-05-08",
+   "type": "agm",
+   "title": "2026 AGM",
+   "confirmed": true,
+   "source_url": "https://www.wpp.com/en/investors/calendar-and-events"
+  },
+  {
+   "company": "HAVAS",
+   "date": "2026-05-13",
+   "type": "agm",
+   "title": "2026 AGM",
+   "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
+  },
+  {
+   "company": "DENTSU",
+   "date": "2026-05-15",
+   "type": "results",
+   "title": "Q1 FY2026 results",
+   "confirmed": true,
+   "source_url": "https://www.group.dentsu.com/en/ir/calendar/"
+  },
+  {
+   "company": "PUB",
+   "date": "2026-05-18",
+   "type": "deal",
+   "title": "Agreement to acquire LiveRamp",
+   "confirmed": true,
+   "source_url": "https://www.publicisgroupe.com/en/investors/investors-analysts/events"
+  },
+  {
+   "company": "PUB",
+   "date": "2026-05-27",
+   "type": "agm",
+   "title": "2026 AGM",
+   "confirmed": true,
+   "source_url": "https://www.publicisgroupe.com/en/investors/shareholders/annual-general-meeting"
+  },
+  {
+   "company": "STGW",
+   "date": "2026-06-11",
+   "type": "agm",
+   "title": "2026 Annual Meeting",
+   "confirmed": true,
+   "source_url": "https://www.stagwellglobal.com/investors/events-and-presentations/"
+  },
+  {
+   "company": "PUB",
+   "date": "2026-07-16",
+   "type": "results",
+   "title": "H1 2026 results",
+   "confirmed": true,
+   "source_url": "https://www.publicisgroupe.com/en/investors/investors-analysts/events"
+  },
+  {
+   "company": "HAVAS",
+   "date": "2026-07-23",
+   "type": "results",
+   "title": "H1 2026 results",
+   "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
+  },
+  {
+   "company": "OMC",
+   "date": "2026-07-28",
+   "type": "results",
+   "title": "Q2 2026 results",
+   "confirmed": true,
+   "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Schedules-Second-Quarter-2026-Earnings-Release-and-Conference-Call/default.aspx"
+  },
+  {
+   "company": "STGW",
+   "date": "2026-07-30",
+   "type": "results",
+   "title": "Q2 2026 results",
+   "confirmed": true,
+   "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/"
+  },
+  {
+   "company": "WPP",
+   "date": "2026-08-06",
+   "type": "results",
+   "title": "2026 interim results",
+   "confirmed": true,
+   "source_url": "https://www.wpp.com/en/investors/calendar-and-events"
+  },
+  {
+   "company": "DENTSU",
+   "date": "2026-08-14",
+   "type": "results",
+   "title": "Q2 FY2026 results",
+   "confirmed": true,
+   "source_url": "https://www.group.dentsu.com/en/ir/calendar/"
+  },
+  {
+   "company": "PUB",
+   "date": "2026-10-13",
+   "type": "results",
+   "title": "Q3 2026 revenue",
+   "confirmed": true,
+   "source_url": "https://www.publicisgroupe.com/en/investors/investors-analysts/events"
+  },
+  {
+   "company": "HAVAS",
+   "date": "2026-10-14",
+   "type": "results",
+   "title": "Q3 2026 revenue",
+   "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
+  }
+ ]
 }

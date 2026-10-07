@@ -1,66 +1,94 @@
 {
- "run_at": "2026-10-06T23:34:40Z",
- "runtime_ms": 6475,
- "run_id": "37547303890",
+ "run_at": "2026-10-07T01:09:44Z",
+ "runtime_ms": 8296,
+ "run_id": "37555691867",
  "sources": {
   "companies": {
    "ok": true,
    "items": 6,
    "ms": 0,
    "error": null,
-   "last_ok": "2026-10-06T23:34:40Z"
+   "last_ok": "2026-10-07T01:09:44Z"
   },
   "prices": {
    "ok": true,
    "items": 9,
-   "ms": 5654,
+   "ms": 3477,
    "error": null,
-   "last_ok": "2026-10-06T23:34:46Z"
+   "last_ok": "2026-10-07T01:09:48Z"
+  },
+  "press_releases:PUB": {
+   "ok": true,
+   "items": 1109,
+   "ms": 2381,
+   "error": null,
+   "last_ok": "2026-10-07T01:09:50Z"
   },
   "press_releases:OMC": {
-   "ok": false,
-   "items": 0,
-   "ms": 191,
-   "error": "HTTPError: 403 Client Error: Forbidden for url: https://investor.omc.com/rss/pressrelease.aspx",
-   "last_ok": null
+   "ok": true,
+   "items": 20,
+   "ms": 300,
+   "error": null,
+   "last_ok": "2026-10-07T01:09:50Z"
   },
   "press_releases:WPP": {
    "ok": true,
    "items": 12,
-   "ms": 616,
+   "ms": 478,
    "error": null,
-   "last_ok": "2026-10-06T23:34:47Z"
+   "last_ok": "2026-10-07T01:09:51Z"
+  },
+  "press_releases:HAVAS": {
+   "ok": true,
+   "items": 10,
+   "ms": 266,
+   "error": null,
+   "last_ok": "2026-10-07T01:09:51Z"
+  },
+  "press_releases:DENTSU": {
+   "ok": true,
+   "items": 100,
+   "ms": 1058,
+   "error": null,
+   "last_ok": "2026-10-07T01:09:52Z"
+  },
+  "press_releases:STGW": {
+   "ok": true,
+   "items": 10,
+   "ms": 304,
+   "error": null,
+   "last_ok": "2026-10-07T01:09:52Z"
   },
   "events": {
    "ok": true,
-   "items": 0,
-   "ms": 0,
+   "items": 30,
+   "ms": 13,
    "error": null,
-   "last_ok": "2026-10-06T23:34:47Z"
+   "last_ok": "2026-10-07T01:09:52Z"
   },
   "guidance": {
    "ok": true,
    "items": 0,
    "ms": 0,
    "error": null,
-   "last_ok": "2026-10-06T23:34:47Z"
+   "last_ok": "2026-10-07T01:09:52Z"
   },
   "kpis": {
    "ok": true,
    "items": 0,
-   "ms": 1,
+   "ms": 2,
    "error": null,
-   "last_ok": "2026-10-06T23:34:47Z"
+   "last_ok": "2026-10-07T01:09:52Z"
   }
  },
  "guidance_age_days": null,
  "counts": {
   "companies": 6,
-  "sources_total": 7,
-  "sources_ok": 6,
-  "press_releases": 12,
-  "flagged_new": 0,
+  "sources_total": 11,
+  "sources_ok": 11,
+  "press_releases": 95,
+  "flagged_new": 1,
   "news": 0,
-  "events_upcoming": 0
+  "events_upcoming": 2
  }
 }
