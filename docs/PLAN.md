@@ -84,12 +84,13 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 - [ ] **08 Events calendar and remaining adapters.** Fill `data/events.yaml` from each
   company's published financial calendar (hand). Add `stagwell.py`, `publicis.py`,
   `havas.py`, `dentsu.py`, each with fixture and test; record any client-side-rendered site
-  and the endpoint found in
-  FAILURES.md. Acceptance: status.json shows 6 of 6 press release sources ok (each
-  from the company's own IR site, channel visible in `source`); events panel shows the next
-  results date for all six.
-  Commits: `step 08a: events calendar, stagwell and publicis adapters`, then
-  `step 08b: havas and dentsu adapters` (ticks the box).
+  and the endpoint found in FAILURES.md. Revisit Omnicom (403 from Actions on the RSS feed).
+  Acceptance: after a manual workflow run, status.json shows press_releases ok for every
+  company with a reachable IR channel (each from the company's own IR site, channel visible
+  in `source`) and a loud failure plus FAILURES.md row for any without; events.json carries
+  the committed calendar.
+  Commits: `step 08a: stagwell and publicis adapters`, then
+  `step 08b: havas, dentsu and omnicom adapters` (ticks the box).
   Note: events.yaml committed separately (545bbdf). On 2026-10-06 only PUB and HAVAS had
   published their next results date; the others fill in via step 08c as they announce.
 
@@ -97,14 +98,29 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   (new `calendar` URL per company in the watchlist; static HTML for PUB, WPP, HAVAS, STGW,
   the IR page's JSON feed for OMC and DENTSU) plus results-scheduling press releases, every
   daily run. The pipeline writes `docs/data/event_candidates.json`: dates found that are not
-  in `data/events.yaml`, including real dates that replace `confirmed: false` estimates.
-  `pipeline/nudge.py` opens or updates a "Calendar review needed" Issue when candidates are
-  new. A local `/events` command lists candidates, the maintainer accepts or rejects each,
-  and it writes `data/events.yaml` and commits. Code never writes `data/` (rule 4); no bot
-  PRs. A failing calendar parser is a failed source in status.json, never "ok, 0".
+  in `data/events.yaml` (each with a stable `id`, company, date, type, title, source_url),
+  including real dates that replace `confirmed: false` estimates. `pipeline/nudge.py` opens
+  or updates a "Calendar review needed" Issue when candidates are new, linking to the site.
+  Until 08d, the maintainer copies approved candidates into events.yaml by hand. A failing
+  calendar parser is a failed source in status.json, never "ok, 0".
   Acceptance: fixtures and a parse test per calendar; a candidate missing from events.yaml
-  raises the Issue in a manual workflow run; `/events` adds it after approval.
+  appears in event_candidates.json and raises the Issue in a manual workflow run.
   Commit: `step 08c: calendar watch and review nudge`.
+
+- [ ] **08d Approve events from the dashboard.** The events panel lists pending candidates
+  with an Approve and a Reject button. Each button is a plain link to a pre-filled GitHub
+  "new issue" page (title `approve-event: <id>` or `reject-event: <id>`); no token or
+  secret in the site. A new workflow `.github/workflows/approve-event.yml` (on
+  `issues: opened`, show the diff first) acts only when the issue author is the repo owner,
+  reads the id from the title via env (regex-validated, never `${{ }}` in `run:`), looks it
+  up in the committed `event_candidates.json` (issue text is never copied into data),
+  appends the event to `data/events.yaml` or records the rejection so it is not raised
+  again, commits, and closes the issue. Permissions: `contents: write`, `issues: write`.
+  Amends CLAUDE.md hard rule 4 to allow this one workflow to write `data/events.yaml`
+  (maintainer approval by authenticated issue). Acceptance: approving a test candidate
+  from the live site adds it to events.yaml and the events panel within one Pages deploy;
+  an issue opened by another account is ignored. Commit: `step 08d: approve events from
+  the dashboard`.
 
 - [ ] **09 Quote verification and first /curate run.** `pipeline/verify_quote.py` (HTML and
   PDF, normalized substring match, exit codes) with tests, and `.claude/commands/curate.md`
