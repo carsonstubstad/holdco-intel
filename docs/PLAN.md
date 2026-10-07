@@ -90,6 +90,21 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   results date for all six.
   Commits: `step 08a: events calendar, stagwell and publicis adapters`, then
   `step 08b: havas and dentsu adapters` (ticks the box).
+  Note: events.yaml committed separately (545bbdf). On 2026-10-06 only PUB and HAVAS had
+  published their next results date; the others fill in via step 08c as they announce.
+
+- [ ] **08c Calendar watch.** `core/calendar.py` reads each company's own IR calendar
+  (new `calendar` URL per company in the watchlist; static HTML for PUB, WPP, HAVAS, STGW,
+  the IR page's JSON feed for OMC and DENTSU) plus results-scheduling press releases, every
+  daily run. The pipeline writes `docs/data/event_candidates.json`: dates found that are not
+  in `data/events.yaml`, including real dates that replace `confirmed: false` estimates.
+  `pipeline/nudge.py` opens or updates a "Calendar review needed" Issue when candidates are
+  new. A local `/events` command lists candidates, the maintainer accepts or rejects each,
+  and it writes `data/events.yaml` and commits. Code never writes `data/` (rule 4); no bot
+  PRs. A failing calendar parser is a failed source in status.json, never "ok, 0".
+  Acceptance: fixtures and a parse test per calendar; a candidate missing from events.yaml
+  raises the Issue in a manual workflow run; `/events` adds it after approval.
+  Commit: `step 08c: calendar watch and review nudge`.
 
 - [ ] **09 Quote verification and first /curate run.** `pipeline/verify_quote.py` (HTML and
   PDF, normalized substring match, exit codes) with tests, and `.claude/commands/curate.md`
