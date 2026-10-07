@@ -120,6 +120,15 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   cells with no blanks except Havas pre-listing; definitions footnote renders.
   Commit: `step 12: KPI backfill and organic growth grid`.
 
+- [ ] **12b Design pass.** Visual polish of `docs/style.css` (markup or class changes in
+  `docs/index.html` and `docs/app.js` only where styling needs them): type scale and
+  spacing, panel hierarchy, tile layout, status badge and chip colors, Plotly layout to
+  match, empty states, phone layout. No framework, build step or new dependency; CSP
+  unchanged (system fonts, or self-hosted fonts under `docs/`); the step 07 textContent,
+  link and escaping rules still hold; company colors still come from `companies.json`.
+  Acceptance: before/after screenshots at desktop and 390px width, zero console errors or
+  CSP violations, `make check` green. Commit: `step 12b: design pass`.
+
 - [ ] **13 Proof.** Instrumentation summary script, README sections (architecture diagram,
   demo GIF, failures and fixes, why the LLM step is local), 60-second demo recording.
   Acceptance: README numbers come from status.json and git log, not estimates.
