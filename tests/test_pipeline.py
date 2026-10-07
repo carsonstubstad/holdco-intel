@@ -101,8 +101,8 @@ def test_pipeline_tolerates_failure_and_writes_everything(repo, capsys):
     assert status["sources"]["prices"]["ok"] is True
     assert "press_releases:HAVAS" not in status["sources"]
     assert status["counts"]["news"] == 0
-    assert status["counts"]["sources_total"] == 9
-    assert status["counts"]["sources_ok"] == 8
+    assert status["counts"]["sources_total"] == 10
+    assert status["counts"]["sources_ok"] == 9
 
     press = _load(repo, "press_releases")
     ids = {i["id"] for i in press["items"]}

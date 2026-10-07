@@ -81,7 +81,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 
 ## Day 2: curation loop and full coverage
 
-- [ ] **08 Events calendar and remaining adapters.** Fill `data/events.yaml` from each
+- [x] **08 Events calendar and remaining adapters.** Fill `data/events.yaml` from each
   company's published financial calendar (hand). Add `stagwell.py`, `publicis.py`,
   `havas.py`, `dentsu.py`, each with fixture and test; record any client-side-rendered site
   and the endpoint found in FAILURES.md. Revisit Omnicom (403 from Actions on the RSS feed).
@@ -93,6 +93,8 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   `step 08b: havas, dentsu and omnicom adapters` (ticks the box).
   Note: events.yaml committed separately (545bbdf). On 2026-10-06 only PUB and HAVAS had
   published their next results date; the others fill in via step 08c as they announce.
+  Note: STGW, HAVAS and DENTSU are on their own RSS (shared `_rss` parser, publisher-local
+  dates), PUB on static HTML, OMC moved to the Q4 JSON feed (same host; Actions unverified).
 
 - [ ] **08c Calendar watch.** `core/calendar.py` reads each company's own IR calendar
   (new `calendar` URL per company in the watchlist; static HTML for PUB, WPP, HAVAS, STGW,
@@ -106,6 +108,8 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Acceptance: fixtures and a parse test per calendar; a candidate missing from events.yaml
   appears in event_candidates.json and raises the Issue in a manual workflow run.
   Commit: `step 08c: calendar watch and review nudge`.
+  Note: DENTSU's E-IR feed (ssl4.eir-parts.net) is robots-disallowed; do not use it. Use
+  group.dentsu.com pages or the press release RSS instead (see FAILURES.md).
 
 - [ ] **08d Approve events from the dashboard.** The events panel lists pending candidates
   with an Approve and a Reject button. Each button is a plain link to a pre-filled GitHub

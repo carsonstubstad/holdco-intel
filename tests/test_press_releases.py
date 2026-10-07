@@ -10,7 +10,7 @@ import pytest
 from jsonschema import Draft202012Validator, FormatChecker
 
 from core import press_releases
-from core.adapters import _rss, omnicom, publicis, stagwell, wpp
+from core.adapters import _rss, dentsu, havas, omnicom, publicis, stagwell, wpp
 from core.config import get_company
 from core.util import classify
 
@@ -66,6 +66,8 @@ FIXTURE_TITLES = [
     ("OMC", "Omnicom Launches Acxiom Fan Graph to Give Brands a More Complete View of Sports Fandom", "other"),
     ("OMC", "Omnicom Named World's Most Effective Holding Group in 2025 Effie Index", "other"),
     ("OMC", "OMNICOM TO PRESENT AT THE J.P. MORGAN GLOBAL TECHNOLOGY, MEDIA AND COMMUNICATIONS CONFERENCE", "other"),
+    ("OMC", "Omnicom Elevates Christine Gambino to CEO of Omni Platform", "leadership"),
+    ("OMC", "Omnicom Reports First Quarter 2026 Results", "results"),
     ("STGW", "September Harvard Caps / Harris Poll: Democrats Hold A 2-Point Lead Among Likely Voters in Midterms Horserace, With Trump Approval Hitting a Low Of 42%", "other"),
     ("STGW", "Stagwell Launches Intreego.ai to Transform the Hospitality Ecosystem into Dynamic Business and Engagement Tools", "other"),
     ("STGW", "Code and Theory Honored by Fast Company’s Innovation by Design for Four Consecutive Years", "other"),
@@ -91,20 +93,50 @@ FIXTURE_TITLES = [
     ("PUB", "Publicis Groupe: First Quarter 2026 Revenue", "results"),
     ("PUB", "Microsoft and Publicis Groupe expand their strategic partnership to power the future of agentic marketing for businesses worldwide", "other"),
     ("PUB", "Publicis Groupe - Invitation - Third Quarter 2024 Revenue", "results"),
+    ("HAVAS", "Havas’ near-term science-based emissions reduction targets validated by the Science Based Targets initiative", "other"),
+    ("HAVAS", "Havas liquidity program documents", "other"),
+    ("HAVAS", "Havas share buyback documents", "other"),
+    ("HAVAS", "Havas enters into liquidity agreement to support stock liquidity", "other"),
+    ("HAVAS", "Half-year results 2026", "results"),
+    ("HAVAS", "Havas reports solid H1 2026 results with organic growth of +2.5% and further improvement in adjusted EBIT margin", "results"),
+    ("HAVAS", "Havas strengthens experiential marketing arm, Havas Play, across Benelux with acquisition of Dutch agency SportVibes", "m_and_a"),
+    ("HAVAS", "Havas strengthens its experiential marketing offering with acquisition of Spanish agency MUT", "m_and_a"),
+    ("HAVAS", "Havas creates Chief Strategy Officer role and appoints Raphaël de Andréis", "leadership"),
+    ("HAVAS", "Havas unveils new proprietary research ‘The Science of Desire’, redefining growth in the age of AI", "other"),
+    ("DENTSU", "Dentsu Wins 12 Awards at the D&AD Awards 2026 Including “Design Agency of the Year” for Dentsu Inc.", "other"),
+    ("DENTSU", "Dentsu Signs First Virtual PPAs in Japan for Japan’s Advertising Industry", "other"),
+    ("DENTSU", "TBS and dentsu Jointly Establish Pro Pickleball Team “THE DOTS TOKYO” to Compete in Asia’s Premier League MLP Asia 2026", "other"),
+    ("DENTSU", "Dentsu Publishes Integrated Report 2026", "other"),
+    ("DENTSU", "Dentsu Group to Make Dentsu Soken a Joint Venture with ITOCHU Group", "m_and_a"),
+    ("DENTSU", "Regarding Certain Media Reports", "other"),
+    ("DENTSU", "Notice of Announcement of Second Quarter FY2026 Consolidated Financial Results and Mid-Term Management Plan Update", "results"),
+    ("DENTSU", "Dentsu Conducts Pilot Study of Interactive AI Plush Toy “Nande-chan”", "other"),
+    ("DENTSU", "Dentsu Produces Egg Hunt 2026: The Grand Eggspress, a Major Roblox Adventure RPG", "other"),
+    ("DENTSU", "Dentsu Publishes Climate-related Disclosures 2026 and Non-financial Databook 2026", "other"),
+    ("DENTSU", "Dentsu to Pilot AI Avatar Platform Enabling Students at Yoichi Ochiai Summer School 2026 to Co-Create with AI Models", "other"),
+    ("DENTSU", "Dentsu Wins “In-house: Innovation in People & Skills” Award at the FT Innovative Lawyers Asia-Pacific 2026 Awards", "other"),
+    ("DENTSU", "Dentsu Supports NIKKA WHISKY’s Pop-up Bar at Cannes Lions", "other"),
+    ("DENTSU", "Dentsu Selected for the FTSE JPX Blossom Japan Index and the FTSE JPX Blossom Japan Sector Relative Index", "other"),
+    ("DENTSU", "Dentsu Hosted Session with Heineken and Netflix at Cannes Lions Titled “Why Entertainment Goes Beyond Brand Marketing”", "other"),
 ]
 
 # (adapter, code, fixture, channel) for every adapter fixture.
 FIXTURES_BY_ADAPTER = [
     (wpp, "WPP", "pr_wpp.html", "html"),
-    (omnicom, "OMC", "pr_omnicom.xml", "rss"),
+    (omnicom, "OMC", "pr_omnicom.json", "json"),
     (stagwell, "STGW", "pr_stagwell.xml", "rss"),
     (publicis, "PUB", "pr_publicis.html", "html"),
+    (havas, "HAVAS", "pr_havas.xml", "rss"),
+    (dentsu, "DENTSU", "pr_dentsu.xml", "rss"),
 ]
 
 # Latest results release per fixture: it must parse and classify as results (for /curate).
 LATEST_RESULTS = [
     (stagwell, "STGW", "pr_stagwell.xml", "2026-07-30", "REPORTS RESULTS FOR THE THREE AND SIX MONTHS"),
     (publicis, "PUB", "pr_publicis.html", "2026-07-16", "Publicis Groupe: First Half 2026 Results"),
+    (havas, "HAVAS", "pr_havas.xml", "2026-07-23", "Havas reports solid H1 2026 results"),
+    (dentsu, "DENTSU", "pr_dentsu.xml", "2026-08-14", "Second Quarter FY2026 Consolidated Financial"),
+    (omnicom, "OMC", "pr_omnicom.json", "2026-07-28", "Omnicom Reports Second Quarter 2026 Results"),
 ]
 
 
@@ -147,17 +179,25 @@ def test_parse_fixture_shape(adapter, code, fixture, channel):
         assert item["channel"] == channel
 
 
-def test_omnicom_summary_is_plain_text():
+def test_rss_summary_is_plain_text():
     feed = (
         '<?xml version="1.0"?><rss version="2.0"><channel><item><title>T</title>'
-        "<link>https://investor.omc.com/x</link><pubDate>Tue, 28 Jul 2026 16:03:00 -0400</pubDate>"
+        "<link>https://www.havas.com/x</link><pubDate>Tue, 28 Jul 2026 16:03:00 -0400</pubDate>"
         "<description>&lt;p&gt;Net revenue &lt;b&gt;up&lt;/b&gt;&lt;/p&gt;</description>"
         "</item></channel></rss>"
     )
-    [item] = omnicom.parse_fixture(feed, get_company("OMC"))
+    [item] = _rss.parse_rss(feed, "https://www.havas.com/feed/")
     assert item["summary"] == "Net revenue up"
-    [item] = _parse(omnicom, "OMC", "pr_omnicom.xml")[:1]
-    assert item["summary"] is None
+    [item] = _parse(havas, "HAVAS", "pr_havas.xml")[:1]
+    assert item["summary"] is None  # empty CDATA description
+    assert all(i["summary"] and "<" not in i["summary"] for i in _parse(dentsu, "DENTSU", "pr_dentsu.xml"))
+
+
+def test_omnicom_dates_are_month_first_and_links_absolute():
+    items = {i["title"]: i for i in _parse(omnicom, "OMC", "pr_omnicom.json")}
+    item = items["Omnicom Elevates Christine Gambino to CEO of Omni Platform"]
+    assert item["published"] == "2026-05-04"
+    assert item["url"].startswith("https://investor.omc.com/news/news-details/2026/")
 
 
 def test_publicis_dates_are_month_first():
@@ -208,9 +248,11 @@ EMPTY_RSS = '<rss version="2.0"><channel /></rss>'
     ("adapter", "code", "body"),
     [
         (wpp, "WPP", "<html><body></body></html>"),
-        (omnicom, "OMC", EMPTY_RSS),
+        (omnicom, "OMC", '{"GetPressReleaseListResult": []}'),
         (stagwell, "STGW", EMPTY_RSS),
         (publicis, "PUB", "<html><body></body></html>"),
+        (havas, "HAVAS", EMPTY_RSS),
+        (dentsu, "DENTSU", EMPTY_RSS),
     ],
 )
 def test_fetch_items_with_zero_items_raises(adapter, code, body, monkeypatch):

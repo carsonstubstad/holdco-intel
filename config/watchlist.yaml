@@ -21,7 +21,7 @@ classification:
   categories:
     results:         ["results", "revenue", "trading update", "quarter\\b", "half[- ]year", "full[- ]year", "annual report", "Q[1-4]\\b", "H[12]\\b", "FY ?20\\d\\d"]
     guidance:        ["guidance", "outlook", "upgrade", "downgrade", "raises", "lowers", "reiterates"]
-    m_and_a:         ["acqui", "to acquire", "merger", "combination", "divest", "disposal", "sale of", "stake in", "completes"]
+    m_and_a:         ["acqui", "to acquire", "merger", "combination", "divest", "disposal", "sale of", "stake in", "completes", "joint venture"]
     capital_markets: ["capital markets day", "investor day", "investor presentation", "strategy update"]
     client:          ["appointed by", "agency of record", "\\baor\\b", "wins .*(account|business|pitch|mandate)", "selected by"]
     leadership:      ["appoint", "names .* as", "chief executive", "chief financial officer", "chief [a-z]+ officer", "\\bceo\\b", "\\bcfo\\b", "\\bchair", "to the board", "joins .* board", "board of directors.*appoint", "steps down", "to leave", "succession", "leadership transition", "directorate change"]
@@ -54,7 +54,8 @@ companies:
     news_query: '"Omnicom"'
     press_releases:
       adapter: omnicom
-      url: https://investor.omc.com/rss/pressrelease.aspx   # Q4 IR platform RSS (step 05)
+      # Q4 IR JSON feed the IR news page loads; categoryId from its q4News module (step 08)
+      url: "https://investor.omc.com/feed/PressRelease.svc/GetPressReleaseList?LanguageId=1&bodyType=0&pressReleaseDateFilter=3&categoryId=1cb807d2-208f-4bc3-9133-6a9ad45ac3b0&pageSize=20&pageNumber=0&tagList=&includeTags=true&year=-1&excludeSelection=1"
     results_title_patterns: ["results", "quarter\\b"]
     fiscal_year_end: "12-31"
     notes: "Organic growth not comparable across the IPG close; label pre/post."
@@ -87,7 +88,7 @@ companies:
     news_query: '"Havas"'
     press_releases:
       adapter: havas
-      url: https://www.havas.com/investors   # verify; likely client-side rendered
+      url: https://www.havas.com/feed/?post_type=press_release   # WP press_release RSS (step 08)
     results_title_patterns: ["revenue", "results", "net revenue"]
     fiscal_year_end: "12-31"
     notes: "Listed December 2024; price history starts then."
@@ -103,8 +104,8 @@ companies:
     news_query: '"Dentsu"'
     press_releases:
       adapter: dentsu
-      url: https://www.group.dentsu.com/en/news/   # verify; check for an RSS feed first
-    results_title_patterns: ["consolidated financial results", "results", "quarter"]
+      url: https://www.group.dentsu.com/en/news/release/index.xml   # news release RSS (step 08)
+    results_title_patterns: ["consolidated financial results", "results", "quarter\\b"]
     fiscal_year_end: "12-31"
 
   - code: STGW

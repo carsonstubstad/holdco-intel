@@ -1,35 +1,45 @@
-"""Omnicom press releases from the investor site's RSS feed (Q4 IR platform)."""
+"""Omnicom press releases from the Q4 IR platform's JSON feed on investor.omc.com.
 
-import time
+This is the endpoint the IR news page itself loads (its q4News module passes the press
+release categoryId); the full query string, categoryId included, lives in the watchlist URL.
+PressReleaseDate is "MM/DD/YYYY HH:MM:SS" US Eastern time; only the date is kept.
+"""
 
-import feedparser
-from bs4 import BeautifulSoup
+import datetime
+import json
+import re
+from urllib.parse import urljoin
 
 from core.util import fetch
 
+MDY = re.compile(r"(\d{2})/(\d{2})/(\d{4})\b")
+
 
 def parse_fixture(text: str, company: dict) -> list[dict]:
-    """Pure parser for the Omnicom IR RSS feed; return adapter-shaped items."""
+    """Pure parser for the Q4 GetPressReleaseList JSON; return adapter-shaped items."""
+    base = company["press_releases"]["url"]
     items = []
-    for entry in feedparser.parse(text).entries:
-        stamp = entry.get("published_parsed")
-        if not entry.get("title") or not entry.get("link") or not stamp:
+    for release in json.loads(text).get("GetPressReleaseListResult") or []:
+        title = (release.get("Headline") or "").strip()
+        link = release.get("LinkToUrl") or release.get("LinkToDetailPage")
+        match = MDY.match(release.get("PressReleaseDate") or "")
+        if not title or not link or not match:
             continue
-        summary = BeautifulSoup(entry.get("summary") or "", "html.parser").get_text(" ", strip=True)
+        month, day, year = (int(g) for g in match.groups())
         items.append(
             {
-                "title": entry.title.strip(),
-                "url": entry.link.strip(),
-                "published": time.strftime("%Y-%m-%d", stamp),
-                "summary": summary or None,
-                "channel": "rss",
+                "title": title,
+                "url": urljoin(base, link),
+                "published": datetime.date(year, month, day).isoformat(),
+                "summary": (release.get("ShortDescription") or "").strip() or None,
+                "channel": "json",
             }
         )
     return items
 
 
 def fetch_items(company: dict) -> list[dict]:
-    """Fetch and parse the configured feed; raise ValueError if it yields no items."""
+    """Fetch and parse the configured JSON feed; raise ValueError if it yields no items."""
     url = company["press_releases"]["url"]
     items = parse_fixture(fetch(url).text, company)
     if not items:
