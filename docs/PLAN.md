@@ -72,7 +72,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Note: no news source (step 04 parked); press releases from WPP and OMC only, others
   skipped until step 08; bot commit message has no `[skip ci]` (it could skip Pages).
 
-- [ ] **07 Site v1.** `docs/index.html`, `app.js`, `style.css`: scan strip, base-100 chart
+- [x] **07 Site v1.** `docs/index.html`, `app.js`, `style.css`: scan strip, base-100 chart
   with window selector and event markers (Plotly via CDN), guidance tracker (empty state),
   events (next 90 days), press releases (flagged first), health footer from status.json.
   Acceptance: `make serve` renders all six panels with real data locally; Pages URL shows

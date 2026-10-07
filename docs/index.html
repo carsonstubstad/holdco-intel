@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Holdco Intel</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" integrity="sha384-cCVCZkAjYNxaYKbM8lsArLznDF/SvMFr1jcZrvOpSTCa0W40ZAdLzHCEulnUa5i7" crossorigin="anonymous" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <h1>Holdco Intel</h1>
+      <p class="tagline">Daily public-source intelligence on six advertising holding companies.</p>
+    </div>
+    <div class="header-meta">
+      <span id="as-of">as of …</span>
+      <a href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="panel-scan" class="panel" aria-labelledby="h-scan">
+      <h2 id="h-scan" class="visually-hidden">Scan strip</h2>
+      <div class="body tiles"></div>
+    </section>
+
+    <section id="panel-chart" class="panel" aria-labelledby="h-chart">
+      <div class="panel-head">
+        <h2 id="h-chart">Relative performance</h2>
+        <div class="windows" role="group" aria-label="Chart window">
+          <button type="button" data-window="1M">1M</button>
+          <button type="button" data-window="3M">3M</button>
+          <button type="button" data-window="YTD" aria-pressed="true">YTD</button>
+          <button type="button" data-window="1Y">1Y</button>
+          <button type="button" data-window="2Y">2Y</button>
+        </div>
+      </div>
+      <div class="body"><div id="chart"></div></div>
+      <p class="footnote">Indexed to 100 at the start of the window. Local-currency returns; no FX adjustment.</p>
+    </section>
+
+    <div class="two-col">
+      <section id="panel-guidance" class="panel" aria-labelledby="h-guidance">
+        <h2 id="h-guidance">Guidance tracker</h2>
+        <div class="body"></div>
+      </section>
+
+      <section id="panel-events" class="panel" aria-labelledby="h-events">
+        <h2 id="h-events">Events, next 90 days</h2>
+        <div class="body"></div>
+      </section>
+    </div>
+
+    <section id="panel-press" class="panel" aria-labelledby="h-press">
+      <h2 id="h-press">Press releases, last 30 days</h2>
+      <div class="body"></div>
+    </section>
+  </main>
+
+  <footer id="panel-health" class="panel health" aria-labelledby="h-health">
+    <h2 id="h-health">Data health</h2>
+    <div class="body"></div>
+    <p class="disclaimer">Personal project built from public sources. Not affiliated with or endorsed by any company shown. Not investment advice.</p>
+  </footer>
+</body>
+</html>
