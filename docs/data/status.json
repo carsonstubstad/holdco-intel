@@ -1,84 +1,84 @@
 {
- "run_at": "2026-10-07T01:13:42Z",
- "runtime_ms": 8160,
- "run_id": "37555691867",
+ "run_at": "2026-10-08T02:11:43Z",
+ "runtime_ms": 10604,
+ "run_id": "37716638146",
  "sources": {
   "companies": {
    "ok": true,
    "items": 6,
    "ms": 0,
    "error": null,
-   "last_ok": "2026-10-07T01:13:42Z"
+   "last_ok": "2026-10-08T02:11:43Z"
   },
   "prices": {
    "ok": true,
    "items": 9,
-   "ms": 2155,
+   "ms": 3217,
    "error": null,
-   "last_ok": "2026-10-07T01:13:44Z"
+   "last_ok": "2026-10-08T02:11:46Z"
   },
   "press_releases:PUB": {
    "ok": true,
    "items": 1109,
-   "ms": 3804,
+   "ms": 4227,
    "error": null,
-   "last_ok": "2026-10-07T01:13:48Z"
+   "last_ok": "2026-10-08T02:11:51Z"
   },
   "press_releases:OMC": {
    "ok": true,
    "items": 20,
-   "ms": 368,
+   "ms": 348,
    "error": null,
-   "last_ok": "2026-10-07T01:13:48Z"
+   "last_ok": "2026-10-08T02:11:51Z"
   },
   "press_releases:WPP": {
    "ok": true,
    "items": 12,
-   "ms": 518,
+   "ms": 596,
    "error": null,
-   "last_ok": "2026-10-07T01:13:49Z"
+   "last_ok": "2026-10-08T02:11:52Z"
   },
   "press_releases:HAVAS": {
    "ok": true,
    "items": 10,
-   "ms": 259,
+   "ms": 500,
    "error": null,
-   "last_ok": "2026-10-07T01:13:49Z"
+   "last_ok": "2026-10-08T02:11:52Z"
   },
   "press_releases:DENTSU": {
    "ok": true,
    "items": 100,
-   "ms": 728,
+   "ms": 774,
    "error": null,
-   "last_ok": "2026-10-07T01:13:50Z"
+   "last_ok": "2026-10-08T02:11:53Z"
   },
   "press_releases:STGW": {
    "ok": true,
    "items": 10,
-   "ms": 310,
+   "ms": 909,
    "error": null,
-   "last_ok": "2026-10-07T01:13:50Z"
+   "last_ok": "2026-10-08T02:11:54Z"
   },
   "events": {
    "ok": true,
    "items": 30,
-   "ms": 6,
+   "ms": 12,
    "error": null,
-   "last_ok": "2026-10-07T01:13:50Z"
+   "last_ok": "2026-10-08T02:11:54Z"
   },
   "guidance": {
    "ok": true,
    "items": 0,
    "ms": 0,
    "error": null,
-   "last_ok": "2026-10-07T01:13:50Z"
+   "last_ok": "2026-10-08T02:11:54Z"
   },
   "kpis": {
    "ok": true,
    "items": 0,
-   "ms": 1,
+   "ms": 2,
    "error": null,
-   "last_ok": "2026-10-07T01:13:50Z"
+   "last_ok": "2026-10-08T02:11:54Z"
   }
  },
  "guidance_age_days": null,
