@@ -1,6 +1,11 @@
 """Watchlist loading: the only entry point to config/watchlist.yaml."""
 
+from pathlib import Path
+
 import yaml
+
+ROOT = Path(__file__).resolve().parent.parent
+WATCHLIST_PATH = ROOT / "config" / "watchlist.yaml"
 
 REQUIRED_TOP_KEYS = ["dashboard", "classification", "companies"]
 REQUIRED_COMPANY_KEYS = [
@@ -16,7 +21,7 @@ REQUIRED_COMPANY_KEYS = [
 ]
 
 
-def load_watchlist(path: str = "config/watchlist.yaml") -> dict:
+def load_watchlist(path: Path | str = WATCHLIST_PATH) -> dict:
     """Return the parsed watchlist; raise ValueError if required keys are missing."""
     with open(path, encoding="utf-8") as f:
         watchlist = yaml.safe_load(f) or {}

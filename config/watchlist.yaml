@@ -35,8 +35,8 @@ companies:
     exchange: Euronext Paris
     currency: EUR
     color: "#1f77b4"
-    shares_outstanding_m: 254.0        # verify
-    shares_verified: false
+    shares_outstanding_m: 251.7        # diluted avg H1 2026 (results 2026-07-16)
+    shares_verified: true
     news_query: '"Publicis Groupe"'
     press_releases:
       adapter: publicis
@@ -53,8 +53,8 @@ companies:
     exchange: NYSE
     currency: USD
     color: "#ff7f0e"
-    shares_outstanding_m: 323.0        # verify; post-IPG close (Nov 2025)
-    shares_verified: false
+    shares_outstanding_m: 281.0        # diluted avg Q2 2026 (results 2026-07-28)
+    shares_verified: true
     news_query: '"Omnicom"'
     press_releases:
       adapter: omnicom
@@ -76,8 +76,8 @@ companies:
     currency: GBP
     price_currency: GBX              # optional; unit of yfinance closes when it differs (pence)
     color: "#2ca02c"
-    shares_outstanding_m: 1078.0       # verify
-    shares_verified: false
+    shares_outstanding_m: 1078.8       # in issue less treasury, 30 Jun 2026 (interim results)
+    shares_verified: true
     news_query: '"WPP"'
     press_releases:
       adapter: wpp
@@ -95,8 +95,8 @@ companies:
     exchange: Euronext Amsterdam
     currency: EUR
     color: "#d62728"
-    shares_outstanding_m: 97.7         # verify; post 1:10 consolidation (Nov 2025), Yahoo count
-    shares_verified: false
+    shares_outstanding_m: 97.6         # net shares, 30 Jun 2026 (H1 results)
+    shares_verified: true
     news_query: '"Havas"'
     press_releases:
       adapter: havas

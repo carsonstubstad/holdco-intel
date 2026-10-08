@@ -151,12 +151,18 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 
 ## Day 3: MCP and fundamentals
 
-- [ ] **11 MCP server.** `mcp_server/server.py` with FastMCP tools mirroring core, reading
+- [x] **11 MCP server.** `mcp_server/server.py` with FastMCP tools mirroring core, reading
   `docs/data` by default, `refresh(source)` for live. Register with
   `claude mcp add holdco -- uv run python -m mcp_server.server`. Verify shares outstanding
   for all six from latest results and flip `shares_verified`. Acceptance: in a fresh Claude
   Code session, "which holdcos cut guidance this year?" answers from the MCP tool with
   source links. Commit: `step 11: FastMCP server and verified share counts`.
+  Note (2026-10-08): mcp 2.x renamed FastMCP to `MCPServer` (`mcp.server.mcpserver`); 8 tools,
+  no get_news (step 04 parked); refresh accepts only `prices` and `press_releases:<CODE>`.
+  Register with `uv run --directory "<repo>" python -m mcp_server.server`. Shares verified for
+  PUB, OMC (diluted averages), WPP, HAVAS (outstanding). NOT FOUND: DENTSU (2026-08-14 notice
+  is a pointer page with no same-domain PDF), STGW (Q2 release states no share figure and
+  links no results PDF); both stay `shares_verified: false`.
 
 - [ ] **12 KPI backfill and organic growth grid (v1.5).** Hand-enter 8 quarters per company
   into `data/kpis.yaml` with source links; add the grid panel. Acceptance: grid shows 6 x 8
