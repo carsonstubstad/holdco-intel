@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "event_candidates.schema.json",
+  "title": "event_candidates.json: calendar dates awaiting review, not yet in data/events.yaml",
+  "type": "object",
+  "required": ["as_of", "items", "new_ids"],
+  "properties": {
+    "as_of": {"type": "string", "format": "date-time"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "company", "date", "type", "title", "confirmed", "source_url",
+                     "replaces", "source", "fetched_at"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[0-9a-f]{12}$"},
+          "company": {"type": "string"},
+          "date": {"type": "string", "format": "date"},
+          "type": {"type": "string", "enum": ["results", "agm", "capital_markets_day"]},
+          "title": {"type": "string"},
+          "confirmed": {"type": "boolean"},
+          "source_url": {"type": "string", "format": "uri"},
+          "replaces": {"type": ["string", "null"], "format": "date"},
+          "source": {"type": "string"},
+          "fetched_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "new_ids": {"type": "array", "items": {"type": "string", "pattern": "^[0-9a-f]{12}$"}}
+  }
+}

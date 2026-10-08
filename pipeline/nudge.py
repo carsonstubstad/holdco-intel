@@ -1,10 +1,13 @@
 """Print a Markdown Issue body listing flagged releases awaiting /curate, or nothing.
-Run: python -m pipeline.nudge"""
+Run: python -m pipeline.nudge             (curate)
+     python -m pipeline.nudge calendar    (calendar dates awaiting review)"""
 
 import json
 import sys
 from pathlib import Path
 from urllib.parse import quote, urlparse
+
+from core.config import load_watchlist
 
 MAX_BULLETS = 50
 MAX_TITLE = 200
@@ -47,8 +50,51 @@ def build_body(doc: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def main(root: Path = Path(".")) -> int:
-    """Print the nudge body for docs/data/press_releases.json; print nothing if none are new."""
+def build_calendar_body(doc: dict, site_url: str) -> str:
+    """Return the Issue body listing every pending calendar candidate, or '' when none."""
+    items = sorted(doc.get("items") or [], key=lambda c: (c["date"], c["company"]))
+    if not items:
+        return ""
+    new = set(doc.get("new_ids") or [])
+    lines = [f"{len(items)} calendar dates to review ({len(new)} new this run)", ""]
+    for item in items[:MAX_BULLETS]:
+        url = safe_url(item["source_url"])
+        link = f" ({url})" if url else ""
+        replaces = f", replaces {item['replaces']}" if item.get("replaces") else ""
+        marker = " (new)" if item["id"] in new else ""
+        lines.append(
+            f"- {item['date']} {item['company']} {item['type']}: "
+            f"{neutralize(item['title'])}{link}{replaces}{marker}"
+        )
+    site = safe_url(site_url)
+    lines += [
+        "",
+        f"Dashboard: {site}" if site else "Dashboard: (site_url not set)",
+        (
+            "Approval from the dashboard arrives in step 08d; until then copy approved dates "
+            "into data/events.yaml by hand."
+        ),
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def calendar_main(root: Path = Path(".")) -> int:
+    """Print the calendar Issue body for docs/data/event_candidates.json; nothing if empty."""
+    path = root / "docs" / "data" / "event_candidates.json"
+    if not path.exists():
+        return 0
+    site_url = load_watchlist(str(root / "config" / "watchlist.yaml"))["dashboard"]["site_url"]
+    body = build_calendar_body(json.loads(path.read_text(encoding="utf-8")), site_url)
+    if body:
+        sys.stdout.write(body)
+    return 0
+
+
+def main(root: Path = Path("."), argv: list[str] | tuple = ()) -> int:
+    """Dispatch on argv: 'calendar' prints the calendar body; default prints the curate body
+    for docs/data/press_releases.json, or nothing if none are new."""
+    if list(argv[:1]) == ["calendar"]:
+        return calendar_main(root)
     path = root / "docs" / "data" / "press_releases.json"
     if not path.exists():
         return 0
@@ -59,4 +105,4 @@ def main(root: Path = Path(".")) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(argv=sys.argv[1:]))

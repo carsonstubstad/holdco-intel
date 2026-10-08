@@ -64,3 +64,24 @@ jobs:
           else
             gh issue create --title "Curate needed" --label curate --body-file "$body"
           fi
+
+      - name: Calendar nudge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body="$RUNNER_TEMP/calendar.md"
+          uv run --no-sync python -m pipeline.nudge calendar > "$body"
+          file=docs/data/event_candidates.json
+          issue=$(gh issue list --label calendar --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ ! -s "$body" ]; then
+            if [ -n "$issue" ]; then
+              gh issue close "$issue" --comment "No calendar dates pending review."
+            fi
+            echo "no calendar candidates"
+          elif [ -n "$issue" ]; then
+            gh issue edit "$issue" --body-file "$body"
+          elif [ "$(jq '.new_ids | length' "$file")" != "0" ]; then
+            gh issue create --title "Calendar review needed" --label calendar --body-file "$body"
+          else
+            echo "no new calendar candidates"
+          fi

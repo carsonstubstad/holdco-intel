@@ -1,11 +1,13 @@
 """Tests for the IR calendar parsers: recorded fixtures, no network."""
 
 import datetime
+import hashlib
 from pathlib import Path
 
 import pytest
 
 from core import calendar
+from core.adapters import omnicom, publicis
 from core.config import get_company
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -118,3 +120,74 @@ def test_omnicom_missing_structure_raises():
 def test_get_calendar_without_block_raises():
     with pytest.raises(ValueError, match="no calendar block"):
         calendar.get_calendar("DENTSU")
+
+
+def _found(company="OMC", date="2026-10-21", kind="results", title="Q3 call", source="calendar"):
+    return {"company": company, "date": date, "type": kind, "title": title,
+            "source_url": "https://example.com/e", "source": source, "fetched_at": "x"}
+
+
+def _yaml(company="OMC", date="2026-10-20", kind="results"):
+    return {"company": company, "date": date, "type": kind, "title": "t", "confirmed": False}
+
+
+def test_candidates_skip_exact_match_past_and_other_types():
+    found = [
+        _found(date="2026-10-20"),  # already in yaml
+        _found(date="2026-10-01"),  # past
+        _found(kind="other", date="2026-11-01"),
+        _found(company="WPP", kind="agm", date="2027-05-07"),
+    ]
+    got = calendar.find_candidates(found, [], [_yaml()], "2026-10-07")
+    assert [(c["company"], c["date"], c["type"]) for c in got] == [("WPP", "2027-05-07", "agm")]
+    assert got[0]["replaces"] is None and got[0]["confirmed"] is True
+
+
+def test_candidate_replaces_nearest_same_type_date_within_30_days():
+    events = [_yaml(date="2026-10-20"), _yaml(date="2026-10-27"), _yaml(date="2026-12-01", kind="agm")]
+    (got,) = calendar.find_candidates([_found(date="2026-10-28")], [], events, "2026-10-07")
+    assert got["replaces"] == "2026-10-27"
+    (far,) = calendar.find_candidates([_found(date="2026-12-15")], [], events, "2026-10-07")
+    assert far["replaces"] is None  # 49 days from 2026-10-27; the agm is another type
+
+
+def test_candidate_id_is_stable_and_calendar_wins_over_press_release():
+    press = _found(title="Omnicom Schedules Q3", source="press_release")
+    cal = _found(title="Third Quarter 2026 Earnings Call")
+    (got,) = calendar.find_candidates([cal], [press], [], "2026-10-07")
+    assert got["id"] == calendar.candidate_id("OMC", "2026-10-21", "results")
+    assert got["id"] == hashlib.sha1(b"OMC|2026-10-21|results").hexdigest()[:12]
+    assert (got["source"], got["title"]) == ("calendar", "Third Quarter 2026 Earnings Call")
+
+
+def _release(title, summary=None, company="OMC"):
+    return {"company": company, "title": title, "summary": summary, "url": "https://x.com/r",
+            "fetched_at": "2026-10-07T00:00:00Z"}
+
+
+def test_scan_press_releases_reads_a_stated_date():
+    items = [
+        _release(
+            "Omnicom Schedules Third Quarter 2026 Earnings Release and Conference Call",
+            "NEW YORK, October 7, 2026 - Omnicom will report results on Tuesday, October 20, 2026.",
+        ),
+        _release("Publicis Groupe - Invitation - 9 February 2027 Full Year 2026 Results", company="PUB"),
+        _release("Omnicom Declares Quarterly Dividend", "Payable on November 5, 2026"),
+    ]
+    got = calendar.scan_press_releases(items)
+    assert [(e["company"], e["date"], e["type"]) for e in got] == [
+        ("OMC", "2026-10-20", "results"),  # latest stated date, not the dateline
+        ("PUB", "2027-02-09", "results"),
+    ]
+    assert got[0]["source"] == "press_release" and got[0]["source_url"] == "https://x.com/r"
+
+
+def test_scan_press_releases_finds_nothing_in_current_fixtures():
+    items = []
+    for code, adapter, name in [("OMC", omnicom, "pr_omnicom.json"),
+                                ("PUB", publicis, "pr_publicis.html")]:
+        text = (FIXTURES / name).read_text(encoding="utf-8")
+        for raw in adapter.parse_fixture(text, get_company(code)):
+            items.append({**raw, "company": code, "fetched_at": "x"})
+    assert any("chedules" in i["title"] or "Invitation" in i["title"] for i in items)
+    assert calendar.scan_press_releases(items) == []

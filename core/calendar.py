@@ -1,10 +1,12 @@
-"""Company IR calendars: parse each company's own events page into dated events.
+"""Company IR calendars: parse each company's own events page into dated events, and turn
+dates missing from data/events.yaml into review candidates.
 
 The parser is chosen by the `calendar.parser` key in the watchlist; every parser states its
 day/month order explicitly. Broker and industry conferences are dropped, not returned.
 """
 
 import datetime
+import hashlib
 import json
 import re
 import time
@@ -30,6 +32,12 @@ TYPE_PATTERNS = [
 DMY = re.compile(r"^(\d{2})/(\d{2})/(\d{4})$")
 MDY = re.compile(r"^(\d{2})/(\d{2})/(\d{4})\b")
 DAY_MONTH = re.compile(r"^(\d{1,2})\s+([A-Za-z]+)")
+CANDIDATE_TYPES = ("results", "agm", "capital_markets_day")
+REPLACE_WINDOW_DAYS = 30
+SCHEDULING = re.compile(r"schedul|to report|invitation", re.IGNORECASE)
+STATED_DATE = re.compile(
+    r"\b(?:([A-Z][a-z]{2,8})\.? (\d{1,2}),? (20\d\d)|(\d{1,2}) ([A-Z][a-z]{2,8}),? (20\d\d))\b"
+)
 
 
 def event_type(title: str) -> str | None:
@@ -50,8 +58,12 @@ def _strpdate(text: str, fmt: str) -> datetime.date:
 
 
 def _month(name: str) -> int:
-    """Month number from an English month name or abbreviation ("Jul", "August")."""
-    return _strpdate(name[:3].title(), "%b").month
+    """Month number from an English month name or abbreviation ("Jul", "August"); raise
+    ValueError for anything else."""
+    try:
+        return _strpdate(name.title(), "%B").month
+    except ValueError:
+        return _strpdate(name.title(), "%b").month
 
 
 def _soup_text(node) -> str:
@@ -226,3 +238,80 @@ def get_calendar(code: str) -> list[dict]:
     text = fetch(cal["url"]).text
     today = datetime.datetime.now(datetime.UTC).date()
     return parse_calendar(company, text, today, now_iso())
+
+
+def scan_press_releases(items: list[dict]) -> list[dict]:
+    """Return events for results-scheduling press releases that state a date in their title
+    or summary (the latest date stated wins; no fetches)."""
+    events = []
+    for item in items:
+        if not SCHEDULING.search(item["title"]):
+            continue
+        dates = []
+        for m in STATED_DATE.finditer(f"{item['title']} {item.get('summary') or ''}"):
+            month, day, year = (m[1], m[2], m[3]) if m[1] else (m[5], m[4], m[6])
+            try:
+                dates.append(datetime.date(int(year), _month(month), int(day)))
+            except ValueError:
+                continue
+        kind = event_type(item["title"])
+        if not dates or kind not in CANDIDATE_TYPES:
+            continue
+        events.append(
+            {
+                "company": item["company"],
+                "date": max(dates).isoformat(),
+                "type": kind,
+                "title": item["title"],
+                "source_url": item["url"],
+                "source": "press_release",
+                "fetched_at": item["fetched_at"],
+            }
+        )
+    return events
+
+
+def candidate_id(company: str, date: str, kind: str) -> str:
+    """Stable id: first 12 hex chars of sha1("company|date|type")."""
+    return hashlib.sha1(f"{company}|{date}|{kind}".encode()).hexdigest()[:12]
+
+
+def find_candidates(
+    calendar_events: list[dict], press_events: list[dict], events: list[dict], today: str
+) -> list[dict]:
+    """Return future results/agm/capital_markets_day dates missing from events.yaml, deduped by
+    id (calendar wins); a same-type yaml date within 30 days is named in `replaces`."""
+    candidates: dict[str, dict] = {}
+    for found in calendar_events + press_events:
+        if found["date"] < today or found["type"] not in CANDIDATE_TYPES:
+            continue
+        same = [
+            e["date"]
+            for e in events
+            if e["company"] == found["company"] and e["type"] == found["type"]
+        ]
+        if found["date"] in same:
+            continue
+        day = datetime.date.fromisoformat(found["date"])
+
+        def gap(other: str, day: datetime.date = day) -> int:
+            return abs((datetime.date.fromisoformat(other) - day).days)
+
+        near = [d for d in same if gap(d) <= REPLACE_WINDOW_DAYS]
+        cid = candidate_id(found["company"], found["date"], found["type"])
+        candidates.setdefault(
+            cid,
+            {
+                "id": cid,
+                "company": found["company"],
+                "date": found["date"],
+                "type": found["type"],
+                "title": found["title"],
+                "confirmed": True,
+                "source_url": found["source_url"],
+                "replaces": min(near, key=gap) if near else None,
+                "source": found["source"],
+                "fetched_at": found["fetched_at"],
+            },
+        )
+    return sorted(candidates.values(), key=lambda c: (c["date"], c["company"], c["type"]))

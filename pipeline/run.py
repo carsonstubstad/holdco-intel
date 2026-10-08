@@ -10,6 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 
+from core.calendar import find_candidates, get_calendar, scan_press_releases
 from core.config import load_watchlist
 from core.events import get_events
 from core.guidance import get_guidance
@@ -48,6 +49,11 @@ def _step(status: dict, prev_sources: dict, source: str, fn) -> object:
 def _press(code: str) -> tuple[int, list[dict]]:
     items = get_press_releases(code)
     return len(items), items
+
+
+def _calendar(code: str) -> tuple[int, list[dict]]:
+    events = get_calendar(code)
+    return len(events), events
 
 
 def _read_json(path: Path) -> dict:
@@ -122,6 +128,7 @@ def main(root: Path = Path(".")) -> int:
     _step(status, prev_sources, "prices", prices_step)
 
     fresh = []
+    failed: set[tuple[str, str]] = set()  # (company, "press_release" | "calendar")
     for company in companies:
         code = company["code"]
         adapter = company["press_releases"]["adapter"]
@@ -129,16 +136,21 @@ def main(root: Path = Path(".")) -> int:
         if importlib.util.find_spec(f"core.adapters.{adapter}") is None:
             print(f"[pipeline] {source} skip (no adapter)")
             continue
-        fresh.extend(_step(status, prev_sources, source, lambda c=code: _press(c)) or [])
+        result = _step(status, prev_sources, source, lambda c=code: _press(c))
+        if result is None:
+            failed.add((code, "press_release"))
+        fresh.extend(result or [])
 
     flagged_new: list[str] = []
     press_count = 0
+    scan_items = fresh
     try:
         last_curate_at = _read_json(data / "curate_state.json").get("last_curate_at")
         previous = _read_json(out / "press_releases.json").get("items") or []
         merged = merge_press_releases(previous, fresh, today)
         flagged_new = new_since(merged, last_curate_at, today)
         press_count = len(merged)
+        scan_items = merged
         write_json_atomic(
             out / "press_releases.json",
             {
@@ -177,6 +189,41 @@ def main(root: Path = Path(".")) -> int:
         return len(payload["rows"]), None
 
     _step(status, prev_sources, "events", events_step)
+
+    calendar_found: list[dict] = []
+    for company in companies:
+        if not company.get("calendar"):
+            continue
+        code = company["code"]
+        result = _step(status, prev_sources, f"calendar:{code}", lambda c=code: _calendar(c))
+        if result is None:
+            failed.add((code, "calendar"))
+        calendar_found.extend(result or [])
+
+    try:
+        previous = _read_json(out / "event_candidates.json").get("items") or []
+        # a failed fetch keeps that collector's previous candidates; find_candidates re-checks them
+        carried = [
+            c
+            for c in previous
+            if (c["company"], "press_release" if c["source"] == "press_release" else "calendar")
+            in failed
+        ]
+        candidates = find_candidates(
+            calendar_found + carried,
+            scan_press_releases(scan_items),
+            get_events(past_days=36500, future_days=36500, path=data / "events.yaml"),
+            today.isoformat(),
+        )
+        seen = {c["id"] for c in previous}
+        new_ids = [c["id"] for c in candidates if c["id"] not in seen]
+        write_json_atomic(
+            out / "event_candidates.json",
+            {"as_of": run_at, "items": candidates, "new_ids": new_ids},
+        )
+        print(f"[pipeline] event_candidates {len(candidates)} items, {len(new_ids)} new")
+    except Exception as exc:  # noqa: BLE001 - a bad previous file must not stop the run
+        print(f"[pipeline] event_candidates FAIL: {type(exc).__name__}: {exc}"[:300])
     records = _step(status, prev_sources, "guidance", guidance_step) or []
     _step(status, prev_sources, "kpis", kpis_step)
 

@@ -21,6 +21,7 @@ DOCS_DATA = [
     "kpis",
     "status",
     "companies",
+    "event_candidates",
 ]
 TARGETS = [(f"docs/data/{name}.json", name) for name in DOCS_DATA] + [
     ("data/guidance.json", "guidance"),
