@@ -1,0 +1,20 @@
+{
+ "as_of": "2026-10-08T18:48:15Z",
+ "items": [
+  {
+   "id": "57a05b076b56",
+   "company": "HAVAS",
+   "date": "2026-10-14",
+   "type": "results",
+   "title": "Third-quarter 2026 results",
+   "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/",
+   "replaces": "2026-10-13",
+   "source": "calendar:havas",
+   "fetched_at": "2026-10-08T18:48:45Z"
+  }
+ ],
+ "new_ids": [
+  "57a05b076b56"
+ ]
+}
