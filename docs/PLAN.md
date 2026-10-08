@@ -96,7 +96,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Note: STGW, HAVAS and DENTSU are on their own RSS (shared `_rss` parser, publisher-local
   dates), PUB on static HTML, OMC moved to the Q4 JSON feed (same host; Actions unverified).
 
-- [ ] **08c Calendar watch.** `core/calendar.py` reads each company's own IR calendar
+- [x] **08c Calendar watch.** `core/calendar.py` reads each company's own IR calendar
   (new `calendar` URL per company in the watchlist; static HTML for PUB, WPP, HAVAS, STGW,
   the IR page's JSON feed for OMC and DENTSU) plus results-scheduling press releases, every
   daily run. The pipeline writes `docs/data/event_candidates.json`: dates found that are not
@@ -110,6 +110,9 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Commit: `step 08c: calendar watch and review nudge`.
   Note: DENTSU's E-IR feed (ssl4.eir-parts.net) is robots-disallowed; do not use it. Use
   group.dentsu.com pages or the press release RSS instead (see FAILURES.md).
+  Note: calendars for PUB, WPP, HAVAS, STGW (static HTML) and OMC (Q4 GetEventList JSON);
+  DENTSU has none (E-IR widget only), its dates come from press releases and by hand.
+  Issue verified 2026-10-08: a test date opened #2, the revert closed it.
 
 - [ ] **08d Approve events from the dashboard.** The events panel lists pending candidates
   with an Approve and a Reject button. Each button is a plain link to a pre-filled GitHub
