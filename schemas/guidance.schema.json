@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "company", "metric", "period", "value", "status", "set_date", "quote", "source_url", "curated_at"],
+        "required": ["id", "company", "metric", "period", "value", "status", "set_date", "quote", "source_url", "curated_at", "verified"],
         "properties": {
           "id": {"type": "string", "description": "company-metric-period-setdate, lowercase, e.g. pub-organic_growth-fy2026-2026-07-17"},
           "company": {"type": "string"},
@@ -24,7 +24,7 @@
           "source_url": {"type": "string", "format": "uri"},
           "supersedes": {"type": ["string", "null"], "description": "id of the record this one replaces."},
           "curated_at": {"type": "string", "format": "date-time"},
-          "verified": {"type": "boolean", "description": "True only when verify_quote.py passed."}
+          "verified": {"const": true, "description": "verify_quote.py passed; unverified records are never written."}
         }
       }
     }
