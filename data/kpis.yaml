@@ -215,6 +215,69 @@ rows:
     margin_pct: 17
     source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/"
     note: "Net revenue."
+  - company: STGW
+    period: Q1 2026
+    organic_growth_pct: null
+    revenue_local_m: 585
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 15
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-months-ended-march-31-2026/"
+    note: "Net revenue. Group organic growth not stated."
+  - company: STGW
+    period: Q4 2025
+    organic_growth_pct: null
+    revenue_local_m: 651
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 20
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-twelve-months-ended-december-31-2025/"
+    note: "Net revenue. Group organic growth not stated (one-pager gives ex-Advocacy only)."
+  - company: STGW
+    period: Q3 2025
+    organic_growth_pct: null
+    revenue_local_m: 615
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 19
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-nine-months-ended-september-30-2025/"
+    note: "Net revenue. Group organic growth not stated."
+  - company: STGW
+    period: Q2 2025
+    organic_growth_pct: null
+    revenue_local_m: 598
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 16
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2025/"
+    note: "Net revenue. Group organic growth not stated."
+  - company: STGW
+    period: Q1 2025
+    organic_growth_pct: null
+    revenue_local_m: 564
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 14
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-months-ended-march-31-2025/"
+    note: "Net revenue. Group organic growth not stated."
+  - company: STGW
+    period: Q4 2024
+    organic_growth_pct: 10
+    revenue_local_m: 630
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 20
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-twelve-months-ended-december-31-2024/"
+    note: "Net revenue."
+  - company: STGW
+    period: Q3 2024
+    organic_growth_pct: 8
+    revenue_local_m: 580
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 19
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-nine-months-ended-september-30-2024/"
+    note: "Net revenue."
   - company: WPP
     period: H1 2026
     organic_growth_pct: -4.7
