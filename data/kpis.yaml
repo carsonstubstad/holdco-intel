@@ -124,7 +124,70 @@ rows:
     margin_metric: adjusted EBITA margin
     margin_pct: 17.2
     source_url: "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx"
-    note: "Organic growth is Core Operations; revenue and margin are reported consolidated (Core Operations margin 17.8%)."
+    note: "post-IPG; not comparable. Core Operations organic; consolidated revenue and margin. Core Operations margin 17.8%."
+  - company: OMC
+    period: Q1 2026
+    organic_growth_pct: 3.9
+    revenue_local_m: 6242.9
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 13.8
+    source_url: "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-First-Quarter-2026-Results/default.aspx"
+    note: "post-IPG; not comparable. Core Operations organic; consolidated revenue and margin. Core Operations margin 14.8%."
+  - company: OMC
+    period: Q4 2025
+    organic_growth_pct: null
+    revenue_local_m: 5528.8
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 16.8
+    source_url: "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Fourth-Quarter-and-Full-Year-2025-Results/default.aspx"
+    note: "post-IPG; not comparable. Organic growth not stated (release includes one month of IPG)."
+  - company: OMC
+    period: Q3 2025
+    organic_growth_pct: 2.6
+    revenue_local_m: 4037.1
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 16.1
+    source_url: "https://investor.omc.com/news/news-details/2025/Omnicom-Reports-Third-Quarter-2025-Results/default.aspx"
+    note: "Total organic growth."
+  - company: OMC
+    period: Q2 2025
+    organic_growth_pct: 3.0
+    revenue_local_m: 4015.6
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 15.3
+    source_url: "https://investor.omc.com/news/news-details/2025/Omnicom-Reports-Second-Quarter-2025-Results/default.aspx"
+    note: "Total organic growth."
+  - company: OMC
+    period: Q1 2025
+    organic_growth_pct: 3.4
+    revenue_local_m: 3690.4
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 13.8
+    source_url: "https://investor.omc.com/news/news-details/2025/Omnicom-Reports-First-Quarter-2025-Results/default.aspx"
+    note: "Total organic growth."
+  - company: OMC
+    period: Q4 2024
+    organic_growth_pct: 5.2
+    revenue_local_m: 4322.2
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 16.7
+    source_url: "https://investor.omc.com/news/news-details/2025/Omnicom-Reports-Fourth-Quarter-and-Full-Year-2024-Results/default.aspx"
+    note: "Total organic growth."
+  - company: OMC
+    period: Q3 2024
+    organic_growth_pct: 6.5
+    revenue_local_m: 3882.6
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 16.0
+    source_url: "https://investor.omc.com/news/news-details/2024/Omnicom-Reports-Third-Quarter-2024-Results/default.aspx"
+    note: "Total organic growth."
   - company: HAVAS
     period: H1 2026
     organic_growth_pct: 2.5
