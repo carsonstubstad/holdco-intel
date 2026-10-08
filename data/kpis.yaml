@@ -13,10 +13,10 @@ rows:
     organic_growth_pct: 4.7
     revenue_local_m: 7229
     currency: EUR
-    margin_metric: headline operating margin
-    margin_pct: 17.5
+    margin_metric: operating margin
+    margin_pct: 17.4
     source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-07/Communiqu%C3%A9%20de%20presse%20-%202026.06%20-%20EN_0.pdf"
-    note: "Net revenue."
+    note: "Net revenue. Headline operating margin (excl. LiveRamp transaction costs) 17.5%."
   - company: PUB
     period: Q2 2026
     organic_growth_pct: 4.8
@@ -25,6 +25,96 @@ rows:
     margin_metric: null
     margin_pct: null
     source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-07/Communiqu%C3%A9%20de%20presse%20-%202026.06%20-%20EN_0.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q1 2026
+    organic_growth_pct: 4.5
+    revenue_local_m: 3460
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-04/CP%20Q1%202026%20ENG%20Final.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: FY 2025
+    organic_growth_pct: 5.6
+    revenue_local_m: 14547
+    currency: EUR
+    margin_metric: operating margin
+    margin_pct: 18.2
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-02/CP_FY%202025_ENG.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q4 2025
+    organic_growth_pct: 5.9
+    revenue_local_m: 3866
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-02/CP_FY%202025_ENG.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q3 2025
+    organic_growth_pct: 5.7
+    revenue_local_m: null
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-third-quarter-2025-revenue"
+    note: "Net revenue. Q3 net revenue not stated in text: the release PDF body is image-only and its appendix table has no extractable column headers."
+  - company: PUB
+    period: H1 2025
+    organic_growth_pct: 5.4
+    revenue_local_m: 7152
+    currency: EUR
+    margin_metric: operating margin
+    margin_pct: 17.4
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2025-07/CP_Resultats_H12025_ENG.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q2 2025
+    organic_growth_pct: 5.9
+    revenue_local_m: 3617
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2025-07/CP_Resultats_H12025_ENG.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q1 2025
+    organic_growth_pct: 4.9
+    revenue_local_m: 3535
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2025-04/CP_Resultats_Q12025_ENG.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: FY 2024
+    organic_growth_pct: 5.8
+    revenue_local_m: 13965
+    currency: EUR
+    margin_metric: operating margin
+    margin_pct: 18.0
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2025-02/CP_Resultats_FY2024%20ENG_20250204_0.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q4 2024
+    organic_growth_pct: 6.3
+    revenue_local_m: 3854
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2025-02/CP_Resultats_FY2024%20ENG_20250204_0.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q3 2024
+    organic_growth_pct: 5.8
+    revenue_local_m: 3423
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2024-10/CP_Resultats_Q32024_ENG.pdf"
     note: "Net revenue."
   - company: OMC
     period: Q2 2026
