@@ -7,4 +7,76 @@ definitions:
   HAVAS: "Organic net revenue growth. Margin: adjusted EBIT margin on net revenue."
   DENTSU: "Organic growth of net revenue. Margin: underlying operating margin."
   STGW: "Organic net revenue growth. Margin: adjusted EBITDA margin on net revenue."
-rows: []
+rows:
+  - company: PUB
+    period: H1 2026
+    organic_growth_pct: 4.7
+    revenue_local_m: 7229
+    currency: EUR
+    margin_metric: headline operating margin
+    margin_pct: 17.5
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-07/Communiqu%C3%A9%20de%20presse%20-%202026.06%20-%20EN_0.pdf"
+    note: "Net revenue."
+  - company: PUB
+    period: Q2 2026
+    organic_growth_pct: 4.8
+    revenue_local_m: 3769
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-07/Communiqu%C3%A9%20de%20presse%20-%202026.06%20-%20EN_0.pdf"
+    note: "Net revenue."
+  - company: OMC
+    period: Q2 2026
+    organic_growth_pct: 6.1
+    revenue_local_m: 6562.5
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 17.2
+    source_url: "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx"
+    note: "Organic growth is Core Operations; revenue and margin are reported consolidated (Core Operations margin 17.8%)."
+  - company: HAVAS
+    period: H1 2026
+    organic_growth_pct: 2.5
+    revenue_local_m: 1362
+    currency: EUR
+    margin_metric: adjusted EBIT margin
+    margin_pct: 11.0
+    source_url: "https://www.havas.com/press_release/havas-reports-solid-h1-2026-results-with-organic-growth-of-2-5-and-further-improvement-in-adjusted-ebit-margin/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: Q2 2026
+    organic_growth_pct: 2.5
+    revenue_local_m: 724
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/press_release/havas-reports-solid-h1-2026-results-with-organic-growth-of-2-5-and-further-improvement-in-adjusted-ebit-margin/"
+    note: "Net revenue."
+  - company: STGW
+    period: Q2 2026
+    organic_growth_pct: 5
+    revenue_local_m: 632
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 17
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/"
+    note: "Net revenue."
+  - company: WPP
+    period: H1 2026
+    organic_growth_pct: -4.7
+    revenue_local_m: 4745
+    currency: GBP
+    margin_metric: headline operating profit margin
+    margin_pct: 8.4
+    source_url: "https://www.wpp.com/en/news/2026-interim-results"
+    note: "LFL revenue less pass-through costs (decreased 4.7%)."
+  - company: WPP
+    period: Q2 2026
+    organic_growth_pct: -2.8
+    revenue_local_m: 2485
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/2026-interim-results"
+    note: "LFL revenue less pass-through costs (down 2.8% LFL)."
