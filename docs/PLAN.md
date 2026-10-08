@@ -129,7 +129,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   an issue opened by another account is ignored. Commit: `step 08d: approve events from
   the dashboard`.
 
-- [ ] **09 Quote verification and first /curate run.** `pipeline/verify_quote.py` (HTML and
+- [x] **09 Quote verification and first /curate run.** `pipeline/verify_quote.py` (HTML and
   PDF, normalized substring match, exit codes) with tests, and `.claude/commands/curate.md`
   (the /curate command; supports `--all`). Commit those first. Then the maintainer runs
   `/curate --all` in a fresh session on the latest results releases, reviews, and /curate
@@ -137,6 +137,9 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   company that has given guidance; guidance panel renders them; `curate_state.json` has a
   timestamp. Commits: `step 09a: quote verifier and /curate command`, then the data commit
   made by /curate (`curate: ...`), then `step 09: first curation run` which ticks the box.
+  Note (2026-10-08): Dentsu has no guidance records; its 2026-08-14 results notice is a
+  pointer page with no same-domain PDF, so /curate had nothing to read (see FAILURES.md;
+  hand entry or a later /curate run). Omnicom's Q2 release has no forward guidance (KPI row only).
 
 - [ ] **10 Nudge test and README skeleton.** Close any open "Curate needed" Issue, set
   `last_curate_at` to just before the newest flagged release, run the workflow manually,
