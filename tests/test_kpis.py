@@ -25,3 +25,17 @@ def test_last_n_rows_per_company_in_period_order(tmp_path):
     assert [r["period"] for r in pub] == ["FY 2025", "Q1 2026", "H1 2026"]
     assert len(get_kpis(path=path)) == 5
     assert get_kpi_definitions(path=path) == {"PUB": "organic net revenue growth"}
+
+
+def test_quarters_none_returns_all_rows(tmp_path):
+    path = tmp_path / "kpis.yaml"
+    rows = "".join(
+        f"  - {{company: PUB, period: Q{q} {y}, source_url: 'https://x'}}\n"
+        for y in (2024, 2025, 2026)
+        for q in (1, 2, 3, 4)
+    )
+    path.write_text("rows:\n" + rows)
+    assert len(get_kpis(path=path)) == 8
+    pub = get_kpis(path=path, quarters=None)
+    assert len(pub) == 12
+    assert pub[0]["period"] == "Q1 2024" and pub[-1]["period"] == "Q4 2026"

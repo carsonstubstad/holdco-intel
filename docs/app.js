@@ -382,6 +382,159 @@ function renderChart(ctx, data) {
   select('YTD');
 }
 
+// ---------- Panel G: organic growth grid ----------
+
+const KPI_COLUMNS = 8;
+const KPI_CLAMP = 8; // percentage points at which the color scale saturates
+const KPI_ZERO = [247, 247, 247];
+const KPI_POS = [33, 102, 172];
+const KPI_NEG = [178, 24, 43];
+const KPI_HINT = 'Hover, tap or focus a cell for its period, note and source.';
+
+// Quarter index (year * 4 + quarter - 1) covered by a period; FY and unknown periods give [].
+function periodQuarters(period) {
+  const m = /^(Q[1-4]|H[12]|FY) ?(20\d{2})$/.exec(String(period ?? ''));
+  if (!m) return [];
+  const base = Number(m[2]) * 4;
+  if (m[1][0] === 'Q') return [base + Number(m[1][1]) - 1];
+  if (m[1] === 'H1') return [base, base + 1];
+  if (m[1] === 'H2') return [base + 2, base + 3];
+  return [];
+}
+
+function quarterLabel(i) {
+  return `Q${(i % 4) + 1} ${Math.floor(i / 4)}`;
+}
+
+function isNum(v) {
+  return typeof v === 'number' && Number.isFinite(v);
+}
+
+// The stored number with a sign; never rounded.
+function kpiText(v) {
+  return isNum(v) ? (v > 0 ? '+' : '') + String(v) + '%' : '–';
+}
+
+function luminance(rgb) {
+  const lin = rgb.map((c) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+}
+
+// Diverging fill centered at zero; magnitude reads as darkness, so it also works in grayscale.
+function kpiFill(v) {
+  const t = Math.min(Math.abs(v) / KPI_CLAMP, 1);
+  const end = v > 0 ? KPI_POS : KPI_NEG;
+  const rgb = KPI_ZERO.map((z, i) => Math.round(z + (end[i] - z) * t));
+  const lum = luminance(rgb);
+  return {bg: `rgb(${rgb.join(', ')})`, dark: 1.05 / (lum + 0.05) > (lum + 0.05) / 0.05};
+}
+
+function renderKpis(ctx, data) {
+  const panel = 'panel-kpis';
+  const all = Array.isArray(data.kpis?.rows) ? data.kpis.rows : [];
+  const rows = all.filter((r) => r && typeof r.company === 'string' && typeof r.period === 'string');
+  if (!rows.length) return empty(panel, 'No KPI data yet.');
+  if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
+
+  const codes = new Set(ctx.list.map((c) => c.code));
+  const mine = rows.filter((r) => codes.has(r.company));
+  const last = Math.max(...mine.flatMap((r) => periodQuarters(r.period)));
+  if (!Number.isFinite(last)) return empty(panel, 'No KPI data yet.');
+  const first = last - KPI_COLUMNS + 1;
+
+  const detail = el('p', {className: 'kpi-detail', 'aria-live': 'polite'}, KPI_HINT);
+  let pinned = null;
+  let pressed = null;
+  const show = (info) => {
+    if (!info) return detail.replaceChildren(KPI_HINT);
+    const r = info.row;
+    detail.replaceChildren(
+      el('strong', {}, companyName(ctx, r.company)), ' · ', String(r.period), ' · ',
+      isNum(r.organic_growth_pct) ? kpiText(r.organic_growth_pct) : 'not stated',
+      r.note ? ' · ' + String(r.note) : '', ' · ', link(r.source_url, 'source'));
+  };
+  const pin = (info, btn) => {
+    if (pressed) pressed.setAttribute('aria-pressed', 'false');
+    btn.setAttribute('aria-pressed', 'true');
+    pressed = btn;
+    pinned = info;
+    show(info);
+  };
+
+  const valueCell = (row, span) => {
+    const v = row.organic_growth_pct;
+    const info = {row};
+    const btn = el('button', {type: 'button', 'aria-pressed': 'false',
+      'aria-label': isNum(v) ? null : 'not stated, note available'}, kpiText(v));
+    btn.addEventListener('mouseenter', () => show(info));
+    btn.addEventListener('focus', () => pin(info, btn));
+    btn.addEventListener('click', () => pin(info, btn));
+    const td = el('td', {className: 'kpi-cell', colspan: span > 1 ? span : null}, btn);
+    if (isNum(v)) {
+      const fill = kpiFill(v);
+      td.style.backgroundColor = fill.bg;
+      if (fill.dark) td.classList.add('kpi-dark');
+    } else {
+      td.classList.add('kpi-none');
+    }
+    return td;
+  };
+
+  const head = el('tr', {}, el('th', {scope: 'col'}, el('span', {className: 'visually-hidden'},
+    'Company')));
+  for (let q = first; q <= last; q++) head.appendChild(el('th', {scope: 'col'}, quarterLabel(q)));
+
+  const tbody = el('tbody');
+  for (const c of ctx.list) {
+    const byQuarter = new Map();
+    const halves = new Map();
+    for (const r of mine.filter((x) => x.company === c.code)) {
+      const qs = periodQuarters(r.period);
+      if (qs.length === 1 && !byQuarter.has(qs[0])) byQuarter.set(qs[0], r);
+      if (qs.length === 2 && !halves.has(qs[0])) halves.set(qs[0], r);
+    }
+    const name = el('th', {scope: 'row', className: 'kpi-company'}, String(c.name ?? c.code));
+    const color = safeColor(c.color);
+    if (color) name.style.borderLeftColor = color;
+    const tr = el('tr', {}, name);
+    for (let q = first; q <= last; q++) {
+      if (byQuarter.has(q)) {
+        tr.appendChild(valueCell(byQuarter.get(q), 1));
+      } else if (halves.has(q) && q + 1 <= last && !byQuarter.has(q + 1)) {
+        tr.appendChild(valueCell(halves.get(q), 2));
+        q++;
+      } else {
+        tr.appendChild(el('td', {className: 'kpi-cell kpi-none', 'aria-label': 'not stated'}, '–'));
+      }
+    }
+    tbody.appendChild(tr);
+  }
+
+  const table = el('table', {className: 'kpis'}, el('thead', {}, head), tbody);
+  table.addEventListener('mouseleave', () => show(pinned));
+
+  const defs = data.kpis.definitions && typeof data.kpis.definitions === 'object'
+    ? data.kpis.definitions : {};
+  const defList = el('ul', {className: 'kpi-defs'});
+  for (const c of ctx.list) {
+    if (typeof defs[c.code] === 'string') {
+      defList.appendChild(el('li', {}, el('strong', {}, String(c.name ?? c.code)), ': ',
+        defs[c.code]));
+    }
+  }
+
+  bodyOf(panel).replaceChildren(
+    el('div', {className: 'table-wrap'}, table),
+    detail,
+    el('p', {className: 'footnote'}, 'As reported by each company; definitions differ, so '
+      + 'figures are not directly comparable. A half-year figure spans two quarters only where '
+      + 'no quarterly figure is published. Colors saturate at ±' + KPI_CLAMP + '%.'),
+    defList);
+}
+
 // ---------- Panel C: guidance tracker ----------
 
 function renderGuidance(ctx, data) {
@@ -511,18 +664,20 @@ function runPanel(panelId, fn, ctx, data) {
 }
 
 async function main() {
-  const [companies, prices, guidance, events, press, status] = await Promise.all([
+  const [companies, prices, guidance, events, press, status, kpis] = await Promise.all([
     loadJSON('companies.json'), loadJSON('prices.json'), loadJSON('guidance.json'),
     loadJSON('events.json'), loadJSON('press_releases.json'), loadJSON('status.json'),
+    loadJSON('kpis.json'),
   ]);
   const ctx = {...companyLookup(companies), today: todayIso()};
-  const data = {prices, guidance, events, press, status};
+  const data = {prices, guidance, events, press, status, kpis};
 
   document.getElementById('as-of').textContent = status?.run_at
     ? 'as of ' + fmtTimestamp(status.run_at) : 'as of unknown';
 
   runPanel('panel-scan', renderScan, ctx, data);
   runPanel('panel-chart', renderChart, ctx, data);
+  runPanel('panel-kpis', renderKpis, ctx, data);
   runPanel('panel-guidance', renderGuidance, ctx, data);
   runPanel('panel-events', renderEvents, ctx, data);
   runPanel('panel-press', renderPress, ctx, data);

@@ -164,10 +164,16 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   is a pointer page with no same-domain PDF), STGW (Q2 release states no share figure and
   links no results PDF); both stay `shares_verified: false`.
 
-- [ ] **12 KPI backfill and organic growth grid (v1.5).** Hand-enter 8 quarters per company
+- [x] **12 KPI backfill and organic growth grid (v1.5).** Hand-enter 8 quarters per company
   into `data/kpis.yaml` with source links; add the grid panel. Acceptance: grid shows 6 x 8
   cells with no blanks except Havas pre-listing; definitions footnote renders.
   Commit: `step 12: KPI backfill and organic growth grid`.
+  Note (2026-10-08): the grid has expected blanks, each documented in docs/FAILURES.md:
+  DENTSU half-year only (no quarterly figures on its own domain), STGW organic not stated
+  Q1 2025 to Q1 2026, OMC Q4 2025 organic not stated; Havas Q3 2024 is pre-listing.
+  kpis.json now carries every row (`get_kpis(quarters=None)`); the 8-row cap counted H1/FY
+  rows and dropped quarters. The MCP `get_kpis` quarters cap still counts H1/FY rows
+  (follow-up, not this step).
 
 - [ ] **12b Design pass.** Visual polish of `docs/style.css` (markup or class changes in
   `docs/index.html` and `docs/app.js` only where styling needs them): type scale and

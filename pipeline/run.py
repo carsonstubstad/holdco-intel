@@ -183,7 +183,7 @@ def main(root: Path = Path(".")) -> int:
         payload = {
             "as_of": run_at,
             "definitions": get_kpi_definitions(path=path),
-            "rows": get_kpis(path=path),
+            "rows": get_kpis(path=path, quarters=None),
         }
         write_json_atomic(out / "kpis.json", payload)
         return len(payload["rows"]), None

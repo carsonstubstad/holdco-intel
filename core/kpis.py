@@ -27,15 +27,17 @@ def _period_key(period: str) -> tuple[int, float]:
 
 
 def get_kpis(
-    code: str | None = None, quarters: int = 8, *, path: Path | str = KPIS_PATH
+    code: str | None = None, quarters: int | None = 8, *, path: Path | str = KPIS_PATH
 ) -> list[dict]:
-    """Return the last N quarterly KPI rows per company from data/kpis.yaml."""
+    """Return the last N KPI rows per company from data/kpis.yaml (all rows if N is None)."""
     rows = _load(path).get("rows") or []
     if code:
         rows = [r for r in rows if str(r["company"]).upper() == code.upper()]
     by_company: dict[str, list[dict]] = {}
     for row in sorted(rows, key=lambda r: _period_key(str(r["period"]))):
         by_company.setdefault(row["company"], []).append(row)
+    if quarters is None:
+        return [row for company_rows in by_company.values() for row in company_rows]
     return [row for company_rows in by_company.values() for row in company_rows[-quarters:]]
 
 
