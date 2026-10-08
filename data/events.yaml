@@ -96,7 +96,7 @@ items:
 
   # Havas: calendar page says 14 Oct 18:00 CET; the 23 Jul H1 release said 13 Oct (page is newer)
   - company: HAVAS
-    date: 2026-10-13
+    date: 2026-10-14
     type: results
     title: "Q3 2026 revenue"
     confirmed: true
