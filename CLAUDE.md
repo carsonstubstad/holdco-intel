@@ -17,12 +17,15 @@ docs/PLAN.md at the start of every session.
 3. Public data only. Nothing from the maintainer's employer, nothing paywalled, nothing
    that requires a login. Every record carries a public `source_url`.
 4. Write boundaries. In the repo, `docs/data/*.json` is committed only by GitHub Actions,
-   with one exception: the one-time price backfill (step 03) commits `docs/data/prices.json`
-   from a laptop. Local `make pipeline` runs may write `docs/data/` for testing; discard
-   those changes (`git checkout -- docs/data`) before committing. `data/*.yaml`,
-   `data/guidance.json` and `data/curate_state.json` are written only by `/curate` or by
-   the maintainer by hand (steps 08 and 12). Code never writes `data/`. The pipeline copies
-   `data/*` into `docs/data/` as JSON; the site reads only `docs/data/`.
+   with two exceptions, both one-time price backfills that commit `docs/data/prices.json`
+   from a laptop: step 03 (companies and FX) and step 12b (the benchmark series, via
+   `backfill.py --only <symbol>`, which adds one missing series and leaves every existing
+   series byte-identical). Local `make pipeline` runs may write `docs/data/` for testing;
+   discard those changes (`git checkout -- docs/data`) before committing. `data/*.yaml`,
+   `data/guidance.json`, `data/commentary.json` and `data/curate_state.json` are written
+   only by `/curate` or by the maintainer by hand (steps 08, 12 and 14b). Code never
+   writes `data/`. The pipeline copies `data/*` into `docs/data/` as JSON; the site reads
+   only `docs/data/`.
 5. Partial failure is normal. A collector that fails logs the failure into `status.json`
    and the pipeline continues and exits 0. Never let one source take the job down.
 6. Simple over clever. Flat structure, plain dicts, type hints, no classes unless state
@@ -59,6 +62,8 @@ docs/PLAN.md at the start of every session.
   There is no third-party fallback for press releases.
 - Config-driven. Companies are defined only in `config/watchlist.yaml`. No ticker, URL
   or company name is hardcoded anywhere else.
+- The chart benchmark is `dashboard.benchmark` in the watchlist. It is not a company: it
+  never appears in `companies` in companies.json, the scan strip, KPIs or press releases.
 - Company display data (name, color, currency) reaches the site through
   `docs/data/companies.json`, which the pipeline writes from the watchlist.
 - Network calls go through `core/util.py:fetch()` which sets a descriptive User-Agent
@@ -86,8 +91,8 @@ paste its output. `make serve` blocks: run it in the background, check the page 
 `curl -s localhost:8000 | head` plus a browser look, then stop it.
 
 A step is not done until its acceptance criteria in docs/PLAN.md are met and the box
-is ticked in the same commit. Exception: step 09, where /curate makes its own data commit
-and the box is ticked in the step's closing commit.
+is ticked in the same commit. Exceptions: steps 09 and 14b, where /curate makes its own data
+commit and the box is ticked in the step's closing commit.
 
 ## How to work in this repo
 
@@ -100,7 +105,9 @@ and the box is ticked in the step's closing commit.
   in docs/FAILURES.md (date, source, symptom, fix or workaround) and continue with the
   fallback the plan names.
 - Commit messages: imperative, under 72 chars, with the step number, e.g.
-  `step 05: add WPP IR press release adapter`.
+  `step 05: add WPP IR press release adapter`. Changes outside a step use `tweak: <what>`
+  (at most two files, no data, schema, rule or `.github/` change) or `plan: <what>` for
+  docs/PLAN.md and CLAUDE.md edits.
 - Never run `git push` unless asked; when a PLAN step says to push, stop and ask first.
   From step 06 on, the daily bot commits to `main`, so always `git pull --rebase` before
   pushing. Never force-push. Never edit `.github/` without showing the diff first.

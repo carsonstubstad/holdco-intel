@@ -175,19 +175,93 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   rows and dropped quarters. The MCP `get_kpis` quarters cap still counts H1/FY rows
   (follow-up, not this step).
 
-- [ ] **12b Design pass.** Visual polish of `docs/style.css` (markup or class changes in
-  `docs/index.html` and `docs/app.js` only where styling needs them): type scale and
-  spacing, panel hierarchy, tile layout, status badge and chip colors, Plotly layout to
-  match, empty states, phone layout. No framework, build step or new dependency; CSP
-  unchanged (system fonts, or self-hosted fonts under `docs/`); the step 07 textContent,
-  link and escaping rules still hold; company colors still come from `companies.json`.
-  Acceptance: before/after screenshots at desktop and 390px width, zero console errors or
-  CSP violations, `make check` green. Commit: `step 12b: design pass`.
+## Day 4: benchmark, design and share
 
-- [ ] **13 Proof.** Instrumentation summary script, README sections (architecture diagram,
-  demo GIF, failures and fixes, why the LLM step is local), 60-second demo recording.
-  Acceptance: README numbers come from status.json and git log, not estimates.
-  Commit: `step 13: README, demo and instrumentation`.
+- [ ] **12b S&P 500 benchmark.** `dashboard.benchmark` in `config/watchlist.yaml`
+  (`symbol: "^GSPC"`, `name: S&P 500`, `currency: USD`); the index, not SPY, because readers
+  expect the index level and every line on the chart is price-only. Not a company: it never
+  appears in `companies` in companies.json, the scan strip, KPIs, press releases or market
+  cap. `companies.json` gains an optional top-level `benchmark` object (`symbol`, `name`)
+  and the schema says so. `core/prices.py`: `build_prices` sets its currency;
+  `fetch_latest_closes` includes it (so the daily run and MCP `refresh("prices")` append it);
+  `get_benchmark_history`. `pipeline/backfill.py --only <symbol>` merges one new series into
+  the existing prices.json and leaves every other series byte-identical; run once from the
+  laptop (CLAUDE.md rule 4 exception). MCP `get_price_history` accepts code `BENCHMARK`.
+  Chart: one grey dashed trace named from companies.json, in the legend, toggled by legend
+  click, hover "S&P 500: 104.2", plus a footnote: lines are rebased to 100 in their own
+  trading currency, price only; the S&P 500 is a rough US-dollar reference for the
+  non-US stocks. Tests with a fixture, no network.
+  Acceptance: `make check` and `make validate` green; prices.json has a `^GSPC` series of
+  about 500 dates and `git diff docs/data/prices.json` adds only that series; companies.json
+  still lists six companies plus `benchmark`; under `make serve` the chart shows the dashed
+  S&P 500 line, a legend click hides it, the scan strip shows six tiles, the footnote
+  renders. Commit: `step 12b: S&P 500 benchmark on the chart`.
+
+- [ ] **12c Design brief.** A read-only project subagent `.claude/agents/design-reviewer.md`
+  reviews hand-taken screenshots (desktop 1440px, phone 390px, chart hover) and `docs/`
+  source, and returns a design brief: visual hierarchy, type scale, spacing, neutrals,
+  chart styling (including the benchmark), empty states, phone layout, interactivity
+  (hover, toggles, window selector, panel linking, keyboard, accessibility). The maintainer
+  approves it; it is committed as `docs/DESIGN.md`. Constraints for every design step: no
+  framework, build step or new dependency; CSP unchanged (system fonts or self-hosted under
+  `docs/`); textContent, http(s)-only links and Plotly hover escaping still hold; company
+  colors come from `companies.json`. Acceptance: `/agents` lists design-reviewer;
+  `docs/DESIGN.md` has Must/Should/Could tiers, a token table and a 12d/12e split; no
+  change to `docs/*.html|js|css`. Commit: `step 12c: design reviewer agent and approved brief`.
+
+- [ ] **12d Layout and type.** Build the DESIGN.md items assigned to 12d: tokens, type
+  scale, spacing, panel hierarchy, tiles, badges and chips, empty states, phone layout.
+  Mostly `docs/style.css`; markup changes only where the brief needs them.
+  Acceptance: before/after screenshots at 1440px and 390px; no horizontal scroll at 390px;
+  zero console errors or CSP violations; `make check` green.
+  Commit: `step 12d: layout, type and phone pass`.
+
+- [ ] **12e Chart and interactivity.** Build the DESIGN.md items assigned to 12e: Plotly
+  layout matching the tokens, benchmark styling, a keyboard-operable benchmark toggle,
+  window selector states, the panel linking the brief specifies, focus styles, reduced
+  motion. Acceptance: every control works with Tab, Enter and Space and shows a focus
+  ring; each linking behavior works and Esc resets it; zero console errors or CSP
+  violations; `make check` green. Commit: `step 12e: chart styling and interactivity`.
+
+- [ ] **13 Ready to share.** `pipeline/stats.py` (computed numbers from runs.jsonl,
+  status.json history and git log, "n/a" rather than estimates). README rewritten around
+  the live Pages link: what it is, who it is for, the numbers, architecture (Mermaid),
+  data sources and limits, why the LLM step is local, failures and fixes, run it yourself,
+  disclaimer. Site: a one-line "what am I looking at" intro and a data-freshness note
+  (prices as of, curated as of, from status.json), meta description and Open Graph
+  title/description, inline SVG favicon. No GIF, no recording.
+  Acceptance: `uv run python -m pipeline.stats` prints real numbers; README's first screen
+  has the link, the one-line description and the disclaimer; the live Pages URL works on a
+  real phone without horizontal scroll and on desktop with zero console errors.
+  Commit: `step 13: ready to share`.
+
+## Day 5: management commentary (MCP)
+
+- [ ] **14a Commentary data path and MCP tool.** `schemas/commentary.schema.json`
+  (records: verbatim quote of at most 400 characters, theme from performance, strategy,
+  ai_and_data, clients_and_new_business, outlook or capital_allocation, speaker only when
+  attributed, release_date, period, source_url, verified true; headlines: one curator
+  sentence per company and release, `headline_by: curator`). `core/commentary.py`
+  `get_commentary(code, theme, latest_only)` (missing file means empty lists), a pipeline
+  copy to `docs/data/commentary.json` (source "commentary" in status.json), validate.py
+  coverage, MCP tool `get_commentary` with a note that quotes are management's words and
+  headlines are paraphrase. No LLM in this code: the calling Claude summarizes. Tests
+  with a fixture. The site does not read it yet.
+  Acceptance: `make check` and `make validate` green; the fixture shows latest_only and
+  theme filtering; in a fresh session the MCP tool returns empty lists plus the note (no
+  error) before 14b. Commit: `step 14a: commentary data path and get_commentary MCP tool`.
+
+- [ ] **14b /curate commentary and first run.** `.claude/commands/curate.md` gains a
+  "Management commentary" section and a `--commentary` flag: 3 to 6 verbatim quotes per
+  results release (at most 50 words each), each verified with verify_quote (NOT FOUND
+  means dropped, never reworded), plus an optional neutral headline backed by those
+  quotes. Then `/curate --all --commentary` in a fresh session.
+  Acceptance: `data/commentary.json` validates and has records for every company with
+  readable same-domain results text, plus a FAILURES.md row for any company without; a
+  fresh session's "summarize each holdco's latest strategy commentary" answer cites only
+  source_urls from the file.
+  Commits: `step 14b: /curate drafts management commentary`, the `curate: ...` data
+  commit, then `step 14b: first commentary run` (ticks the box, as in step 09).
 
 ## Parked (v2)
 
@@ -196,3 +270,11 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 - EDGAR reported financials as enrichment.
 - AI value chain watchlist (`config/ai-value-chain.yaml`).
 - Alpha Vantage fallback (only if yfinance fails on the runner for several days).
+
+## Backlog (unsorted ideas)
+
+One dated line per idea. The planning chat sorts each into a tweak, an existing step, a
+new step, Parked (v2), or no (breaks a hard rule), then moves the line.
+
+- 2026-10-08: "Management says" panel on the site from docs/data/commentary.json
+  (after 14b; small step: one panel, textContent only).
