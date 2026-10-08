@@ -128,6 +128,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   from the live site adds it to events.yaml and the events panel within one Pages deploy;
   an issue opened by another account is ignored. Commit: `step 08d: approve events from
   the dashboard`.
+  Note (2026-10-08): deferred; not built yet.
 
 - [x] **09 Quote verification and first /curate run.** `pipeline/verify_quote.py` (HTML and
   PDF, normalized substring match, exit codes) with tests, and `.claude/commands/curate.md`
@@ -141,11 +142,12 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   pointer page with no same-domain PDF, so /curate had nothing to read (see FAILURES.md;
   hand entry or a later /curate run). Omnicom's Q2 release has no forward guidance (KPI row only).
 
-- [ ] **10 Nudge test and README skeleton.** Close any open "Curate needed" Issue, set
+- [x] **10 Nudge test and README skeleton.** Close any open "Curate needed" Issue, set
   `last_curate_at` to just before the newest flagged release, run the workflow manually,
   confirm a `curate` labelled Issue is created, restore state with `git revert`.
   Write README headings (Phase 4 fills them). Acceptance: one open Issue titled
   "Curate needed"; README renders. Commit: `step 10: curation nudge verified, README skeleton`.
+  Note (2026-10-08): nudge test opened Issue #3 (run 37839110330); state restored by revert.
 
 ## Day 3: MCP and fundamentals
 
