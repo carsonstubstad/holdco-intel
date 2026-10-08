@@ -467,3 +467,21 @@ rows:
     margin_pct: null
     source_url: "https://www.wpp.com/en/news/2024/10/third-quarter-trading-update-2024"
     note: "LFL revenue less pass-through costs."
+  - company: DENTSU
+    period: H1 2026
+    organic_growth_pct: 0.3
+    revenue_local_m: 583068
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: 12.3
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/2026_semiannual.pdf"
+    note: "Net revenue. Semiannual report."
+  - company: DENTSU
+    period: H1 2025
+    organic_growth_pct: -0.2
+    revenue_local_m: 561994
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: 12.0
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/2025_semiannual.pdf"
+    note: "Net revenue. Semiannual report."
