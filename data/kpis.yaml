@@ -233,3 +233,93 @@ rows:
     margin_pct: null
     source_url: "https://www.wpp.com/en/news/2026-interim-results"
     note: "LFL revenue less pass-through costs (down 2.8% LFL)."
+  - company: WPP
+    period: Q1 2026
+    organic_growth_pct: -6.7
+    revenue_local_m: 2260
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/news/2026/04/first-quarter-2026-trading-update"
+    note: "LFL revenue less pass-through costs."
+  - company: WPP
+    period: FY 2025
+    organic_growth_pct: -5.4
+    revenue_local_m: 10176
+    currency: GBP
+    margin_metric: headline operating profit margin
+    margin_pct: 13.0
+    source_url: "https://www.wpp.com/en/news/2026/02/strategy-update-and-2025-preliminary-results"
+    note: "LFL revenue less pass-through costs. Release shows 2024 comparative as £11,359m."
+  - company: WPP
+    period: Q4 2025
+    organic_growth_pct: -6.9
+    revenue_local_m: 2691
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/2026/02/strategy-update-and-2025-preliminary-results"
+    note: "LFL revenue less pass-through costs."
+  - company: WPP
+    period: Q3 2025
+    organic_growth_pct: -5.9
+    revenue_local_m: 2459
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/2025/10/third-quarter-trading-update-2025"
+    note: "LFL revenue less pass-through costs."
+  - company: WPP
+    period: H1 2025
+    organic_growth_pct: -4.3
+    revenue_local_m: 5026
+    currency: GBP
+    margin_metric: headline operating profit margin
+    margin_pct: 8.2
+    source_url: "https://www.wpp.com/en/news/2025/08/2025-interim-results"
+    note: "LFL revenue less pass-through costs."
+  - company: WPP
+    period: Q2 2025
+    organic_growth_pct: -5.8
+    revenue_local_m: 2544
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/2025/08/2025-interim-results"
+    note: "LFL revenue less pass-through costs."
+  - company: WPP
+    period: Q1 2025
+    organic_growth_pct: -2.7
+    revenue_local_m: 2482
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/2025/04/first-quarter-2025-trading-update"
+    note: "LFL revenue less pass-through costs."
+  - company: WPP
+    period: FY 2024
+    organic_growth_pct: -1.0
+    revenue_local_m: 11395
+    currency: GBP
+    margin_metric: headline operating profit margin
+    margin_pct: 15.0
+    source_url: "https://www.wpp.com/en/news/2025/02/preliminary-results-2024"
+    note: "LFL revenue less pass-through costs."
+  - company: WPP
+    period: Q4 2024
+    organic_growth_pct: -2.3
+    revenue_local_m: null
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/2025/02/preliminary-results-2024"
+    note: "LFL revenue less pass-through costs. Q4 revenue less pass-through costs not stated in release text."
+  - company: WPP
+    period: Q3 2024
+    organic_growth_pct: 0.5
+    revenue_local_m: 2765
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/2024/10/third-quarter-trading-update-2024"
+    note: "LFL revenue less pass-through costs."
