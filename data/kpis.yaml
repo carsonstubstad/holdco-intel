@@ -206,6 +206,87 @@ rows:
     margin_pct: null
     source_url: "https://www.havas.com/press_release/havas-reports-solid-h1-2026-results-with-organic-growth-of-2-5-and-further-improvement-in-adjusted-ebit-margin/"
     note: "Net revenue."
+  - company: HAVAS
+    period: Q1 2026
+    organic_growth_pct: 2.5
+    revenue_local_m: 638
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/press_release/havas-maintains-its-positive-momentum-with-a-solid-first-quarter-reporting-a-net-revenue-organic-growth-of-2-5/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: FY 2025
+    organic_growth_pct: 3.1
+    revenue_local_m: 2783
+    currency: EUR
+    margin_metric: adjusted EBIT margin
+    margin_pct: 12.9
+    source_url: "https://www.havas.com/press_release/havas-achieves-its-2025-guidance-in-full-and-delivers-a-solid-performance-with-organic-growth-of-3-1-and-an-adjusted-ebit-margin-of-12-9-vs-12-4-last-year/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: Q4 2025
+    organic_growth_pct: 3.7
+    revenue_local_m: 781
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/press_release/havas-achieves-its-2025-guidance-in-full-and-delivers-a-solid-performance-with-organic-growth-of-3-1-and-an-adjusted-ebit-margin-of-12-9-vs-12-4-last-year/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: Q3 2025
+    organic_growth_pct: 3.8
+    revenue_local_m: 656
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/press_release/havas-reports-strong-organic-growth-for-the-third-quarter-of-2025-and-sharpens-its-full-year-2025-guidance-upwards-reflecting-confidence-in-its-business-model-and-its-strong-challenger-position/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: H1 2025
+    organic_growth_pct: 2.3
+    revenue_local_m: 1346
+    currency: EUR
+    margin_metric: adjusted EBIT margin
+    margin_pct: 10.7
+    source_url: "https://www.havas.com/press_release/havas-delivers-solid-performance-in-the-first-half-of-2025-with-organic-growth-of-2-3-and-adjusted-ebit-up-8-3-year-on-year/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: Q2 2025
+    organic_growth_pct: 2.6
+    revenue_local_m: 697
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/press_release/havas-delivers-solid-performance-in-the-first-half-of-2025-with-organic-growth-of-2-3-and-adjusted-ebit-up-8-3-year-on-year/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: Q1 2025
+    organic_growth_pct: 2.1
+    revenue_local_m: 649
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/press_release/havas-maintains-its-momentum-in-the-first-quarter-delivering-a-good-performance-with-organic-growth-of-more-than-2/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: FY 2024
+    organic_growth_pct: -0.8
+    revenue_local_m: 2736
+    currency: EUR
+    margin_metric: adjusted EBIT margin
+    margin_pct: 12.4
+    source_url: "https://www.havas.com/press_release/2024-marks-a-historic-year-of-financial-performance-for-havas/"
+    note: "Net revenue."
+  - company: HAVAS
+    period: Q4 2024
+    organic_growth_pct: -0.8
+    revenue_local_m: 778
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/wp-content/uploads/2025/03/pr_annual-results-2024_en-v-def.pdf"
+    note: "Net revenue."
   - company: STGW
     period: Q2 2026
     organic_growth_pct: 5
