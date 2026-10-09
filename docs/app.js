@@ -349,18 +349,27 @@ function drawChart(ctx, data, aligned, win) {
     type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 100, y1: 100,
     line: {color: '#9aa0a6', width: 1, dash: 'dot'},
   }];
-  for (const e of marks) {
-    shapes.push({
-      type: 'line', xref: 'x', x0: e.date.slice(0, 10), x1: e.date.slice(0, 10),
-      yref: 'paper', y0: 0, y1: 1, line: {color: '#80868b', width: 1, dash: 'dash'},
-    });
-  }
   if (marks.length) {
+    // Vertical event lines as one trace of null-separated segments, so the Events
+    // legend entry toggles them together with the markers (shapes ignore the legend).
+    traces.push({
+      type: 'scatter',
+      mode: 'lines',
+      name: 'Events',
+      legendgroup: 'events',
+      showlegend: false,
+      hoverinfo: 'skip',
+      x: marks.flatMap((e) => [e.date.slice(0, 10), e.date.slice(0, 10), null]),
+      y: marks.flatMap(() => [0, 1.04, null]),
+      yaxis: 'y2',
+      line: {color: '#80868b', width: 1, dash: 'dash'},
+    });
     // One small marker per event at the top of the plot carries the hover text.
     traces.push({
       type: 'scatter',
       mode: 'markers',
       name: 'Events',
+      legendgroup: 'events',
       x: marks.map((e) => e.date.slice(0, 10)),
       y: marks.map(() => 1),
       yaxis: 'y2',
