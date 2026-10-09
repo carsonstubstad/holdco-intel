@@ -6,6 +6,15 @@
   "required": ["as_of", "companies"],
   "properties": {
     "as_of": {"type": "string", "format": "date-time"},
+    "benchmark": {
+      "type": "object",
+      "description": "Chart reference series from dashboard.benchmark; not a company.",
+      "required": ["symbol", "name"],
+      "properties": {
+        "symbol": {"type": "string"},
+        "name": {"type": "string"}
+      }
+    },
     "companies": {
       "type": "array",
       "items": {

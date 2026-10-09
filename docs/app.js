@@ -275,7 +275,19 @@ function buildAligned(ctx, prices) {
       return carry;
     });
   }
-  return {series, union};
+  // Benchmark: forward-filled on the companies' calendar so company lines are unchanged.
+  let bench = null;
+  const pts = ctx.benchmark ? nonNullPoints(prices.series[ctx.benchmark.symbol]) : [];
+  if (pts.length) {
+    const map = new Map(pts);
+    let carry = null;
+    const filled = union.map((d) => {
+      if (map.has(d)) carry = map.get(d);
+      return carry;
+    });
+    bench = {name: String(ctx.benchmark.name ?? ctx.benchmark.symbol), filled};
+  }
+  return {series, union, bench};
 }
 
 function windowStart(win, union) {
@@ -289,28 +301,43 @@ function windowStart(win, union) {
   return addMonths(last, -months);
 }
 
+function rebased(vals) {
+  const baseIdx = vals.findIndex((v) => v !== null);
+  const base = baseIdx >= 0 ? vals[baseIdx] : null;
+  return vals.map((v) => (v === null || base === null ? null : (100 * v) / base));
+}
+
 function drawChart(ctx, data, aligned, win) {
-  const {series, union} = aligned;
+  const {series, union, bench} = aligned;
   const start = windowStart(win, union);
   let b = union.findIndex((d) => d >= start);
   if (b < 0) b = 0;
   const x = union.slice(b);
 
   const traces = series.map((s) => {
-    const vals = s.filled.slice(b);
-    const baseIdx = vals.findIndex((v) => v !== null);
-    const base = baseIdx >= 0 ? vals[baseIdx] : null;
     const name = escapeHtml(s.company.name ?? s.company.code);
     return {
       type: 'scatter',
       mode: 'lines',
       name,
       x,
-      y: vals.map((v) => (v === null || base === null ? null : (100 * v) / base)),
+      y: rebased(s.filled.slice(b)),
       line: {width: 2, color: safeColor(s.company.color) || undefined},
       hovertemplate: '%{fullData.name}: %{y:.1f}<extra></extra>',
     };
   });
+  if (bench) {
+    traces.push({
+      type: 'scatter',
+      mode: 'lines',
+      name: escapeHtml(bench.name),
+      x,
+      y: rebased(bench.filled.slice(b)),
+      line: {width: 1.5, color: '#5f6368', dash: 'dash'},
+      legendrank: 2000,
+      hovertemplate: '%{fullData.name}: %{y:.1f}<extra></extra>',
+    });
+  }
 
   const first = x[0];
   const last = x[x.length - 1];
@@ -669,7 +696,12 @@ async function main() {
     loadJSON('events.json'), loadJSON('press_releases.json'), loadJSON('status.json'),
     loadJSON('kpis.json'),
   ]);
-  const ctx = {...companyLookup(companies), today: todayIso()};
+  const bench = companies?.benchmark;
+  const ctx = {
+    ...companyLookup(companies),
+    benchmark: bench && typeof bench.symbol === 'string' ? bench : null,
+    today: todayIso(),
+  };
   const data = {prices, guidance, events, press, status, kpis};
 
   document.getElementById('as-of').textContent = status?.run_at

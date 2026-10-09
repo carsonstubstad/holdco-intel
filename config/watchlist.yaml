@@ -13,6 +13,10 @@ dashboard:
     - JPY=X                 # USD/JPY
   user_agent: "holdco-intel/0.1 (+https://github.com/carsonstubstad/holdco-intel)"   # sent by core.util.fetch()
   site_url: https://carsonstubstad.github.io/holdco-intel/   # GitHub Pages; linked from Issues
+  benchmark:                # chart reference line; not a company (step 12b)
+    symbol: "^GSPC"
+    name: S&P 500
+    currency: USD
 
 # Global title patterns applied to every company. Per-company patterns below add to these.
 # A company's results_title_patterns are checked first; then category is the first match in

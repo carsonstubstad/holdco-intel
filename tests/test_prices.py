@@ -5,9 +5,13 @@ from pathlib import Path
 
 import pandas as pd
 
+import core.prices
 from core.prices import (
     _closes_from_frame,
     append_latest,
+    build_prices,
+    fetch_latest_closes,
+    get_benchmark_history,
     get_fx,
     get_price_history,
     market_cap_usd_m,
@@ -16,7 +20,10 @@ from core.prices import (
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "prices_small.json"
 
 WATCHLIST = {
-    "dashboard": {"fx_pairs": ["EURUSD=X", "GBPUSD=X", "JPY=X"]},
+    "dashboard": {
+        "fx_pairs": ["EURUSD=X", "GBPUSD=X", "JPY=X"],
+        "benchmark": {"symbol": "^GSPC", "name": "S&P 500", "currency": "USD"},
+    },
     "companies": [
         {"code": "PUB", "ticker": "PUB.PA", "currency": "EUR", "shares_outstanding_m": 254.0},
         {
@@ -155,3 +162,53 @@ def test_closes_from_frame_drops_nan_per_symbol():
     assert _closes_from_frame(frame, "A") == [("2026-09-30", 1.0), ("2026-10-02", 1.1235)]
     assert len(_closes_from_frame(frame, "B")) == 3
     assert _closes_from_frame(frame, "MISSING") == []
+
+
+def test_append_latest_appends_benchmark_market_caps_unchanged():
+    prices = _prices()
+    latest = {"^GSPC": [{"date": "2026-10-05", "close": 6720.5}]}
+    out = append_latest(prices, latest, "2026-10-06", WATCHLIST)
+    gspc = out["series"]["^GSPC"]
+    assert gspc["dates"][-1] == "2026-10-05" and gspc["closes"][-1] == 6720.5
+    assert gspc["source"] == "yfinance"
+    assert out["market_cap_usd_m"] == prices["market_cap_usd_m"] == {"PUB": 22352, "WPP": None}
+
+
+def test_market_cap_ignores_benchmark():
+    caps = market_cap_usd_m(_prices()["series"], WATCHLIST)
+    assert set(caps) == {"PUB", "WPP"}
+
+
+def test_build_prices_sets_benchmark_currency():
+    out = build_prices({"^GSPC": [("2026-10-01", 6650.0)]}, WATCHLIST, "2026-10-02T00:00:00Z")
+    assert out["series"]["^GSPC"]["currency"] == "USD"
+    assert set(out["market_cap_usd_m"]) == {"PUB", "WPP"}
+
+
+def test_fetch_latest_closes_requests_benchmark(monkeypatch):
+    calls = []
+
+    def fake_download(symbols, **kwargs):
+        calls.append(list(symbols))
+        idx = pd.to_datetime(["2026-10-01"])
+        cols = pd.MultiIndex.from_product([symbols, ["Close"]])
+        return pd.DataFrame([[1.0] * len(symbols)], index=idx, columns=cols)
+
+    monkeypatch.setattr(core.prices, "load_watchlist", lambda: WATCHLIST)
+    monkeypatch.setattr(core.prices, "_download", fake_download)
+    latest = fetch_latest_closes(["PUB"], ["EURUSD=X"])
+    assert calls == [["PUB.PA", "EURUSD=X", "^GSPC"]]
+    assert latest["^GSPC"] == [{"date": "2026-10-01", "close": 1.0}]
+
+
+def test_get_benchmark_history():
+    h = get_benchmark_history("2026-10-01", path=FIXTURE, watchlist=WATCHLIST)
+    assert h == {
+        "symbol": "^GSPC",
+        "currency": "USD",
+        "dates": ["2026-10-01", "2026-10-02"],
+        "closes": [6650.0, 6700.0],
+        "stale_days": 0,
+        "source": "backfill",
+        "name": "S&P 500",
+    }

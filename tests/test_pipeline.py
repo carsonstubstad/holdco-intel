@@ -143,6 +143,12 @@ def test_pipeline_tolerates_failure_and_writes_everything(repo, capsys):
         assert not errors, f"{name}: {errors[0].message}"
     assert not (repo / "docs" / "data" / "news.json").exists()
 
+    companies = _load(repo, "companies")
+    assert [c["code"] for c in companies["companies"]] == [
+        "PUB", "OMC", "WPP", "HAVAS", "DENTSU", "STGW"
+    ]
+    assert companies["benchmark"] == {"symbol": "^GSPC", "name": "S&P 500"}
+
     status = _load(repo, "status")
     omc = status["sources"]["press_releases:OMC"]
     assert omc["ok"] is False and "feed down" in omc["error"]

@@ -177,7 +177,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 
 ## Day 4: benchmark, design and share
 
-- [ ] **12b S&P 500 benchmark.** `dashboard.benchmark` in `config/watchlist.yaml`
+- [x] **12b S&P 500 benchmark.** `dashboard.benchmark` in `config/watchlist.yaml`
   (`symbol: "^GSPC"`, `name: S&P 500`, `currency: USD`); the index, not SPY, because readers
   expect the index level and every line on the chart is price-only. Not a company: it never
   appears in `companies` in companies.json, the scan strip, KPIs, press releases or market

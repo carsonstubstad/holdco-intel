@@ -1,4 +1,5 @@
-"""One-time local backfill of daily closes into docs/data/prices.json. Run: make backfill"""
+"""One-time local backfill of daily closes into docs/data/prices.json. Run: make backfill, or
+make backfill-benchmark (--only SYMBOL: add one missing series, leave the rest untouched)."""
 
 import argparse
 import datetime
@@ -6,6 +7,7 @@ import json
 import os
 import sys
 import tempfile
+from pathlib import Path
 
 from core.config import load_watchlist
 from core.prices import (
@@ -30,13 +32,53 @@ def write_json_atomic(path, data: dict) -> None:
     os.replace(tmp, path)
 
 
+def backfill_one(
+    symbol: str, years: int, path: Path = PRICES_PATH, watchlist: dict | None = None
+) -> int:
+    """Add one missing series to an existing prices.json, from its earliest date (or --years
+    back) to today UTC exclusive; leave everything else as loaded; return 0 or 1."""
+    if watchlist is None:
+        watchlist = load_watchlist()
+    if not path.exists():
+        print(f"[backfill] {path} missing; run make backfill first")
+        return 1
+    prices = json.loads(path.read_text(encoding="utf-8"))
+    if symbol in prices["series"]:
+        print(f"[backfill] {symbol} already in {path.name}; refusing (nothing written)")
+        return 1
+    end = datetime.datetime.now(datetime.UTC).date()  # exclusive: today's session is skipped
+    firsts = [s["dates"][0] for s in prices["series"].values() if s["dates"]]
+    if firsts:
+        start = datetime.date.fromisoformat(min(firsts))
+    else:
+        start = end - datetime.timedelta(days=365 * years)
+    print(f"[backfill] {symbol}, {start} to {end} (exclusive)")
+    frame = _download([symbol], start=start.isoformat(), end=end.isoformat())
+    rows = [r for r in _closes_from_frame(frame, symbol) if r[0] < end.isoformat()]
+    if not rows:
+        print(f"[backfill] no closes for {symbol}; {path.name} not written")
+        return 1
+    series = build_prices({symbol: rows}, watchlist, _now_iso())["series"][symbol]
+    prices["series"][symbol] = series
+    write_json_atomic(path, prices)
+    print(
+        f"[backfill] {symbol} {series['currency']} {len(series['dates'])} dates "
+        f"{series['dates'][0]} to {series['dates'][-1]}; wrote {path}"
+    )
+    return 0
+
+
 def main() -> int:
-    """Download --years of daily closes for all tickers and FX pairs; write prices.json."""
+    """Download --years of daily closes for all tickers and FX pairs (or add one --only symbol);
+    write prices.json."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--years", type=int, default=2)
+    parser.add_argument("--only", help="add this one missing symbol to the existing file")
     args = parser.parse_args()
 
     watchlist = load_watchlist()
+    if args.only:
+        return backfill_one(args.only, args.years, PRICES_PATH, watchlist)
     symbols = _tickers(watchlist) + list(watchlist["dashboard"].get("fx_pairs", []))
     end = datetime.datetime.now(datetime.UTC).date()  # exclusive: today's session is skipped
     start = end - datetime.timedelta(days=365 * args.years)

@@ -109,7 +109,11 @@ def main(root: Path = Path(".")) -> int:
     def companies_step():
         keys = ["code", "name", "ticker", "exchange", "currency", "color"]
         rows = [{k: c[k] for k in keys} for c in companies]
-        write_json_atomic(out / "companies.json", {"as_of": run_at, "companies": rows})
+        payload = {"as_of": run_at, "companies": rows}
+        bench = watchlist["dashboard"].get("benchmark")
+        if bench:
+            payload["benchmark"] = {"symbol": bench["symbol"], "name": bench["name"]}
+        write_json_atomic(out / "companies.json", payload)
         return len(rows), None
 
     def prices_step():

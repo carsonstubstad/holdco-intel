@@ -45,6 +45,11 @@ def _tickers(watchlist: dict, codes: list[str] | None = None) -> list[str]:
     return [c["ticker"] for c in companies]
 
 
+def _benchmark_symbols(watchlist: dict) -> list[str]:
+    bench = watchlist["dashboard"].get("benchmark")
+    return [bench["symbol"]] if bench else []
+
+
 def _fx_rate(currency: str, series: dict, fx_pairs: list[str]) -> float | None:
     """USD per one unit of `currency` from the last close of a configured FX pair, or None."""
     scale = 1.0
@@ -88,6 +93,9 @@ def build_prices(closes_by_symbol: dict, watchlist: dict, fetched_at: str) -> di
     }
     for pair in watchlist["dashboard"].get("fx_pairs", []):
         currency[pair] = "FX"
+    bench = watchlist["dashboard"].get("benchmark")
+    if bench:
+        currency[bench["symbol"]] = bench.get("currency", "?")
     series = {}
     for symbol, rows in closes_by_symbol.items():
         series[symbol] = {
@@ -107,10 +115,11 @@ def build_prices(closes_by_symbol: dict, watchlist: dict, fetched_at: str) -> di
 
 
 def fetch_latest_closes(codes: list[str], fx_pairs: list[str]) -> dict:
-    """One batched yfinance call (period 5d); return {symbol: [{date, close}, ...]} for
-    completed sessions (today UTC excluded); never raise."""
+    """One batched yfinance call (period 5d) for the tickers, FX pairs and benchmark; return
+    {symbol: [{date, close}, ...]} for completed sessions (today UTC excluded); never raise."""
     try:
-        symbols = _tickers(load_watchlist(), codes) + list(fx_pairs)
+        watchlist = load_watchlist()
+        symbols = _tickers(watchlist, codes) + list(fx_pairs) + _benchmark_symbols(watchlist)
         frame = _download(symbols, period="5d")
         today = datetime.datetime.now(datetime.UTC).date().isoformat()
         latest = {}
@@ -208,3 +217,20 @@ def get_fx(
     """Return the committed daily series for an FX pair keyed by its yfinance symbol
     (EURUSD=X, GBPUSD=X, JPY=X; JPY=X is USD/JPY, i.e. yen per dollar)."""
     return _slice(_read(path), pair, start, end)
+
+
+def get_benchmark_history(
+    start: str | None = None,
+    end: str | None = None,
+    *,
+    path: Path | str = PRICES_PATH,
+    watchlist: dict | None = None,
+) -> dict:
+    """Return the committed daily close series for the dashboard benchmark, sliced by date
+    (inclusive), plus its name; raise KeyError if no benchmark is configured or stored."""
+    if watchlist is None:
+        watchlist = load_watchlist()
+    bench = watchlist["dashboard"].get("benchmark")
+    if not bench:
+        raise KeyError("no dashboard.benchmark in the watchlist")
+    return {**_slice(_read(path), bench["symbol"], start, end), "name": bench["name"]}

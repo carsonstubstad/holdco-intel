@@ -5,6 +5,7 @@ import asyncio
 import pytest
 
 from mcp_server import server
+from tests.test_prices import FIXTURE
 
 EXPECTED_TOOLS = {
     "get_price_history",
@@ -55,3 +56,13 @@ def test_printing_tool_does_not_write_stdout(monkeypatch, capsys):
     assert result["items"] == {}
     assert captured.out == ""
     assert "[prices] hello from a collector" in captured.err
+
+
+@pytest.mark.parametrize("code", ["BENCHMARK", "benchmark"])
+def test_price_history_benchmark(monkeypatch, code):
+    monkeypatch.setattr(server.prices, "PRICES_PATH", FIXTURE)
+    result = server.get_price_history(code, start="2026-10-01")
+    assert result["as_of"] == "2026-10-02T22:30:00Z"
+    assert result["symbol"] == "^GSPC"
+    assert result["name"] == "S&P 500"
+    assert result["dates"] == ["2026-10-01", "2026-10-02"]
