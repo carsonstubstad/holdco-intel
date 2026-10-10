@@ -197,7 +197,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   S&P 500 line, a legend click hides it, the scan strip shows six tiles, the footnote
   renders. Commit: `step 12b: S&P 500 benchmark on the chart`.
 
-- [ ] **12c Design brief.** A read-only project subagent `.claude/agents/design-reviewer.md`
+- [x] **12c Design brief.** A read-only project subagent `.claude/agents/design-reviewer.md`
   reviews hand-taken screenshots (desktop 1440px, phone 390px, chart hover) and `docs/`
   source, and returns a design brief: visual hierarchy, type scale, spacing, neutrals,
   chart styling (including the benchmark), empty states, phone layout, interactivity
