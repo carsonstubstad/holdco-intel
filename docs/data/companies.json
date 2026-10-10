@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-09T02:25:32Z",
+ "as_of": "2026-10-10T01:51:50Z",
  "companies": [
   {
    "code": "PUB",
@@ -49,5 +49,9 @@
    "currency": "USD",
    "color": "#8c564b"
   }
- ]
+ ],
+ "benchmark": {
+  "symbol": "^GSPC",
+  "name": "S&P 500"
+ }
 }
