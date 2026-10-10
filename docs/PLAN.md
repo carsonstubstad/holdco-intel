@@ -278,3 +278,13 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
 
 - 2026-10-08: "Management says" panel on the site from docs/data/commentary.json
   (after 14b; small step: one panel, textContent only).
+  2026-10-09: proposed as its own step 14c after 14b: per company, the curator headline
+  plus 2 to 3 verbatim quotes grouped by theme (strategy, ai_and_data, outlook first),
+  each linked to its source_url; empty state when commentary.json is missing. Strategy
+  themes are the main reason executives use this page over a quote site.
+- 2026-10-09: "What changed" strip at the top of the site, for strategy executives who
+  want what is new since they last looked: guidance records whose set_date is in the last
+  30 days (raised, cut, new, held), and results dates in the next 14 days, one line each,
+  newest first, linked to source_url. Built deterministically from guidance.json and
+  events.json; no new data, no LLM. Proposed as step 12f (after 12e, before 13), with the
+  design-reviewer's placement from docs/DESIGN.md.
