@@ -56,7 +56,7 @@ companies:
     ticker: OMC
     exchange: NYSE
     currency: USD
-    color: "#ff7f0e"
+    color: "#d95f02"
     shares_outstanding_m: 281.0        # diluted avg Q2 2026 (results 2026-07-28)
     shares_verified: true
     news_query: '"Omnicom"'

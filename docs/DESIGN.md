@@ -46,7 +46,7 @@
 - **M7 Chart legibility** (`drawChart`).
   - Why: in hover.png, the y-axis "60" overlaps "Jan 2026", and more than 20 event lines use the same grey dashes as the S&P 500 line.
   - Check: you can tell the benchmark from the event lines at a glance.
-- **M8 Colorblind safety** (`drawChart`). OMC `#ff7f0e` is 2.5:1 on white and fails the 3:1 minimum. Havas red and WPP green collide for deuteranopes. Add company-code labels at the right end of each line and set line width to 2.5. Do not change the hex values.
+- **M8 Colorblind safety** (`drawChart`). OMC was `#ff7f0e` (2.5:1 on white); changed to `#d95f02` (3.8:1) by tweak in config/watchlist.yaml. Havas red and WPP green collide for deuteranopes. Add company-code labels at the right end of each line and set line width to 2.5. Do not change the hex values.
   - Check: in a grayscale screenshot, every line can be identified.
 
 **Should**
