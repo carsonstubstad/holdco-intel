@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-10T01:51:50Z",
+ "as_of": "2026-10-10T04:38:01Z",
  "companies": [
   {
    "code": "PUB",
@@ -15,7 +15,7 @@
    "ticker": "OMC",
    "exchange": "NYSE",
    "currency": "USD",
-   "color": "#ff7f0e"
+   "color": "#d95f02"
   },
   {
    "code": "WPP",
