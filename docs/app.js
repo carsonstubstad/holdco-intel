@@ -212,6 +212,7 @@ let eventsVisible = true;
 let redrawChart = null; // set by renderChart once the chart exists
 let unpinKpi = null; // set by renderKpis
 let filterGuidance = null; // set by renderGuidance
+let resetPress = null; // set by renderPress; the press filter is its own, not focusedCode
 
 // Sets (code) or clears (null) the focused company and updates every view that shows it.
 function setFocusedCompany(ctx, code) {
@@ -1055,34 +1056,74 @@ function renderPress(ctx, data) {
   const items = all.filter((p) => p && isIsoDate(p.published) && p.published.slice(0, 10) >= since)
     .sort((a, b) => (Number(b.flagged === true) - Number(a.flagged === true))
       || b.published.localeCompare(a.published));
+  resetPress = null;
   if (!items.length) return empty(panel, 'No press releases in the last 30 days.');
-  const list = el('ul', {className: 'press', id: 'press-list'});
-  const rows = items.map((p) => {
+  const rows = new Map(items.map((p) => {
     const flagged = p.flagged === true;
-    return el('li', {className: flagged ? 'flagged' : 'unflagged'},
+    return [p, el('li', {className: flagged ? 'flagged' : 'unflagged'},
       companyChip(ctx, p.company),
       el('span', {className: 'nowrap date'}, fmtDate(p.published)),
       flagged ? el('span', {className: 'chip category'},
         String(p.category ?? '').replace(/_/g, ' ')) : null,
-      el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))));
-  });
-  list.append(...rows);
-  const extra = rows.slice(PRESS_LIMIT);
-  if (!extra.length) {
-    bodyOf(panel).replaceChildren(list);
-    return;
+      el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))))];
+  }));
+
+  // Its own company filter: never reads or writes focusedCode, the hash or the guidance chips.
+  const chips = el('div', {className: 'g-chips p-chips', role: 'group',
+    'aria-label': 'Filter press releases by company'});
+  const allChip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'true'}, 'All');
+  allChip.addEventListener('click', () => setFilter(null));
+  chips.appendChild(allChip);
+  for (const c of ctx.list) {
+    const chip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'false',
+      'data-code': c.code, title: companyName(ctx, c.code)}, String(c.code));
+    const color = safeColor(c.color);
+    if (color) chip.style.borderLeftColor = color;
+    chip.addEventListener('click', () => setFilter(c.code));
+    chips.appendChild(chip);
   }
 
-  // C1: the first PRESS_LIMIT items show; the button reveals the rest. Print shows all.
-  const showAll = `Show all (${rows.length})`;
+  const list = el('ul', {className: 'press', id: 'press-list'});
+  const none = el('p', {className: 'empty'});
+  // C1: the first PRESS_LIMIT items show; the button reveals the rest. Print shows the
+  // whole filtered list.
   const more = el('button', {type: 'button', className: 'show-more', 'aria-expanded': 'false',
-    'aria-controls': 'press-list'}, showAll);
+    'aria-controls': 'press-list'});
+  let code = null;
+  let shown = [];
+  let extra = [];
   const setOpen = (open) => {
     for (const li of extra) li.hidden = !open;
     more.setAttribute('aria-expanded', String(open));
-    more.textContent = open ? 'Show fewer' : showAll;
+    more.textContent = open ? 'Show fewer' : `Show all (${shown.length})`;
   };
-  setOpen(false);
+
+  // Shows one company's releases (code) or every release (null), collapsed to PRESS_LIMIT.
+  function setFilter(next, announce = true) {
+    // Never leave keyboard focus on a row or button that is about to go away.
+    const lostFocus = list.contains(document.activeElement) || more === document.activeElement;
+    code = next;
+    shown = items.filter((p) => code === null || p.company === code).map((p) => rows.get(p));
+    extra = shown.slice(PRESS_LIMIT);
+    for (const li of shown) li.hidden = false;
+    list.replaceChildren(...shown);
+    list.hidden = !shown.length;
+    none.hidden = shown.length > 0;
+    none.textContent = code === null ? '' : `No press releases from ${companyName(ctx, code)}`
+      + ' in the last 30 days.';
+    more.hidden = !extra.length;
+    setOpen(false);
+    for (const chip of chips.querySelectorAll('.g-chip')) {
+      chip.setAttribute('aria-pressed', String((chip.dataset.code ?? null) === code));
+    }
+    if (lostFocus) chips.querySelector('[aria-pressed="true"]')?.focus();
+    if (announce) {
+      document.getElementById('announce').textContent = code === null
+        ? `Press releases: all companies, ${shown.length}`
+        : `Press releases: ${shown.length} from ${companyName(ctx, code)}`;
+    }
+  }
+
   more.addEventListener('click', () => {
     const open = more.getAttribute('aria-expanded') !== 'true';
     setOpen(open);
@@ -1097,7 +1138,11 @@ function renderPress(ctx, data) {
   window.addEventListener('afterprint', () => {
     if (closedForPrint) for (const li of extra) li.hidden = true;
   });
-  bodyOf(panel).replaceChildren(list, more);
+  setFilter(null, false);
+  resetPress = () => {
+    if (code !== null) setFilter(null);
+  };
+  bodyOf(panel).replaceChildren(chips, list, none, more);
 }
 
 // ---------- Panel F: data health ----------
@@ -1177,9 +1222,11 @@ async function main() {
   runPanel('panel-press', renderPress, ctx, data);
   runPanel('panel-health', renderHealth, ctx, data);
 
-  // The one Esc handler: clears the focused company and unpins a KPI cell (R6).
+  // The one Esc handler: clears the focused company, unpins a KPI cell (R6), resets press.
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    // Press first, so "Highlight cleared" is the last word in #announce when both reset.
+    if (resetPress) resetPress();
     if (focusedCode !== null) setFocusedCompany(ctx, null);
     if (unpinKpi) unpinKpi();
   });

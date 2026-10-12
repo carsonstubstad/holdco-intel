@@ -317,6 +317,8 @@ ul.press li .title { flex: 1 1 260px; min-width: 0; }
 ul.press li[hidden] { display: none; }
 ul.press li:has(+ li[hidden]) { border-bottom: 0; }
 .show-more { margin-top: var(--sp-2); }
+/* The press filter hides the list, the note or the button; display rules must not undo it. */
+#panel-press .body [hidden] { display: none; }
 
 /* Panel F: health */
 .health { width: calc(100% - 2 * var(--sp-4)); max-width: 1168px; margin: var(--sp-4) auto var(--sp-5); }
