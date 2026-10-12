@@ -6,6 +6,7 @@ const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'Ju
   'September', 'October', 'November', 'December'];
 const MARKER_TYPES = ['results', 'capital_markets_day', 'deal'];
 const DAY_MS = 86400000;
+const HOVER_BR = '<br>'; // the only markup joined into Plotly hover text; every part is escaped
 
 // ---------- DOM helpers ----------
 
@@ -476,12 +477,20 @@ function drawChart(ctx, data, aligned, win) {
   const marks = items.filter((e) => e && isIsoDate(e.date) && MARKER_TYPES.includes(e.type)
     && e.date.slice(0, 10) >= first && e.date.slice(0, 10) <= last
     && (focusedCode === null || e.company === focusedCode));
+  // Events on one date share one line and one marker; the hover lists each (P1).
+  const byDate = new Map();
+  for (const e of marks) {
+    const d = e.date.slice(0, 10);
+    if (!byDate.has(d)) byDate.set(d, []);
+    byDate.get(d).push(e);
+  }
+  const dates = [...byDate.keys()];
 
   const shapes = [{
     type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 100, y1: 100,
     line: {color: '#d8dee4', width: 1},
   }];
-  if (marks.length) {
+  if (dates.length) {
     const visible = eventsVisible ? true : 'legendonly';
     // Vertical event lines as one trace of null-separated segments, so the Events
     // legend entry toggles them together with the markers (shapes ignore the legend).
@@ -494,13 +503,13 @@ function drawChart(ctx, data, aligned, win) {
       showlegend: false,
       visible,
       hoverinfo: 'skip',
-      x: marks.flatMap((e) => [e.date.slice(0, 10), e.date.slice(0, 10), null]),
-      y: marks.flatMap(() => [0, 1.04, null]),
+      x: dates.flatMap((d) => [d, d, null]),
+      y: dates.flatMap(() => [0, 1.04, null]),
       yaxis: 'y2',
       line: {color: '#c4c8cc', width: 1, dash: 'dot'},
     });
     traceKeys.push({kind: 'events'});
-    // One small marker per event at the top of the plot carries the hover text.
+    // One small marker per date at the top of the plot carries the hover text.
     traces.push({
       type: 'scatter',
       mode: 'markers',
@@ -509,13 +518,13 @@ function drawChart(ctx, data, aligned, win) {
       legendgroup: 'events',
       legendrank: 3000,
       visible,
-      x: marks.map((e) => e.date.slice(0, 10)),
-      y: marks.map(() => 1),
+      x: dates,
+      y: dates.map(() => 1),
       yaxis: 'y2',
       marker: {symbol: 'triangle-down', size: 7, color: '#80868b'},
-      hovertext: marks.map((e) => [companyName(ctx, e.company),
+      hovertext: dates.map((d) => byDate.get(d).map((e) => [companyName(ctx, e.company),
         capitalize(String(e.type ?? '').replace(/_/g, ' ')), String(e.title ?? '')]
-        .map(escapeHtml).join(' · ')),
+        .map(escapeHtml).join(' · ')).join(HOVER_BR)),
       hovertemplate: '%{hovertext}<extra></extra>',
     });
     traceKeys.push({kind: 'events'});
@@ -561,18 +570,28 @@ function drawChart(ctx, data, aligned, win) {
   });
 }
 
+function hideChartControls() {
+  const controls = document.querySelector('#panel-chart .chart-controls');
+  if (controls) controls.hidden = true;
+}
+
 function renderChart(ctx, data) {
   const panel = 'panel-chart';
+  // An empty chart hides its window buttons and benchmark toggle too (S2).
+  const none = (message) => {
+    hideChartControls();
+    return empty(panel, message);
+  };
   if (typeof Plotly === 'undefined') {
     console.warn('[holdco] Plotly did not load; chart disabled');
-    return empty(panel, 'Chart library unavailable.');
+    return none('Chart library unavailable.');
   }
   if (!data.prices || typeof data.prices.series !== 'object' || data.prices.series === null) {
-    return empty(panel, 'No price data available.');
+    return none('No price data available.');
   }
-  if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
+  if (!ctx.list.length) return none('Company list unavailable.');
   const aligned = buildAligned(ctx, data.prices);
-  if (!aligned.union.length) return empty(panel, 'No price data available.');
+  if (!aligned.union.length) return none('No price data available.');
 
   const gd = document.getElementById('chart');
   let win = 'YTD';
@@ -1027,6 +1046,8 @@ function renderEvents(ctx, data) {
 
 // ---------- Panel E: press releases ----------
 
+const PRESS_LIMIT = 10;
+
 function renderPress(ctx, data) {
   const panel = 'panel-press';
   const all = Array.isArray(data.press?.items) ? data.press.items : [];
@@ -1035,17 +1056,48 @@ function renderPress(ctx, data) {
     .sort((a, b) => (Number(b.flagged === true) - Number(a.flagged === true))
       || b.published.localeCompare(a.published));
   if (!items.length) return empty(panel, 'No press releases in the last 30 days.');
-  const list = el('ul', {className: 'press'});
-  for (const p of items) {
+  const list = el('ul', {className: 'press', id: 'press-list'});
+  const rows = items.map((p) => {
     const flagged = p.flagged === true;
-    list.appendChild(el('li', {className: flagged ? 'flagged' : 'unflagged'},
+    return el('li', {className: flagged ? 'flagged' : 'unflagged'},
       companyChip(ctx, p.company),
       el('span', {className: 'nowrap date'}, fmtDate(p.published)),
       flagged ? el('span', {className: 'chip category'},
         String(p.category ?? '').replace(/_/g, ' ')) : null,
-      el('span', {className: 'title'}, link(p.url, String(p.title ?? '')))));
+      el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))));
+  });
+  list.append(...rows);
+  const extra = rows.slice(PRESS_LIMIT);
+  if (!extra.length) {
+    bodyOf(panel).replaceChildren(list);
+    return;
   }
-  bodyOf(panel).replaceChildren(list);
+
+  // C1: the first PRESS_LIMIT items show; the button reveals the rest. Print shows all.
+  const showAll = `Show all (${rows.length})`;
+  const more = el('button', {type: 'button', className: 'show-more', 'aria-expanded': 'false',
+    'aria-controls': 'press-list'}, showAll);
+  const setOpen = (open) => {
+    for (const li of extra) li.hidden = !open;
+    more.setAttribute('aria-expanded', String(open));
+    more.textContent = open ? 'Show fewer' : showAll;
+  };
+  setOpen(false);
+  more.addEventListener('click', () => {
+    const open = more.getAttribute('aria-expanded') !== 'true';
+    setOpen(open);
+    // Closing shrinks the list; bring the button back so the reader isn't left further down.
+    if (!open) more.scrollIntoView({block: 'nearest'});
+  });
+  let closedForPrint = false;
+  window.addEventListener('beforeprint', () => {
+    closedForPrint = more.getAttribute('aria-expanded') !== 'true';
+    for (const li of extra) li.hidden = false;
+  });
+  window.addEventListener('afterprint', () => {
+    if (closedForPrint) for (const li of extra) li.hidden = true;
+  });
+  bodyOf(panel).replaceChildren(list, more);
 }
 
 // ---------- Panel F: data health ----------
@@ -1074,9 +1126,14 @@ function renderHealth(ctx, data) {
   const failing = names.filter((n) => sources[n]?.ok !== true);
   if (failing.length) {
     const ul = el('ul', {className: 'failing'});
+    // One clamped line per source; the full error text sits in a <details> under it.
     for (const n of failing) {
-      ul.appendChild(el('li', {}, el('strong', {}, n), ': ',
-        String(sources[n]?.error ?? 'failed (no error text)')));
+      const full = String(sources[n]?.error || 'failed (no error text)');
+      const head = full.split(/\r?\n/).find((line) => line.trim()) ?? 'failed (no error text)';
+      ul.appendChild(el('li', {},
+        el('div', {className: 'err-head'}, el('strong', {}, n), ': ', head),
+        el('details', {className: 'err-full'}, el('summary', {}, 'Full error'),
+          el('pre', {}, full))));
     }
     body.appendChild(el('p', {className: 'muted'}, 'Failing sources:'));
     body.appendChild(ul);
@@ -1090,6 +1147,7 @@ function runPanel(panelId, fn, ctx, data) {
     fn(ctx, data);
   } catch (err) {
     console.warn('[holdco] ' + panelId + ' failed to render:', err);
+    if (panelId === 'panel-chart') hideChartControls();
     empty(panelId, 'This panel could not be rendered.');
   }
 }
