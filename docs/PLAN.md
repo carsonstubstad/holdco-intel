@@ -219,7 +219,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   growth at 300px tall (DESIGN.md M1 revised; built as a tweak before 12e). The 12d
   guidance list is replaced by the 12f matrix.
 
-- [ ] **12e Chart and interactivity.** Build the DESIGN.md items assigned to 12e: Plotly
+- [x] **12e Chart and interactivity.** Build the DESIGN.md items assigned to 12e: Plotly
   layout matching the tokens, benchmark styling, a keyboard-operable benchmark toggle,
   window selector states, the panel linking the brief specifies, focus styles, reduced
   motion, the print layout (M6), and refinements R1 to R6 (legend click, end label spacing,

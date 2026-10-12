@@ -203,6 +203,36 @@ function statusBadge(status, ...label) {
 
 const STATUS_RANK = {raised: 0, cut: 0, new: 0, withdrawn: 0, held: 1};
 
+// ---------- shared view state: one focused company, chart toggles ----------
+
+let focusedCode = null; // the focused company's code, or null
+let benchVisible = true;
+let eventsVisible = true;
+let redrawChart = null; // set by renderChart once the chart exists
+let unpinKpi = null; // set by renderKpis
+
+// Sets (code) or clears (null) the focused company and updates every view that shows it.
+function setFocusedCompany(ctx, code) {
+  const next = typeof code === 'string' && Object.hasOwn(ctx.byCode, code) ? code : null;
+  if (next === focusedCode) return;
+  focusedCode = next;
+  for (const btn of document.querySelectorAll('#panel-scan .tile-name[data-code]')) {
+    const on = btn.dataset.code === next;
+    btn.setAttribute('aria-pressed', String(on));
+    btn.closest('.tile')?.classList.toggle('is-focused', on);
+  }
+  if (redrawChart) redrawChart();
+  document.getElementById('announce').textContent = next
+    ? 'Highlighting ' + companyName(ctx, next) : 'Highlight cleared';
+}
+
+// Shows or hides the benchmark line; the toggle button and the legend entry stay in sync.
+function setBenchmarkVisible(on) {
+  benchVisible = on;
+  document.querySelector('#panel-chart .bench-toggle')?.setAttribute('aria-pressed', String(on));
+  if (redrawChart) redrawChart();
+}
+
 // ---------- Panel A: scan strip ----------
 
 function renderScan(ctx, data) {
@@ -218,9 +248,18 @@ function renderScan(ctx, data) {
   for (const c of ctx.list) {
     const tile = el('article', {className: 'tile'});
     const color = safeColor(c.color);
-    if (color) tile.style.borderTopColor = color;
+    if (color) {
+      tile.style.borderTopColor = color;
+      tile.style.setProperty('--company', color);
+    }
     const fullName = String(c.name ?? c.code);
-    tile.appendChild(el('div', {className: 'tile-name', title: fullName}, fullName));
+    // The name is a toggle that highlights this company on the chart.
+    const nameBtn = el('button', {type: 'button', className: 'tile-name', 'aria-pressed': 'false',
+      'data-code': c.code, title: 'Highlight on chart',
+      'aria-label': `Highlight ${fullName} on chart`}, el('span', {className: 'clamp'}, fullName));
+    nameBtn.addEventListener('click',
+      () => setFocusedCompany(ctx, focusedCode === c.code ? null : c.code));
+    tile.appendChild(nameBtn);
     tile.appendChild(el('div', {className: 'tile-ticker'}, String(c.ticker ?? '')));
 
     const s = series ? series[c.ticker] : null;
@@ -329,93 +368,193 @@ function rebased(vals) {
   return vals.map((v) => (v === null || base === null ? null : (100 * v) / base));
 }
 
+// At 720px and below the legend shows company codes, so it wraps to at most 3 lines.
+const NARROW = window.matchMedia('(max-width: 720px)');
+const END_LABEL_GAP_PX = 12;
+
+let traceKeys = []; // per trace in the last draw: {kind: 'company'|'bench'|'events', code}
+let endLabels = []; // per company line in the last draw: {code, color, x, y, dim}
+let endAnnotations = []; // the last placed end labels, reused so a redraw never drops them
+
+// Company-code annotations at the right end of each line, pushed at least 12px apart.
+function endLabelAnnotations(ymin, ymax, h) {
+  const gap = (END_LABEL_GAP_PX * (ymax - ymin)) / Math.max(h, 1);
+  const sorted = [...endLabels].sort((a, b) => a.y - b.y);
+  const ys = sorted.map((l) => l.y);
+  for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1] + gap);
+  if (ys.length) ys[ys.length - 1] = Math.min(ys[ys.length - 1], ymax);
+  for (let i = ys.length - 2; i >= 0; i--) ys[i] = Math.min(ys[i], ys[i + 1] - gap);
+  return sorted.map((l, i) => ({
+    x: l.x, y: ys[i], xref: 'x', yref: 'y', text: escapeHtml(l.code),
+    showarrow: false, xanchor: 'left', yanchor: 'middle', xshift: 4,
+    font: {color: l.color, size: 12}, opacity: l.dim ? 0.25 : 1,
+  }));
+}
+
+// Re-spaces the end labels with the drawn y range and plot height.
+function placeEndLabels(gd) {
+  // Private Plotly API (_fullLayout, _size); safe because the version is pinned at 2.35.2.
+  const range = gd._fullLayout?.yaxis?.range;
+  const size = gd._fullLayout?._size?.h;
+  if (!Array.isArray(range) || !isNum(range[0]) || !isNum(range[1])) return;
+  const h = isNum(size) && size > 0 ? size : gd.clientHeight - 60;
+  const next = endLabelAnnotations(range[0], range[1], h);
+  if (JSON.stringify(next) === JSON.stringify(endAnnotations)) return;
+  endAnnotations = next;
+  return Plotly.relayout(gd, {annotations: next});
+}
+
 function drawChart(ctx, data, aligned, win) {
   const {series, union, bench} = aligned;
   const start = windowStart(win, union);
   let b = union.findIndex((d) => d >= start);
   if (b < 0) b = 0;
   const x = union.slice(b);
+  const dimmed = (code) => focusedCode !== null && code !== focusedCode;
 
-  const traces = series.map((s) => {
-    const name = escapeHtml(s.company.name ?? s.company.code);
-    return {
+  const companyTraces = [];
+  const companyKeys = [];
+  endLabels = [];
+  for (const s of series) {
+    const code = s.company.code;
+    const rank = ctx.list.indexOf(s.company);
+    const color = safeColor(s.company.color);
+    const fullName = escapeHtml(s.company.name ?? code);
+    const y = rebased(s.filled.slice(b));
+    companyTraces.push({
       type: 'scatter',
       mode: 'lines',
-      name,
+      uid: 'co' + rank,
+      name: NARROW.matches ? escapeHtml(code) : fullName,
+      meta: fullName,
+      legendrank: rank + 1,
       x,
-      y: rebased(s.filled.slice(b)),
-      line: {width: 2, color: safeColor(s.company.color) || undefined},
-      hovertemplate: '%{fullData.name}: %{y:.1f}<extra></extra>',
-    };
-  });
+      y,
+      opacity: dimmed(code) ? 0.25 : 1,
+      line: {width: code === focusedCode ? 3.5 : 2.5, color: color || undefined},
+      hovertemplate: '%{meta}: %{y:.1f}<extra></extra>',
+    });
+    companyKeys.push({kind: 'company', code});
+    const lastIdx = y.findLastIndex((v) => v !== null);
+    if (lastIdx >= 0) {
+      endLabels.push({code, color: color || '#1f2328', x: x[lastIdx], y: y[lastIdx],
+        dim: dimmed(code)});
+    }
+  }
+  // The focused line is drawn last, so it sits on top; legendrank keeps the legend order.
+  const f = companyKeys.findIndex((k) => k.code === focusedCode);
+  const traces = companyTraces.filter((_, i) => i !== f);
+  traceKeys = companyKeys.filter((_, i) => i !== f);
+
+  let benchY = [];
   if (bench) {
+    benchY = rebased(bench.filled.slice(b));
+    const name = escapeHtml(bench.name);
     traces.push({
       type: 'scatter',
       mode: 'lines',
-      name: escapeHtml(bench.name),
-      x,
-      y: rebased(bench.filled.slice(b)),
-      line: {width: 1.5, color: '#5f6368', dash: 'dash'},
+      uid: 'bench',
+      name,
+      meta: name,
       legendrank: 2000,
-      hovertemplate: '%{fullData.name}: %{y:.1f}<extra></extra>',
+      visible: benchVisible ? true : 'legendonly',
+      x,
+      y: benchY,
+      line: {width: 1.5, color: '#5f6368', dash: 'dash'},
+      hovertemplate: '%{meta}: %{y:.1f}<extra></extra>',
     });
+    traceKeys.push({kind: 'bench'});
   }
 
   const first = x[0];
   const last = x[x.length - 1];
   const items = Array.isArray(data.events?.items) ? data.events.items : [];
   const marks = items.filter((e) => e && isIsoDate(e.date) && MARKER_TYPES.includes(e.type)
-    && e.date.slice(0, 10) >= first && e.date.slice(0, 10) <= last);
+    && e.date.slice(0, 10) >= first && e.date.slice(0, 10) <= last
+    && (focusedCode === null || e.company === focusedCode));
 
   const shapes = [{
     type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 100, y1: 100,
-    line: {color: '#9aa0a6', width: 1, dash: 'dot'},
+    line: {color: '#d8dee4', width: 1},
   }];
   if (marks.length) {
+    const visible = eventsVisible ? true : 'legendonly';
     // Vertical event lines as one trace of null-separated segments, so the Events
     // legend entry toggles them together with the markers (shapes ignore the legend).
     traces.push({
       type: 'scatter',
       mode: 'lines',
+      uid: 'ev-lines',
       name: 'Events',
       legendgroup: 'events',
       showlegend: false,
+      visible,
       hoverinfo: 'skip',
       x: marks.flatMap((e) => [e.date.slice(0, 10), e.date.slice(0, 10), null]),
       y: marks.flatMap(() => [0, 1.04, null]),
       yaxis: 'y2',
-      line: {color: '#80868b', width: 1, dash: 'dash'},
+      line: {color: '#c4c8cc', width: 1, dash: 'dot'},
     });
+    traceKeys.push({kind: 'events'});
     // One small marker per event at the top of the plot carries the hover text.
     traces.push({
       type: 'scatter',
       mode: 'markers',
+      uid: 'ev-marks',
       name: 'Events',
       legendgroup: 'events',
+      legendrank: 3000,
+      visible,
       x: marks.map((e) => e.date.slice(0, 10)),
       y: marks.map(() => 1),
       yaxis: 'y2',
-      marker: {symbol: 'triangle-down', size: 9, color: '#5f6368'},
-      hovertext: marks.map((e) => escapeHtml(
-        `${companyName(ctx, e.company)} ${String(e.type).replace(/_/g, ' ')} ${e.title ?? ''}`)),
+      marker: {symbol: 'triangle-down', size: 7, color: '#80868b'},
+      hovertext: marks.map((e) => [companyName(ctx, e.company),
+        capitalize(String(e.type ?? '').replace(/_/g, ' ')), String(e.title ?? '')]
+        .map(escapeHtml).join(' · ')),
       hovertemplate: '%{hovertext}<extra></extra>',
     });
+    traceKeys.push({kind: 'events'});
+  }
+  if (f >= 0) {
+    traces.push(companyTraces[f]);
+    traceKeys.push(companyKeys[f]);
   }
 
+  // Place the end labels before drawing with an estimated range (5% padding, the last plot
+  // height), so they never disappear; placeEndLabels corrects them once the plot exists.
+  const shown = [100, ...companyTraces.flatMap((t) => t.y), ...(benchVisible ? benchY : [])]
+    .filter(isNum);
+  const lo = Math.min(...shown);
+  const hi = Math.max(...shown);
+  const pad = (hi - lo) * 0.05;
+  const gd = document.getElementById('chart');
+  const h = gd._fullLayout?._size?.h || gd.clientHeight - 60;
+  endAnnotations = endLabelAnnotations(lo - pad, hi + pad, h);
+
   const layout = {
-    margin: {l: 44, r: 12, t: 12, b: 40},
+    margin: {l: 48, r: 56, t: 24, b: 36},
     hovermode: 'x unified',
+    hoverlabel: {bgcolor: 'rgba(255,255,255,0.95)', bordercolor: '#d8dee4', font: {size: 12}},
     showlegend: true,
-    legend: {orientation: 'h', y: -0.15, x: 0},
-    xaxis: {type: 'date', range: [first, last], fixedrange: false},
-    yaxis: {title: {text: ''}, zeroline: false},
+    legend: {orientation: 'h', x: 0, y: 1.08, yanchor: 'bottom', font: {size: 12}},
+    // Fewer x ticks on narrow screens keep the dates horizontal, so the plot keeps its height.
+    xaxis: {type: 'date', range: [first, last], showgrid: false, ticks: 'outside', ticklen: 4,
+      tickformat: '%b %Y', automargin: true, nticks: NARROW.matches ? 3 : undefined},
+    yaxis: {gridcolor: '#eef0f2', zeroline: false, ticksuffix: ' ', automargin: true},
     yaxis2: {overlaying: 'y', range: [0, 1.04], visible: false, fixedrange: true},
     shapes,
+    annotations: endAnnotations,
+    transition: {duration: 0},
     paper_bgcolor: '#ffffff',
     plot_bgcolor: '#ffffff',
     font: {family: getComputedStyle(document.body).fontFamily, size: 12},
   };
-  return Plotly.react('chart', traces, layout, {displaylogo: false, responsive: true});
+  return Plotly.react(gd, traces, layout, {
+    displaylogo: false,
+    responsive: true,
+    modeBarButtonsToRemove: ['lasso2d', 'select2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d'],
+  });
 }
 
 function renderChart(ctx, data) {
@@ -431,13 +570,52 @@ function renderChart(ctx, data) {
   const aligned = buildAligned(ctx, data.prices);
   if (!aligned.union.length) return empty(panel, 'No price data available.');
 
+  const gd = document.getElementById('chart');
+  let win = 'YTD';
+  // Every redraw reads the current window, focused company and benchmark/events visibility.
+  const draw = () => drawChart(ctx, data, aligned, win).then(placeEndLabels)
+    .catch((err) => console.warn('[holdco] chart draw failed:', err));
+
   const buttons = document.querySelectorAll('#panel-chart .windows button');
-  const select = (win) => {
+  const select = (next) => {
+    win = next;
     buttons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn.dataset.window === win)));
-    drawChart(ctx, data, aligned, win);
+    draw();
   };
   buttons.forEach((btn) => btn.addEventListener('click', () => select(btn.dataset.window)));
+
+  const toggle = document.querySelector('#panel-chart .bench-toggle');
+  if (toggle && aligned.bench) {
+    toggle.textContent = aligned.bench.name;
+    toggle.setAttribute('aria-pressed', String(benchVisible));
+    toggle.hidden = false;
+    toggle.addEventListener('click', () => setBenchmarkVisible(!benchVisible));
+  }
+
+  redrawChart = draw;
+  NARROW.addEventListener('change', draw);
+  window.addEventListener('beforeprint', () => Plotly.Plots.resize(gd));
+  window.addEventListener('afterprint', () => Plotly.Plots.resize(gd));
+
   select('YTD');
+  // Legend clicks route through the same setters as the buttons (R1); Plotly's own
+  // hide/show and double-click isolate are turned off.
+  gd.on('plotly_legendclick', (ev) => {
+    const key = traceKeys[ev.curveNumber];
+    if (key?.kind === 'company') setFocusedCompany(ctx, focusedCode === key.code ? null : key.code);
+    else if (key?.kind === 'bench') setBenchmarkVisible(!benchVisible);
+    else if (key?.kind === 'events') {
+      eventsVisible = !eventsVisible;
+      draw();
+    }
+    return false;
+  });
+  gd.on('plotly_legenddoubleclick', () => false);
+  gd.on('plotly_relayout', (ev) => {
+    const keys = Object.keys(ev || {});
+    if (keys.some((k) => k === 'autosize' || k === 'width' || k === 'height'
+      || k.startsWith('xaxis.') || k.startsWith('yaxis.'))) placeEndLabels(gd);
+  });
 }
 
 // ---------- Panel G: organic growth grid ----------
@@ -520,6 +698,14 @@ function renderKpis(ctx, data) {
     pressed = btn;
     pinned = info;
     show(info);
+  };
+  // Esc unpins the pinned cell and restores the hint.
+  unpinKpi = () => {
+    if (!pinned) return;
+    if (pressed) pressed.setAttribute('aria-pressed', 'false');
+    pressed = null;
+    pinned = null;
+    show(null);
   };
 
   const valueCell = (row, span) => {
@@ -768,6 +954,13 @@ async function main() {
   runPanel('panel-events', renderEvents, ctx, data);
   runPanel('panel-press', renderPress, ctx, data);
   runPanel('panel-health', renderHealth, ctx, data);
+
+  // The one Esc handler: clears the focused company and unpins a KPI cell (R6).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (focusedCode !== null) setFocusedCompany(ctx, null);
+    if (unpinKpi) unpinKpi();
+  });
 }
 
 main();

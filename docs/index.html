@@ -12,6 +12,7 @@
   <script src="app.js" defer></script>
 </head>
 <body>
+  <p id="announce" class="visually-hidden" aria-live="polite"></p>
   <header class="site-header">
     <div>
       <h1>Holdco Intel</h1>
@@ -32,12 +33,15 @@
     <section id="panel-chart" class="panel" aria-labelledby="h-chart">
       <div class="panel-head">
         <h2 id="h-chart">Relative performance</h2>
-        <div class="windows" role="group" aria-label="Chart window">
-          <button type="button" data-window="1M">1M</button>
-          <button type="button" data-window="3M">3M</button>
-          <button type="button" data-window="YTD" aria-pressed="true">YTD</button>
-          <button type="button" data-window="1Y">1Y</button>
-          <button type="button" data-window="2Y">2Y</button>
+        <div class="chart-controls">
+          <div class="windows" role="group" aria-label="Chart window">
+            <button type="button" data-window="1M">1M</button>
+            <button type="button" data-window="3M">3M</button>
+            <button type="button" data-window="YTD" aria-pressed="true">YTD</button>
+            <button type="button" data-window="1Y">1Y</button>
+            <button type="button" data-window="2Y">2Y</button>
+          </div>
+          <button type="button" class="bench-toggle" aria-pressed="true" hidden></button>
         </div>
       </div>
       <div class="body"><div id="chart"></div></div>
