@@ -79,5 +79,8 @@ Output, under 400 words:
 2. Regressions: anything that looked right in "before" and looks worse in "after".
 3. Up to 3 polish suggestions that stay inside this step's scope (spacing, alignment,
    weight, contrast), each with file, selector and the exact value to change.
-4. Anything bigger goes in one line as "for creative-director or backlog", not here.
+4. Fold-ins: up to 3 Backlog items or small fixes that touch only files this step
+   already changed and take under 15 minutes each, so the polish round can absorb them
+   instead of a later tweak. Name the Backlog line for each.
+5. Anything bigger goes in one line as "for creative-director or backlog", not here.
 Verdict on the first line: SHIP, SHIP AFTER FIXES, or REWORK.

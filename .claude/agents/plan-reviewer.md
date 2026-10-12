@@ -48,6 +48,8 @@ Check, in this order:
 Output, in Markdown, under 600 words:
 - **Verdict:** APPROVE, APPROVE WITH CHANGES, or REVISE (REVISE only for a broken hard
   rule, a security gap, wrong scope, or a missing Required item).
+- **What changes on the page:** 2 to 3 bullets with no code words, from the plan's
+  "In plain words" (say so if the plan has none).
 - **Why, in plain words** (2 to 3 lines a beginner can follow).
 - **Changes** (numbered; each: what, where, why). Blocking ones first, marked [blocking].
 - **Defer** (good ideas outside this step, each with where it belongs: tweak, backlog

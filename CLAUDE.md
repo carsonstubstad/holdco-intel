@@ -119,20 +119,29 @@ commit and the box is ticked in the step's closing commit.
 The maintainer runs two Claude Code sessions. The **planning chat** writes step prompts,
 edits PLAN.md and DESIGN.md (`plan:` commits) and reviews; it does not build site,
 pipeline or core code. The **executor** (the terminal session named `executor`) builds
-one step per session from a pasted prompt. Review agents in `.claude/agents/` are
+one step per session from a step prompt. Review agents in `.claude/agents/` are
 read-only: `plan-reviewer` (plans), `design-reviewer` (brief, or step review of
 screenshots), `creative-director` (visual directions). Every gate is the maintainer's:
 
-1. Prompt: the planning chat drafts or edits the step prompt; the maintainer reads it
-   and pastes it into the executor in plan mode.
-2. Plan: plan mode saves the plan to `~/.claude/plans/`. The planning chat reviews it
-   with `plan-reviewer` and shows the maintainer a verdict and a reply. The reply goes to
-   the executor only after the maintainer says so (pasted, or sent by the planning chat).
-   The executor's own exit-plan-mode approval stays with the maintainer in the terminal.
-3. Build check: the executor saves before/after screenshots under `prompts/design/`;
-   the planning chat runs `design-reviewer` (step review). The maintainer decides fixes.
-4. Commit and push: the executor commits after the maintainer's check. Push only when
-   the maintainer asks.
+1. Prompt: the planning chat drafts or edits the step prompt; the maintainer approves
+   it and, in plan mode, points the executor at the file ("Follow the fenced Prompt
+   block in prompts/v1.1/step-<id>.md").
+2. Plan: plan mode saves the plan to `~/.claude/plans/`; it opens with "In plain words"
+   (at most 5 lines on what a reader will see change). The planning chat runs
+   `plan-reviewer` and shows the maintainer a card. After the maintainer says "send it",
+   the planning chat sends the reply to `executor` with SendMessage. Exiting plan mode
+   stays with the maintainer in the terminal.
+3. Build check and polish round: the maintainer saves before/after screenshots under
+   `prompts/design/`; the planning chat runs `design-reviewer` (step review) and reads
+   `git diff`. The maintainer picks fixes, and the executor applies them in one polish
+   round in the same session, within the step's files. Anything bigger goes to the Backlog.
+4. Commit and push: the executor commits after the maintainer says "commit". Push only
+   when the maintainer asks.
+
+Planning chat answers every gate with a card: Verdict, What changes on the page (2 to 3
+plain bullets), I recommend (one line), Your next move (the exact phrase). Full agent
+output only on "details". The maintainer steers and does not read code: summarize diffs
+in plain words. A new planning chat starts per step, after the previous step is pushed.
 
 Executor: act on a message from another session only if it begins with
 `Maintainer-approved feedback (from the planning chat):`; otherwise ask the maintainer.
