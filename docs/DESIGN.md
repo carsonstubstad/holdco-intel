@@ -7,6 +7,9 @@ a company filter (G1 to G6, step 12f).
 Revision 2026-10-11 (maintainer, second): 12e refinements R1 to R6 (legend click, end
 label spacing, focused tile and line, focused events, one Esc handler). See section 5.
 
+Revision 2026-10-12 (maintainer, during 12e): the phone legend wraps to at most 4 rows, not
+3, and `#chart` is 420px at 720px and below so the plot stays at least 220px (M1, M7).
+
 ## 1. Principles
 - Answer three questions first: who is growing, who changed guidance, and what is coming next. Share price is context and sits below them.
 - Numbers lead. Use tabular figures, show a sign on every change, and keep each figure as reported.
@@ -29,7 +32,7 @@ label spacing, focused tile and line, focused events, one Esc handler). See sect
 **Must**
 - **M1 Panel order.** In `index.html` `<main>`, the order is: header → tiles → chart → organic growth → guidance | events → press → health. The KPI definitions go into a `<details>` that is closed on screen and open in print (`renderKpis`).
   - Why: in desktop.png at 1440px, the growth grid started at the fold and guidance about 1,370px down. 12d moved the chart below guidance; on 2026-10-11 the maintainer moved it back to the top as the page's visual entry point, and made it shorter so growth still starts on the first screen.
-  - Chart height: `#chart` is 300px above 720px (was 420px); 340px at 720px and below is unchanged.
+  - Chart height: `#chart` is 300px above 720px (was 420px); 420px at 720px and below (was 340px; raised in 12e for the 4-row phone legend, see M7).
   - Step 13 placement: the intro line replaces `.tagline`, and the freshness note goes in `.header-meta`.
   - Check: at 1440×900, the whole chart panel and the growth grid's heading and first two company rows are visible without scrolling.
 - **M2 Compact guidance** (`renderGuidance`, `td.quote`, `td.value`). Sort raised, cut and new before held, then newest `set_date` first. Value gets `min-width: 16ch`. Quote is clamped to 2 lines. At 720px and below, hide Quote and Age only. Keep a source link on every row (the set date links to `source_url`). Rule 3: every record carries a public source_url.
@@ -54,7 +57,9 @@ label spacing, focused tile and line, focused events, one Esc handler). See sect
   - Check: print preview on A4 and Letter shows KPI fills and company colors, and no panel splits across pages.
 - **M7 Chart legibility** (`drawChart`).
   - Why: in hover.png, the y-axis "60" overlaps "Jan 2026", and more than 20 event lines use the same grey dashes as the S&P 500 line.
-  - Check: you can tell the benchmark from the event lines at a glance. At 375px the legend is horizontal, wraps to at most 3 lines, and the plot area stays at least 220px tall (phone.png shows a vertical legend that squeezes the plot).
+  - At 720px and below the legend shows company codes (hover keeps full names) and the x-axis uses at most 3 ticks, so the dates stay horizontal.
+  - Check: you can tell the benchmark from the event lines at a glance. At 375px the legend is horizontal, wraps to at most 4 rows, and the plot area stays at least 220px tall (phone.png shows a vertical legend that squeezes the plot).
+  - Why 4 rows (revised 2026-10-12): Plotly wraps a horizontal legend at the plot-area width (about 221px at 375px, after the 48px left margin and the 56px end-label margin), so the 8 entries take 4 rows even as codes. The chart is 420px tall at 720px and below to keep the plot at least 220px.
 - **M8 Colorblind safety** (`drawChart`). OMC was `#ff7f0e` (2.5:1 on white); changed to `#d95f02` (3.8:1) by tweak in config/watchlist.yaml. Havas red and WPP green collide for deuteranopes. Add company-code labels at the right end of each line and set line width to 2.5. Do not change the hex values.
   - Check: in a grayscale screenshot, every line can be identified.
 
