@@ -175,7 +175,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   rows and dropped quarters. The MCP `get_kpis` quarters cap still counts H1/FY rows
   (follow-up, not this step).
 
-## Day 4: benchmark, design and share
+## Day 4: benchmark and design
 
 - [x] **12b S&P 500 benchmark.** `dashboard.benchmark` in `config/watchlist.yaml`
   (`symbol: "^GSPC"`, `name: S&P 500`, `currency: USD`); the index, not SPY, because readers
@@ -289,18 +289,6 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   new link and control works with Tab and Enter; zero console errors or CSP violations;
   `make check` green. Commit: `step 12g: what changed, growth delta, chart headline`.
 
-- [ ] **13 Ready to share.** `pipeline/stats.py` (computed numbers from runs.jsonl,
-  status.json history and git log, "n/a" rather than estimates). README rewritten around
-  the live Pages link: what it is, who it is for, the numbers, architecture (Mermaid),
-  data sources and limits, why the LLM step is local, failures and fixes, run it yourself,
-  disclaimer. Site: a one-line "what am I looking at" intro and a data-freshness note
-  (prices as of, curated as of, from status.json), meta description and Open Graph
-  title/description, inline SVG favicon. No GIF, no recording.
-  Acceptance: `uv run python -m pipeline.stats` prints real numbers; README's first screen
-  has the link, the one-line description and the disclaimer; the live Pages URL works on a
-  real phone without horizontal scroll and on desktop with zero console errors.
-  Commit: `step 13: ready to share`.
-
 ## Day 5: management commentary (MCP)
 
 - [ ] **14a Commentary data path and MCP tool.** `schemas/commentary.schema.json`
@@ -328,6 +316,29 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   source_urls from the file.
   Commits: `step 14b: /curate drafts management commentary`, the `curate: ...` data
   commit, then `step 14b: first commentary run` (ticks the box, as in step 09).
+
+## Day 6: design and share
+
+Order changed 2026-10-12: 14a and 14b first, then the design rework, then 13, so the
+README and the site's intro describe the reworked page.
+
+- [ ] **12h Design review and rework.** Not specified yet. Goal: a visually designed page
+  that is less dense. Starts with a design-reviewer full brief of the current page and
+  creative-director options; the maintainer picks one in a `plan:` commit, which writes
+  this step (it may split into several). Absorbs the 12h "visual identity" and 12g-review
+  Backlog lines.
+
+- [ ] **13 Ready to share.** `pipeline/stats.py` (computed numbers from runs.jsonl,
+  status.json history and git log, "n/a" rather than estimates). README rewritten around
+  the live Pages link: what it is, who it is for, the numbers, architecture (Mermaid),
+  data sources and limits, why the LLM step is local, failures and fixes, run it yourself,
+  disclaimer. Site: a one-line "what am I looking at" intro and a data-freshness note
+  (prices as of, curated as of, from status.json), meta description and Open Graph
+  title/description, inline SVG favicon. No GIF, no recording.
+  Acceptance: `uv run python -m pipeline.stats` prints real numbers; README's first screen
+  has the link, the one-line description and the disclaimer; the live Pages URL works on a
+  real phone without horizontal scroll and on desktop with zero console errors.
+  Commit: `step 13: ready to share`.
 
 ## Parked (v2)
 
@@ -361,7 +372,7 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   2026-10-12: moved into step 12g as fold-in (5), next to the new chart headline.
 - 2026-10-11: proposed step 12h "visual identity": hand-drawn inline SVG sparklines in
   each tile (company color, last 3 months, no library; DESIGN.md only rules out D3), and
-  panel headings as a small uppercase kicker plus the headline. After 12g, before 13.
+  panel headings as a small uppercase kicker plus the headline. After 14b, before 13.
   Needs a short DESIGN.md addition first (sizes, colors, empty state).
   2026-10-12: the creative-director agent drafts that DESIGN.md addition as 2 to 3
   options; the maintainer picks one in a `plan:` commit before 12h is built.
