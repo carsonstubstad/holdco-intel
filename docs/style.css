@@ -91,7 +91,7 @@ main { display: grid; gap: var(--sp-4); }
 }
 
 .two-col {
-  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4);
+  display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-4);
   align-items: start; min-width: 0;
 }
 
@@ -202,7 +202,7 @@ main { display: grid; gap: var(--sp-4); }
 #chart { width: 100%; height: 300px; }
 .footnote { margin: var(--sp-2) 0 0; color: var(--muted); font-size: var(--fs-xs); }
 
-/* Panel C: guidance table */
+/* Shared tables */
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: var(--fs-sm); }
 th, td {
@@ -210,11 +210,63 @@ th, td {
   border-bottom: 1px solid var(--border); vertical-align: top;
 }
 th { color: var(--muted); font-weight: var(--fw-strong); font-size: var(--fs-xs); }
-td.quote { min-width: 220px; color: var(--muted); }
-td.quote .clamp {
+
+/* Panel C: guidance matrix */
+.g-summary { margin: 0 0 var(--sp-1); line-height: 1.8; }
+.g-missing { margin: 0 0 var(--sp-2); font-size: var(--fs-xs); }
+.g-chips { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-bottom: var(--sp-2); }
+.g-chip {
+  font: inherit; font-size: var(--fs-xs); font-weight: var(--fw-strong);
+  padding: 2px 8px; background: #f3f4f6; color: var(--text); cursor: pointer;
+  border: 1px solid var(--border); border-left: 3px solid var(--faint);
+  border-radius: var(--radius-chip);
+}
+/* Pressed keeps the company-colored left border. */
+.g-chip[aria-pressed="true"] {
+  background: var(--text); color: #ffffff;
+  border-top-color: var(--text); border-right-color: var(--text); border-bottom-color: var(--text);
+}
+table.g-matrix { table-layout: fixed; }
+.g-matrix thead th:nth-child(1) { width: 20%; }
+.g-matrix thead th:nth-child(2), .g-matrix thead th:nth-child(3) { width: 28%; }
+.g-matrix thead th:nth-child(4) { width: 24%; }
+.g-matrix th.g-company {
+  color: var(--text); font-size: var(--fs-sm); font-weight: var(--fw-regular);
+}
+.g-value {
+  font-weight: var(--fw-strong); font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
 }
-td.value { font-weight: var(--fw-strong); min-width: 16ch; font-variant-numeric: tabular-nums; }
+.g-meta { margin-top: 2px; font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+.g-more {
+  font: inherit; font-size: var(--fs-xs); color: var(--link); text-align: left;
+  display: inline-flex; flex-wrap: nowrap; white-space: nowrap; align-items: center;
+  gap: var(--sp-1);
+  padding: 2px 8px; background: var(--panel); cursor: pointer;
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.g-more[aria-expanded="true"] { background: var(--grid); }
+.g-matrix [hidden] { display: none !important; }
+tr.g-detail > td { background: #fafbfc; }
+ul.g-records { list-style: none; margin: 0; padding: 0; }
+/* One record per row: label (metric over period) | value | status and source. */
+ul.g-records li {
+  display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; gap: 2px var(--sp-3);
+  padding: var(--sp-2) 0; border-bottom: 1px solid var(--grid); overflow-wrap: anywhere;
+}
+ul.g-records li:last-child { border-bottom: 0; }
+.g-label { color: var(--muted); font-size: var(--fs-xs); }
+.g-label .date { display: block; }
+.g-rec-value { font-variant-numeric: tabular-nums; }
+ul.g-records .g-meta { margin-top: 0; white-space: nowrap; }
+.g-quote {
+  grid-column: 2 / -1; color: var(--muted); font-size: var(--fs-xs);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+/* The filter is screen-only, so print always shows every company. */
+@media screen {
+  table.g-matrix.is-filtering tbody tr:not(.is-focus) { display: none; }
+}
 
 /* Panel G: organic growth grid */
 table.kpis { font-variant-numeric: tabular-nums; }
@@ -278,7 +330,21 @@ ul.failing li strong { color: var(--text); }
   .two-col { grid-template-columns: 1fr; }
   .tiles { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--sp-2); }
   #chart { height: 420px; }
-  .col-quote, .col-age { display: none; }
+  /* Each company stacks: chip, then label/value pairs, then More. */
+  .g-matrix thead {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
+  }
+  .g-matrix, .g-matrix tbody, .g-matrix tr, .g-matrix th, .g-matrix td { display: block; }
+  .g-matrix tr.g-row { padding: var(--sp-2) 0; border-bottom: 1px solid var(--border); }
+  .g-matrix tr.g-row > * { border-bottom: 0; padding: 2px 0; }
+  .g-matrix td[data-label]::before {
+    content: attr(data-label); display: block; color: var(--muted); font-size: var(--fs-xs);
+  }
+  .g-matrix .g-more-cell { padding-top: var(--sp-1); }
+  .g-matrix tr.g-detail > td { padding: var(--sp-1) var(--sp-2); }
+  /* Dense flow puts status and date beside the label, above the full-width value. */
+  ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
+  .g-rec-value, .g-quote { grid-column: 1 / -1; }
   th.kpi-company .name-full { display: none; }
   th.kpi-company .name-code { display: inline; }
 }
@@ -294,4 +360,6 @@ ul.failing li strong { color: var(--text); }
   .chart-controls, .modebar { display: none !important; }
   .panel { break-inside: avoid; }
   .two-col { grid-template-columns: 1fr; }
+  .g-chips, .g-more { display: none !important; }
+  .g-value, .g-quote { display: block; -webkit-line-clamp: none; overflow: visible; }
 }

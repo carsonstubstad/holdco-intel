@@ -232,7 +232,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   the phone legend takes 4 rows of company codes. The maintainer chose a 420px chart at 720px
   and below (was 340px) to keep the plot at least 220px (DESIGN.md M1 and M7 revised).
 
-- [ ] **12f Guidance matrix and company filter.** Build DESIGN.md G1 to G6 in
+- [x] **12f Guidance matrix and company filter.** Build DESIGN.md G1 to G6 in
   `renderGuidance` and `docs/style.css`: a summary line counted from current records, a
   one-row-per-company matrix (Organic growth | Margin | More) in companies.json order, a
   "+n more" detail row with every record's quote and source link, company filter chips

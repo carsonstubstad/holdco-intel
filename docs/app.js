@@ -210,6 +210,7 @@ let benchVisible = true;
 let eventsVisible = true;
 let redrawChart = null; // set by renderChart once the chart exists
 let unpinKpi = null; // set by renderKpis
+let filterGuidance = null; // set by renderGuidance
 
 // Sets (code) or clears (null) the focused company and updates every view that shows it.
 function setFocusedCompany(ctx, code) {
@@ -222,6 +223,9 @@ function setFocusedCompany(ctx, code) {
     btn.closest('.tile')?.classList.toggle('is-focused', on);
   }
   if (redrawChart) redrawChart();
+  if (filterGuidance) filterGuidance();
+  // The URL carries the focused company (#PUB) without adding history entries.
+  history.replaceState(null, '', next ? '#' + next : location.pathname + location.search);
   document.getElementById('announce').textContent = next
     ? 'Highlighting ' + companyName(ctx, next) : 'Highlight cleared';
 }
@@ -799,38 +803,198 @@ function renderKpis(ctx, data) {
 
 // ---------- Panel C: guidance tracker ----------
 
+const PERIOD_RANK = {FY: 0, H1: 1, H2: 2, Q1: 3, Q2: 4, Q3: 5, Q4: 6};
+const SUMMARY_STATUSES = ['raised', 'cut', 'new', 'held', 'withdrawn'];
+const CHANGE_STATUSES = ['raised', 'cut', 'new', 'withdrawn'];
+const MATRIX_METRICS = [['organic_growth', 'Organic growth'], ['operating_margin', 'Margin']];
+
+// [year, rank] for "FY 2026", "H2 2026" or "Q3 2026"; null for anything else (e.g. medium_term).
+function periodKey(period) {
+  const m = /^(FY|H[12]|Q[1-4]) (\d{4})$/.exec(String(period ?? ''));
+  return m ? [Number(m[2]), PERIOD_RANK[m[1]]] : null;
+}
+
+// The record a matrix cell shows: a current-calendar-year period if any, else the earliest
+// period; ties go to the newest set_date.
+function headlineRecord(records, year) {
+  const key = (r) => periodKey(r.period) || [Infinity, 0];
+  const setDate = (r) => (isIsoDate(r.set_date) ? r.set_date.slice(0, 10) : '');
+  const inYear = records.filter((r) => periodKey(r.period)?.[0] === year);
+  return [...(inYear.length ? inYear : records)].sort((a, b) => key(a)[0] - key(b)[0]
+    || key(a)[1] - key(b)[1] || setDate(b).localeCompare(setDate(a)))[0] || null;
+}
+
+// [status, count] pairs in the given order; a status shows at 0 only if listed in `always`.
+function statusCounts(records, statuses, always) {
+  return statuses.map((s) => [s, records.filter((r) => r.status === s).length])
+    .filter(([s, n]) => n > 0 || always.includes(s));
+}
+
+// "free_cash_flow" -> "Free cash flow", "eps" -> "EPS".
+function metricLabel(metric) {
+  return capitalize(String(metric ?? '').replace(/_/g, ' ').replace(/\beps\b/gi, 'EPS'));
+}
+
+function guidanceCell(r, label, year) {
+  const td = el('td', {className: 'g-cell', 'data-label': label});
+  if (!r) {
+    td.appendChild(el('span', {className: 'muted'}, '–'));
+    return td;
+  }
+  const value = String(r.value ?? '');
+  const quote = String(r.quote ?? '');
+  const period = String(r.period ?? '').replace(/_/g, ' ');
+  const s = typeof r.status === 'string' ? r.status : 'unknown';
+  td.append(
+    // The headline's quote is not in the detail row, so it rides in the value's tooltip.
+    el('div', {className: 'g-value', title: quote ? value + ' — ' + quote : value}, value),
+    // The set date links to the source; without a valid date the link reads "source".
+    el('div', {className: 'g-meta muted'},
+      period && period !== 'FY ' + year ? el('span', {className: 'g-period'}, period + ': ') : null,
+      statusBadge(s, capitalize(s)), ' · ',
+      link(r.source_url, isIsoDate(r.set_date) ? fmtDay(r.set_date) : 'source')));
+  return td;
+}
+
 function renderGuidance(ctx, data) {
   const panel = 'panel-guidance';
+  filterGuidance = null;
+  const records = currentGuidance(data.guidance);
+  if (!records.length) return empty(panel, 'No guidance records yet.');
+
+  const year = Number(ctx.today.slice(0, 4));
   // Status changes first, then held, then anything else; newest set_date first within each.
   const rank = (r) => (Object.hasOwn(STATUS_RANK, r.status) ? STATUS_RANK[r.status] : 2);
   const setDate = (r) => (isIsoDate(r.set_date) ? r.set_date.slice(0, 10) : '');
-  const rows = currentGuidance(data.guidance)
-    .sort((a, b) => rank(a) - rank(b) || setDate(b).localeCompare(setDate(a))
-      || String(a.company).localeCompare(String(b.company))
-      || String(a.metric).localeCompare(String(b.metric)));
-  if (!rows.length) return empty(panel, 'No guidance records yet.');
+  const byStatus = (a, b) => rank(a) - rank(b) || setDate(b).localeCompare(setDate(a))
+    || String(a.metric).localeCompare(String(b.metric));
+  const companyOf = (r) => String(r.company ?? '');
+  const badges = (pairs) => pairs.flatMap(([s, n], i) => [i ? ' · ' : null, statusBadge(s, `${n} ${s}`)]);
 
-  const cols = [['Company'], ['Status'], ['Metric'], ['Period'], ['Value'], ['Set'],
-    ['Quote', 'col-quote'], ['Age', 'col-age']];
-  const head = el('tr', {}, ...cols.map(([h, cls]) => el('th', {scope: 'col', className: cls}, h)));
-  const tbody = el('tbody');
-  for (const r of rows) {
-    const quote = String(r.quote ?? '');
-    tbody.appendChild(el('tr', {},
-      el('td', {}, companyChip(ctx, r.company)),
-      el('td', {}, statusBadge(r.status)),
-      el('td', {}, String(r.metric ?? '').replace(/_/g, ' ')),
-      el('td', {}, String(r.period ?? '')),
-      el('td', {className: 'value'}, String(r.value ?? '')),
-      // The set date links to the source; without a valid date the link reads "source".
-      el('td', {className: 'nowrap'},
-        link(r.source_url, isIsoDate(r.set_date) ? fmtDate(r.set_date) : 'source')),
-      el('td', {className: 'quote col-quote', title: quote}, el('span', {className: 'clamp'}, quote)),
-      el('td', {className: 'nowrap col-age'},
-        isIsoDate(r.set_date) ? daysBetween(r.set_date, ctx.today) + 'd' : '')));
+  // G1: counts first, then the companies with nothing on file.
+  const summary = el('p', {className: 'g-summary'},
+    ...badges(statusCounts(records, SUMMARY_STATUSES, ['raised', 'cut'])));
+  const missing = ctx.list.filter((c) => !records.some((r) => companyOf(r) === c.code));
+  const missingLine = missing.length ? el('p', {className: 'g-missing muted'},
+    'No guidance on file: ' + missing.map((c) => c.code).join(', ')) : null;
+
+  // G4: chips share the one focused company with the tiles and the chart.
+  const chips = el('div', {className: 'g-chips', role: 'group',
+    'aria-label': 'Filter guidance by company'});
+  const allChip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'true'}, 'All');
+  allChip.addEventListener('click', () => setFocusedCompany(ctx, null));
+  chips.appendChild(allChip);
+  for (const c of ctx.list) {
+    const chip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'false',
+      'data-code': c.code, title: companyName(ctx, c.code)}, String(c.code));
+    const color = safeColor(c.color);
+    if (color) chip.style.borderLeftColor = color;
+    chip.addEventListener('click', () => setFocusedCompany(ctx, c.code));
+    chips.appendChild(chip);
   }
-  bodyOf(panel).replaceChildren(el('div', {className: 'table-wrap'},
-    el('table', {}, el('thead', {}, head), tbody)));
+
+  // G2: one row per company in companies.json order; unknown codes follow so no record is lost.
+  const known = ctx.list.map((c) => c.code);
+  const extra = [...new Set(records.map(companyOf))].filter((c) => !Object.hasOwn(ctx.byCode, c));
+  const entries = new Map(); // code -> {row, detail, more}
+
+  function setOpen(entry, open) {
+    // Never leave keyboard focus inside a row that is about to be hidden.
+    if (!open && entry.detail.contains(document.activeElement)) entry.more.focus();
+    entry.detail.hidden = !open;
+    entry.more.setAttribute('aria-expanded', String(open));
+  }
+
+  const head = el('tr', {}, ...['Company', 'Organic growth', 'Margin', 'More']
+    .map((h) => el('th', {scope: 'col'}, h)));
+  const tbody = el('tbody');
+  for (const code of [...known, ...extra]) {
+    const mine = records.filter((r) => companyOf(r) === code);
+    const isKnown = Object.hasOwn(ctx.byCode, code);
+    const row = el('tr', {className: 'g-row'}, el('th', {scope: 'row', className: 'g-company',
+      title: companyName(ctx, code)},
+      isKnown ? companyChip(ctx, code) : code,
+      // The chip shows the code; the full name stays for screen readers and the title.
+      isKnown ? el('span', {className: 'visually-hidden'}, companyName(ctx, code)) : null));
+    const entry = {row, detail: null, more: null};
+    entries.set(code, entry);
+    tbody.appendChild(row);
+    if (!mine.length) {
+      row.appendChild(el('td', {colspan: 3, className: 'muted g-none'}, 'No guidance on file'));
+      continue;
+    }
+
+    const heads = MATRIX_METRICS.map(([m]) => headlineRecord(mine.filter((r) => r.metric === m), year));
+    MATRIX_METRICS.forEach(([, label], i) => row.appendChild(guidanceCell(heads[i], label, year)));
+
+    // G3: the hidden records open in a detail row; changed statuses among them show on the
+    // button. With nothing hidden, "Quotes" lists the headline records instead.
+    const rest = mine.filter((r) => !heads.includes(r));
+    const changed = statusCounts(rest, CHANGE_STATUSES, []);
+    const label = rest.length ? `+${rest.length} more` : 'Quotes';
+    const ariaLabel = [label, ...changed.map(([s, n]) => `${n} ${s}`),
+      companyName(ctx, code) + ' guidance'].join(', ');
+    entry.more = el('button', {type: 'button', className: 'g-more', 'aria-expanded': 'false',
+      'aria-label': ariaLabel}, label, ...changed.map(([s, n]) => statusBadge(s, `${n} ${s}`)));
+    row.appendChild(el('td', {className: 'g-more-cell'}, entry.more));
+
+    const list = el('ul', {className: 'g-records'});
+    let lastQuote = null;
+    for (const r of (rest.length ? rest : heads.filter(Boolean)).sort(byStatus)) {
+      const s = typeof r.status === 'string' ? r.status : 'unknown';
+      const value = String(r.value ?? '');
+      const quote = String(r.quote ?? '');
+      // Skip a quote that only repeats the value or the quote just above it.
+      const showQuote = quote && quote !== lastQuote
+        && !(value && quote.toLowerCase().includes(value.toLowerCase()));
+      if (showQuote) lastQuote = quote;
+      list.appendChild(el('li', {},
+        el('span', {className: 'g-label'}, metricLabel(r.metric),
+          el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' '))),
+        el('strong', {className: 'g-rec-value'}, value),
+        el('span', {className: 'g-meta muted'}, statusBadge(s, capitalize(s)), ' · ',
+          link(r.source_url, isIsoDate(r.set_date) ? fmtDay(r.set_date) : 'source')),
+        showQuote ? el('span', {className: 'g-quote', title: quote}, quote) : null));
+    }
+    entry.detail = el('tr', {className: 'g-detail', hidden: ''}, el('td', {colspan: 4}, list));
+    tbody.appendChild(entry.detail);
+    entry.more.addEventListener('click', () => setOpen(entry, entry.detail.hidden));
+  }
+  const table = el('table', {className: 'g-matrix'}, el('thead', {}, head), tbody);
+
+  // G6: every detail row prints open; the filter is screen-only CSS, so all companies print.
+  const details = [...entries.values()].map((e) => e.detail).filter(Boolean);
+  let closedForPrint = [];
+  window.addEventListener('beforeprint', () => {
+    closedForPrint = details.filter((d) => d.hidden);
+    for (const d of closedForPrint) d.hidden = false;
+  });
+  window.addEventListener('afterprint', () => {
+    for (const d of closedForPrint) d.hidden = true;
+    closedForPrint = [];
+  });
+
+  bodyOf(panel).replaceChildren(...[summary, missingLine, chips, table].filter(Boolean));
+
+  // Called by setFocusedCompany: show only the focused company's row. Details stay as the
+  // reader left them; "+n more" opens them.
+  filterGuidance = () => {
+    for (const chip of chips.querySelectorAll('.g-chip')) {
+      chip.setAttribute('aria-pressed', String((chip.dataset.code ?? null) === focusedCode));
+    }
+    table.classList.toggle('is-filtering', focusedCode !== null);
+    for (const [code, e] of entries) {
+      e.row.classList.toggle('is-focus', code === focusedCode);
+      e.detail?.classList.toggle('is-focus', code === focusedCode);
+    }
+    const target = focusedCode === null ? null : entries.get(focusedCode) || null;
+    // Focus left in a row the filter just hid moves to the shown company's button, or "All".
+    const active = document.activeElement;
+    if (active && table.contains(active) && !active.getClientRects().length) {
+      (target?.more || allChip).focus();
+    }
+  };
+  filterGuidance();
 }
 
 // ---------- Panel D: events ----------
@@ -961,6 +1125,11 @@ async function main() {
     if (focusedCode !== null) setFocusedCompany(ctx, null);
     if (unpinKpi) unpinKpi();
   });
+
+  // A #CODE link focuses that company; only codes from companies.json count, in any case.
+  const wanted = location.hash.slice(1).toUpperCase();
+  const linked = ctx.list.find((c) => String(c.code).toUpperCase() === wanted);
+  if (wanted && linked) setFocusedCompany(ctx, linked.code);
 }
 
 main();
