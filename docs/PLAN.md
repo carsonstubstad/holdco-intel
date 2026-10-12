@@ -265,10 +265,12 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   period, value and date, linked to its `source_url`. At most 6 lines, then a link to the
   guidance panel. It never repeats the guidance summary line's counts. When both lists
   are empty, one muted sentence.
-  (2) A "Δ q/q" column in the organic growth grid, right after the company name: the
-  newest grid quarter minus the quarter before, in percentage points, with ▲/▼ and a
-  sign (never color alone); "–" unless both quarters exist (covers Dentsu half-years,
-  OMC Q4 2025, STGW gaps).
+  (2) A "Δ q/q" column in the organic growth grid, right after the company name: each
+  company's newest quarter minus the quarter directly before (maintainer's decision at
+  the plan gate, so one early reporter doesn't blank the other rows), in percentage
+  points, with ▲/▼ and a sign (never color alone), the quarters named in the cell's
+  title; "–" unless both quarters exist (covers Dentsu half-years, OMC Q4 2025, STGW
+  gaps).
   Fold-ins (2026-10-12, from the Backlog): (3) results day: on a company's results date
   the tile's event line reads "Reports today" with a visible badge. (4) Chart headline:
   one computed line above the chart for the selected window, e.g. "YTD: Stagwell leads
@@ -282,7 +284,8 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   "Reports today" in the tile and the strip; the Δ column matches a hand calculation for
   three companies and shows "–" for DENTSU; the YTD headline's lead and trail match the
   chart's last values; switching window updates it; the footnote and headline name the
-  same benchmark (static text only as a fallback when companies.json lacks it); no sideways scroll at 375px; every
+  same benchmark (static text only as a fallback when companies.json lacks it); no
+  sideways scroll at 375px; every
   new link and control works with Tab and Enter; zero console errors or CSP violations;
   `make check` green. Commit: `step 12g: what changed, growth delta, chart headline`.
 
@@ -366,3 +369,13 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   outlier (STGW ~180) squeezes the other five into a narrow band. Undecided; revisit
   after 12e's highlight is live, which may be enough.
 - 2026-10-11: dark mode (a second token set plus Plotly colors). Candidate for Parked (v2).
+- 2026-10-12 (12g review): results dates now show three times in one scroll (What-changed
+  strip, tile event line, Events panel). Decide what each owns; for the creative-director
+  before 12h.
+- 2026-10-12 (12g review): the M1 first-screen check at 1440x900 needs re-baselining now
+  that the strip exists (the chart ends just below the fold). Options: headline on the h2
+  line, shorter tiles. With 12h.
+- 2026-10-12 (12g review): on phones the growth grid opens at its oldest quarter, though
+  app.js sets scrollLeft to the newest (also before 12g). A tweak.
+- 2026-10-12 (12g review): "Reports today" reuses the blue of the "New" guidance badge.
+  Check for confusion on the first real results day; a tweak if it confuses.
