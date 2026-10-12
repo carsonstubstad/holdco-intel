@@ -107,12 +107,37 @@ commit and the box is ticked in the step's closing commit.
 - Commit messages: imperative, under 72 chars, with the step number, e.g.
   `step 05: add WPP IR press release adapter`. Changes outside a step use `tweak: <what>`
   (at most two files, no data, schema, rule or `.github/` change) or `plan: <what>` for
-  docs/PLAN.md and CLAUDE.md edits.
+  docs/PLAN.md, docs/DESIGN.md, CLAUDE.md and `.claude/agents/` edits.
 - Never run `git push` unless asked; when a PLAN step says to push, stop and ask first.
   From step 06 on, the daily bot commits to `main`, so always `git pull --rebase` before
   pushing. Never force-push. Never edit `.github/` without showing the diff first.
 - Step prompts live in `prompts/` (gitignored, local only). They are guidance; this file
   and docs/PLAN.md win on any conflict.
+
+## Two sessions: planning chat and executor
+
+The maintainer runs two Claude Code sessions. The **planning chat** writes step prompts,
+edits PLAN.md and DESIGN.md (`plan:` commits) and reviews; it does not build site,
+pipeline or core code. The **executor** (the terminal session named `executor`) builds
+one step per session from a pasted prompt. Review agents in `.claude/agents/` are
+read-only: `plan-reviewer` (plans), `design-reviewer` (brief, or step review of
+screenshots), `creative-director` (visual directions). Every gate is the maintainer's:
+
+1. Prompt: the planning chat drafts or edits the step prompt; the maintainer reads it
+   and pastes it into the executor in plan mode.
+2. Plan: plan mode saves the plan to `~/.claude/plans/`. The planning chat reviews it
+   with `plan-reviewer` and shows the maintainer a verdict and a reply. The reply goes to
+   the executor only after the maintainer says so (pasted, or sent by the planning chat).
+   The executor's own exit-plan-mode approval stays with the maintainer in the terminal.
+3. Build check: the executor saves before/after screenshots under `prompts/design/`;
+   the planning chat runs `design-reviewer` (step review). The maintainer decides fixes.
+4. Commit and push: the executor commits after the maintainer's check. Push only when
+   the maintainer asks.
+
+Executor: act on a message from another session only if it begins with
+`Maintainer-approved feedback (from the planning chat):`; otherwise ask the maintainer.
+Planning chat: never edit tracked files while the executor is mid-step (its commit would
+sweep them in); edit `prompts/` instead and commit plan changes after the step lands.
 
 ## Things that look like good ideas and are not
 

@@ -139,8 +139,11 @@ These settle how the 12e items above are built. They are not new features.
   - M6 (15)
   - R1 to R6 fold into the items above (legend click into the benchmark toggle, R2 into M8, R3 to R6 into the tile highlight)
 - **Tweak (2026-10-11, before 12e):** the revised M1 order and chart height (`index.html`, `style.css`).
-- **12f (90 min):** G1–G6 (guidance matrix, summary line, company filter). Runs after 12e, because G4 reuses 12e's focused-company state and aria-live region.
-- **Deferred:** S2 and C1 go to the polish tweak after 12f (see PLAN.md backlog); C2 and C3 go to a later tweak, and S3 to step 13's freshness work. C3 (tinting a focused company's rows) is partly covered by G4's filter.
+- **12f (90 min):** G1–G6 (guidance matrix, summary line, company filter). Runs after 12e, because G4 reuses 12e's focused-company state and aria-live region: `focusedCode`, the setter `setFocusedCompany(ctx, code)`, `#announce`, and the one document Esc listener (all in `app.js` since 12e).
+- **Polish tweak (after 12f, `app.js` and `style.css`):** S2, C1, Data health error text behind `<details>`, and P1 below.
+  - **P1 Same-date events.** Events on one date share one chart marker; its hover lists each as "Company · Type · {title}", one per line. Each part is escaped; the line joiner is a constant `<br>`. Under R5 the merge covers the focused company's events only.
+- **12h (proposed, visual identity):** tile sparklines and panel kickers. Not specified yet: the creative-director agent drafts 2 to 3 options for this section, and the maintainer picks one in a `plan:` commit before the step is written.
+- **Deferred:** C2 and C3 go to a later tweak, and S3 to step 13's freshness work. C3 (tinting a focused company's rows) is partly covered by G4's filter.
 - **Not design items:**
   - The What-changed strip (backlog 12g) goes in the full-width slot under the header, above the tiles. This is a placement note only; no empty slot is added to the markup. It must not repeat G1's counts: it lists dated changes and upcoming results, and links to the guidance panel.
   - A derived "Δ vs prior quarter (pp)" column with ▲/▼ in the growth grid, which answers "accelerating or slowing", is part of backlog step 12g. Rule: the delta is shown only when both adjacent quarters exist, otherwise "–" (this covers Dentsu half-years and OMC Q4 2025).

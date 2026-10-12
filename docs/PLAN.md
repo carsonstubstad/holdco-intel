@@ -329,13 +329,19 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   rebased series the chart draws (no LLM, no new data), text via textContent, updated on
   window change. Fold into 12g.
 - 2026-10-11: polish tweak after 12f (`app.js` and `style.css` only): DESIGN.md C1 (press
-  shows the first 10 plus "Show all (n)"), S2 (hide `.windows` and the S&P button when the
-  chart is empty), and failing-source error text in Data health clamped to one line with
-  the full text behind a `<details>`.
+  shows the first 10 plus "Show all (n)"), S2 (hide `.chart-controls` when the chart is
+  empty), failing-source error text in Data health clamped to one line with the full text
+  behind a `<details>`, and events on the same date merged into one chart marker whose
+  hover lists each event (noticed in 12e: overlapping markers show only one hover).
+- 2026-10-12: the chart footnote in index.html names "S&P 500" as static text instead of
+  companies.json's benchmark name (noticed in 12e). Fold into step 13, which already
+  edits index.html.
 - 2026-10-11: proposed step 12h "visual identity": hand-drawn inline SVG sparklines in
   each tile (company color, last 3 months, no library; DESIGN.md only rules out D3), and
   panel headings as a small uppercase kicker plus the headline. After 12g, before 13.
   Needs a short DESIGN.md addition first (sizes, colors, empty state).
+  2026-10-12: the creative-director agent drafts that DESIGN.md addition as 2 to 3
+  options; the maintainer picks one in a `plan:` commit before 12h is built.
 - 2026-10-11: log-scale (or "% change") option on the chart's y-axis, because one
   outlier (STGW ~180) squeezes the other five into a narrow band. Undecided; revisit
   after 12e's highlight is live, which may be enough.
