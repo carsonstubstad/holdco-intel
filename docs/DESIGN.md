@@ -10,6 +10,10 @@ label spacing, focused tile and line, focused events, one Esc handler). See sect
 Revision 2026-10-12 (maintainer, during 12e): the phone legend wraps to at most 4 rows, not
 3, and `#chart` is 420px at 720px and below so the plot stays at least 220px (M1, M7).
 
+Revision 2026-10-11 (maintainer, during 12f): the More button names hidden changes, the
+detail row lists only hidden records in a grid, choosing a company keeps its detail
+closed, and the Company column shows the code chip only (G2 to G4).
+
 ## 1. Principles
 - Answer three questions first: who is growing, who changed guidance, and what is coming next. Share price is context and sits below them.
 - Numbers lead. Use tabular figures, show a sign on every change, and keep each figure as reported.
@@ -80,8 +84,9 @@ Why: after 12d the tracker is still 15 rows in one list. A reader has to read ev
   - Headline record per company and metric: the record whose period is in the current calendar year (FY, H1, H2 or Q of that year). Otherwise use the earliest period, then the newest set_date.
   - Cell: the value (strong, tabular, clamped to 2 lines, full text in `title`). Below it, a muted line: status badge, then the set date linked to `source_url` ("Raised · 16 Jul"); "source" if there is no valid date. When the period is not "FY <current year>", prefix it muted ("H2 2026:").
   - An empty cell shows a muted "–". A company with no records gets one muted cell: "No guidance on file".
-- **G3 More.** A `<button aria-expanded>` reading "+n more" (n = records not shown as headlines), or "Quotes" when n is 0. It opens a full-width detail row under that company listing every current record: metric (underscores to spaces), period, value, status badge, set date linked to source, quote clamped to 2 lines. Every record keeps its public link (rule 3).
-- **G4 Company filter.** A chip row above the matrix: "All", then each code from companies.json, as `<button aria-pressed>`, single select. Each chip has a 3px left border in the company color, and the code is always shown. Choosing a company shows only its row with the detail open; "All" restores the matrix.
+  - The Company column shows the code chip only, at every width; the full name is its `title` and stays available to screen readers. A headline value's `title` also carries its quote.
+- **G3 More.** A `<button aria-expanded>` reading "+n more" (n = records not shown as headlines), or "Quotes" when n is 0. When hidden records include raised, cut, new or withdrawn, the button adds one status badge per status with its count and word ("+4 more" then "1 raised"), in G1 order, and its aria-label says the same and names the company. It opens a full-width detail row listing only the hidden records (all records when n is 0), one grid line each: muted label (metric in sentence case, "EPS" in capitals, with the period below) | value | status badge · set date linked to source. The quote sits under the value, clamped to 2 lines, and is skipped when it repeats the value or the previous quote. Every record keeps its public link (rule 3): headline records through their matrix cell.
+- **G4 Company filter.** A chip row above the matrix: "All", then each code from companies.json, as `<button aria-pressed>`, single select. Each chip has a 3px left border in the company color, and the code is always shown. Choosing a company shows only its row with the detail closed; the reader opens it with More. "All" restores the matrix.
   - The filter and the 12e tile highlight share one "focused company": a tile click filters guidance, a chip click highlights the chart line, and Esc clears both. Changes are announced through the 12e aria-live region.
 - **G5 Layout.** Above 720px, `.two-col` becomes `2fr 1fr` (guidance wider than events). At 720px and below, each company row stacks: the company chip, then "Organic growth" and "Margin" as label/value pairs, then More. Chips wrap. No sideways scroll inside the panel.
 - **G6 Print.** Chips are hidden, the filter is ignored (all companies print), and every detail row prints open (reuse the `beforeprint`/`afterprint` pattern from `renderKpis`).
