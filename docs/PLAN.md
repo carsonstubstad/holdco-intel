@@ -245,6 +245,11 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   work with Tab, Enter and Space, and Esc clears the filter; at 375px there is no sideways
   scroll; with guidance.json hidden the panel shows its empty sentence; zero console
   errors or CSP violations; `make check` green.
+  Fold-in (2026-10-11, from the Backlog): a company link. On load, a URL hash matching a
+  code in companies.json (e.g. `#PUB`) calls the focus setter; the setter keeps the hash
+  in sync (`history.replaceState`, cleared with the focus). Any other hash is ignored.
+  Acceptance: opening `/#PUB` loads with Publicis focused and guidance filtered; Esc
+  clears the hash; `#xyz` changes nothing.
   Commit: `step 12f: guidance matrix and company filter`.
 
 - [ ] **13 Ready to share.** `pipeline/stats.py` (computed numbers from runs.jsonl,
@@ -320,8 +325,6 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   `metric_label` in the guidance schema (e.g. "adjusted EBITDA"), filled by /curate from
   the source's own wording. A schema change, so its own small step or part of the next
   /curate step.
-- 2026-10-11: link to one company, e.g. `#PUB` in the URL sets the focused company from
-  12e/12f on load, so a reader can share "the Publicis view". Small; after 12f.
 - 2026-10-11: results-day line: on the day a company reports (from events.json), the
   tile or the What-changed strip says "Reports today". Deterministic; fold into 12g.
 - 2026-10-11: computed chart headline above the chart for the selected window, e.g.
