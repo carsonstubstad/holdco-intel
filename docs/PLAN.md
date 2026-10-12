@@ -215,6 +215,9 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Acceptance: before/after screenshots at 1440px and 390px; no horizontal scroll at 390px;
   zero console errors or CSP violations; `make check` green.
   Commit: `step 12d: layout, type and phone pass`.
+  Note (2026-10-11): after review, the maintainer moved the chart back above organic
+  growth at 300px tall (DESIGN.md M1 revised; built as a tweak before 12e). The 12d
+  guidance list is replaced by the 12f matrix.
 
 - [ ] **12e Chart and interactivity.** Build the DESIGN.md items assigned to 12e: Plotly
   layout matching the tokens, benchmark styling, a keyboard-operable benchmark toggle,
@@ -222,6 +225,21 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   motion. Acceptance: every control works with Tab, Enter and Space and shows a focus
   ring; each linking behavior works and Esc resets it; zero console errors or CSP
   violations; `make check` green. Commit: `step 12e: chart styling and interactivity`.
+
+- [ ] **12f Guidance matrix and company filter.** Build DESIGN.md G1 to G6 in
+  `renderGuidance` and `docs/style.css`: a summary line counted from current records, a
+  one-row-per-company matrix (Organic growth | Margin | More) in companies.json order, a
+  "+n more" detail row with every record's quote and source link, company filter chips
+  that share 12e's focused-company state (a tile click filters guidance, Esc clears both),
+  and the phone and print layouts. Site only: no data, schema or pipeline change, no LLM.
+  Text goes in via textContent and links via `link()`.
+  Acceptance: at 1440px with details closed, the guidance panel shows all six companies
+  and is no taller than 480px; the summary line's counts match `docs/data/guidance.json`
+  (hand count); every record is reachable with its source link; chips and More buttons
+  work with Tab, Enter and Space, and Esc clears the filter; at 375px there is no sideways
+  scroll; with guidance.json hidden the panel shows its empty sentence; zero console
+  errors or CSP violations; `make check` green.
+  Commit: `step 12f: guidance matrix and company filter`.
 
 - [ ] **13 Ready to share.** `pipeline/stats.py` (computed numbers from runs.jsonl,
   status.json history and git log, "n/a" rather than estimates). README rewritten around
@@ -288,3 +306,15 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   newest first, linked to source_url. Built deterministically from guidance.json and
   events.json; no new data, no LLM. Proposed as step 12f (after 12e, before 13), with the
   design-reviewer's placement from docs/DESIGN.md.
+  2026-10-11: renumbered to 12g (12f is now the guidance matrix), together with the growth
+  grid "Δ vs prior quarter" column. It must not repeat the guidance summary line's counts;
+  it lists dated changes and upcoming results and links to the guidance panel.
+- 2026-10-11: guidance records with metric `other` read as "other" on the site (STGW
+  $475-525m, WPP £800-900m), which tells a reader nothing. Option: an optional
+  `metric_label` in the guidance schema (e.g. "adjusted EBITDA"), filled by /curate from
+  the source's own wording. A schema change, so its own small step or part of the next
+  /curate step.
+- 2026-10-11: link to one company, e.g. `#PUB` in the URL sets the focused company from
+  12e/12f on load, so a reader can share "the Publicis view". Small; after 12f.
+- 2026-10-11: results-day line: on the day a company reports (from events.json), the
+  tile or the What-changed strip says "Reports today". Deterministic; fold into 12g.

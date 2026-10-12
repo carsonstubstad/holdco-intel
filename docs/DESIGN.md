@@ -1,4 +1,8 @@
-# Design brief (approved 2026-10-09)
+# Design brief (approved 2026-10-09, revised 2026-10-11)
+
+Revision 2026-10-11 (maintainer): the chart moves above organic growth and gets shorter
+(M1), and the guidance list becomes a one-row-per-company matrix with a summary line and
+a company filter (G1 to G6, step 12f).
 
 ## 1. Principles
 - Answer three questions first: who is growing, who changed guidance, and what is coming next. Share price is context and sits below them.
@@ -20,13 +24,15 @@
 ## 3. Must / Should / Could
 
 **Must**
-- **M1 Panel order.** In `index.html` `<main>`, the order becomes: header → tiles → organic growth → guidance | events → chart → press → health. The KPI definitions go into a `<details>` that is closed on screen and open in print (`renderKpis`).
-  - Why: in desktop.png at 1440px, the first ~900px holds only the header, tiles and chart. The growth grid starts at the fold and guidance starts about 1,370px down, so questions 1 and 2 go unanswered on the first screen.
+- **M1 Panel order.** In `index.html` `<main>`, the order is: header → tiles → chart → organic growth → guidance | events → press → health. The KPI definitions go into a `<details>` that is closed on screen and open in print (`renderKpis`).
+  - Why: in desktop.png at 1440px, the growth grid started at the fold and guidance about 1,370px down. 12d moved the chart below guidance; on 2026-10-11 the maintainer moved it back to the top as the page's visual entry point, and made it shorter so growth still starts on the first screen.
+  - Chart height: `#chart` is 300px above 720px (was 420px); 340px at 720px and below is unchanged.
   - Step 13 placement: the intro line replaces `.tagline`, and the freshness note goes in `.header-meta`.
-  - Check: at 1440×900, the grid and the first guidance rows are visible without scrolling.
+  - Check: at 1440×900, the whole chart panel and the growth grid's heading and first two company rows are visible without scrolling.
 - **M2 Compact guidance** (`renderGuidance`, `td.quote`, `td.value`). Sort raised, cut and new before held, then newest `set_date` first. Value gets `min-width: 16ch`. Quote is clamped to 2 lines. At 720px and below, hide Quote and Age only. Keep a source link on every row (the set date links to `source_url`). Rule 3: every record carries a public source_url.
   - Why: in desktop.png, the "slight operating margin…" value wraps to 9 lines, Quote is clipped at the panel edge, and the Events panel beside it is mostly blank. In phone.png, the Status column is off-screen.
   - Check: at 390px, every row's status is visible.
+  - Built in 12d. Replaced by the guidance matrix (G1 to G6) in step 12f.
 - **M3 Growth grid on phone** (`renderKpis`, `th.kpi-company`). After render, scroll `.table-wrap` to the right end. Make the company column sticky and show the company code at 720px and below.
   - Why: phone.png shows only Q3 2024 and Q4 2024, the oldest quarters.
   - Check: at 390px, Q2 2026 is visible on load.
@@ -45,7 +51,7 @@
   - Check: print preview on A4 and Letter shows KPI fills and company colors, and no panel splits across pages.
 - **M7 Chart legibility** (`drawChart`).
   - Why: in hover.png, the y-axis "60" overlaps "Jan 2026", and more than 20 event lines use the same grey dashes as the S&P 500 line.
-  - Check: you can tell the benchmark from the event lines at a glance.
+  - Check: you can tell the benchmark from the event lines at a glance. At 375px the legend is horizontal, wraps to at most 3 lines, and the plot area stays at least 220px tall (phone.png shows a vertical legend that squeezes the plot).
 - **M8 Colorblind safety** (`drawChart`). OMC was `#ff7f0e` (2.5:1 on white); changed to `#d95f02` (3.8:1) by tweak in config/watchlist.yaml. Havas red and WPP green collide for deuteranopes. Add company-code labels at the right end of each line and set line width to 2.5. Do not change the hex values.
   - Check: in a grayscale screenshot, every line can be identified.
 
@@ -57,6 +63,21 @@
 - **C1** In `renderPress`, show the first 10 items plus a "Show all (n)" button. In phone.png, the press list runs about 3,000px.
 - **C2** Use a roving tabindex in the KPI grid. Today it has 48 tab stops.
 - **C3** When a tile highlights a company, tint that company's KPI row and guidance rows with 10% of its color.
+
+### Guidance matrix (step 12f, added 2026-10-11)
+Why: after 12d the tracker is still 15 rows in one list. A reader has to read every row to see who raised, and the list needs scrolling. The panel should answer "who changed guidance" in one glance and fit on one screen.
+
+- **G1 Summary line** above the matrix, computed from current records (no LLM). Counts in a fixed order: raised, cut, new, then held; withdrawn appears only when above zero. Raised and cut always show, even at 0, because "0 cut" is a takeaway. Each count is a status badge with its word (never color alone), e.g. `2 raised · 0 cut · 3 new · 10 held`. A second muted line lists companies in companies.json with no current record: "No guidance on file: OMC, DENTSU".
+- **G2 Matrix.** One row per company, in companies.json order (same as tiles and the growth grid). Columns: Company | Organic growth | Margin | More. Margin means `operating_margin` only.
+  - Headline record per company and metric: the record whose period is in the current calendar year (FY, H1, H2 or Q of that year). Otherwise use the earliest period, then the newest set_date.
+  - Cell: the value (strong, tabular, clamped to 2 lines, full text in `title`). Below it, a muted line: status badge, then the set date linked to `source_url` ("Raised · 16 Jul"); "source" if there is no valid date. When the period is not "FY <current year>", prefix it muted ("H2 2026:").
+  - An empty cell shows a muted "–". A company with no records gets one muted cell: "No guidance on file".
+- **G3 More.** A `<button aria-expanded>` reading "+n more" (n = records not shown as headlines), or "Quotes" when n is 0. It opens a full-width detail row under that company listing every current record: metric (underscores to spaces), period, value, status badge, set date linked to source, quote clamped to 2 lines. Every record keeps its public link (rule 3).
+- **G4 Company filter.** A chip row above the matrix: "All", then each code from companies.json, as `<button aria-pressed>`, single select. Each chip has a 3px left border in the company color, and the code is always shown. Choosing a company shows only its row with the detail open; "All" restores the matrix.
+  - The filter and the 12e tile highlight share one "focused company": a tile click filters guidance, a chip click highlights the chart line, and Esc clears both. Changes are announced through the 12e aria-live region.
+- **G5 Layout.** Above 720px, `.two-col` becomes `2fr 1fr` (guidance wider than events). At 720px and below, each company row stacks: the company chip, then "Organic growth" and "Margin" as label/value pairs, then More. Chips wrap. No sideways scroll inside the panel.
+- **G6 Print.** Chips are hidden, the filter is ignored (all companies print), and every detail row prints open (reuse the `beforeprint`/`afterprint` pattern from `renderKpis`).
+- Check: at 1440px with all details closed, the guidance panel shows all six companies and is no taller than 480px. At 375px there is no sideways scroll, and each company's two headline values show without horizontal scrolling. Tab reaches the chips and the More buttons, and Enter or Space works each one.
 
 ## 4. Chart spec
 ```
@@ -96,13 +117,15 @@ For event hover text, use "Publicis Groupe · Deal · {title}". Company names st
   - M8 (15)
   - M5 plus reduced motion (10)
   - Benchmark toggle (10)
-  - Tile highlight, chart only, and Esc (20)
+  - Tile highlight, chart only, and Esc (20). Keep the focused company in one variable with one setter, so 12f's guidance filter can share it.
   - M6 (15)
-- **Deferred:** S2 and C1–C3 go to a later tweak, and S3 to step 13's freshness work.
+- **Tweak (2026-10-11, before 12e):** the revised M1 order and chart height (`index.html`, `style.css`).
+- **12f (90 min):** G1–G6 (guidance matrix, summary line, company filter). Runs after 12e, because G4 reuses 12e's focused-company state and aria-live region.
+- **Deferred:** S2 and C1–C3 go to a later tweak, and S3 to step 13's freshness work. C3 (tinting a focused company's rows) is partly covered by G4's filter.
 - **Not design items:**
-  - The What-changed strip (backlog 12f) goes in the full-width slot under the header, above the tiles. This is a placement note only; no empty slot is added to the markup.
-  - A derived "Δ vs prior quarter (pp)" column with ▲/▼ in the growth grid, which answers "accelerating or slowing", is part of backlog step 12f (Executive snapshot). Rule: the delta is shown only when both adjacent quarters exist, otherwise "–" (this covers Dentsu half-years and OMC Q4 2025).
-  - The "Management says" panel (backlog 14c) goes after guidance | events and before the chart.
+  - The What-changed strip (backlog 12g) goes in the full-width slot under the header, above the tiles. This is a placement note only; no empty slot is added to the markup. It must not repeat G1's counts: it lists dated changes and upcoming results, and links to the guidance panel.
+  - A derived "Δ vs prior quarter (pp)" column with ▲/▼ in the growth grid, which answers "accelerating or slowing", is part of backlog step 12g. Rule: the delta is shown only when both adjacent quarters exist, otherwise "–" (this covers Dentsu half-years and OMC Q4 2025).
+  - The "Management says" panel (backlog 14c) goes after guidance | events and before press.
 
 ## 7. Out of scope
 - **Google-hosted fonts.** Ruled out by the CSP rule. A self-hosted font would be allowed, but the system stack is enough.
