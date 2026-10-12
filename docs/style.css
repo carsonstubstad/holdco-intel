@@ -161,7 +161,7 @@ main { display: grid; gap: var(--sp-4); }
   padding: 0 7px; border-radius: var(--radius-pill);
   white-space: nowrap;
 }
-.status-new { background: #ddf4ff; color: #0550ae; }
+.status-new, .badge-today { background: #ddf4ff; color: #0550ae; }
 .status-raised { background: #dafbe1; color: #116329; }
 .status-held { background: #eaeef2; color: #424a53; }
 .status-cut { background: #ffebe9; color: #a40e26; }
@@ -202,6 +202,20 @@ main { display: grid; gap: var(--sp-4); }
 #chart .scatterlayer .trace { transition: opacity 150ms ease; }
 #chart { width: 100%; height: 300px; }
 .footnote { margin: var(--sp-2) 0 0; color: var(--muted); font-size: var(--fs-xs); }
+.chart-headline {
+  margin: 0 0 var(--sp-1); font-size: var(--fs-sm); font-weight: var(--fw-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* What changed strip */
+/* Each group reads as one line on desktop: its heading, then its items side by side. */
+.c-groups { display: grid; gap: var(--sp-1); }
+#panel-changes .c-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-3); }
+#panel-changes .month { margin: 0; }
+ul.c-list { display: flex; flex-wrap: wrap; gap: 0 var(--sp-5); }
+#panel-changes ul.c-list li { border-bottom: 0; padding: 2px 0; }
+.c-value { font-variant-numeric: tabular-nums; }
+.c-more-line { margin: var(--sp-1) 0 0; font-size: var(--fs-sm); }
 
 /* Shared tables */
 .table-wrap { overflow-x: auto; }
@@ -272,14 +286,28 @@ ul.g-records .g-meta { margin-top: 0; white-space: nowrap; }
 /* Panel G: organic growth grid */
 table.kpis { font-variant-numeric: tabular-nums; }
 table.kpis th[scope="col"] { text-align: center; white-space: nowrap; }
+/* Company and Δ stay pinned while the grid starts scrolled to its newest quarter. One
+   variable sets the company width and the Δ offset. */
+table.kpis { --kpi-co-w: 216px; }
 table.kpis th.kpi-company, table.kpis th.kpi-corner {
   position: sticky; left: 0; z-index: 1; background: var(--panel);
+  width: var(--kpi-co-w); min-width: var(--kpi-co-w); max-width: var(--kpi-co-w);
+  overflow: hidden; text-overflow: ellipsis; /* a long name never widens past the Δ offset */
+}
+table.kpis th.kpi-delta-head, table.kpis td.kpi-delta {
+  position: sticky; left: var(--kpi-co-w); z-index: 1; background: var(--panel);
+  border-right: 1px solid var(--border);
 }
 table.kpis th.kpi-company {
   color: var(--text); font-size: var(--fs-sm); white-space: nowrap;
   border-left: 4px solid var(--faint);
 }
 th.kpi-company .name-code { display: none; }
+/* Δ q/q: plain text outside the color scale; glyph and sign carry the direction. */
+table.kpis td.kpi-delta {
+  text-align: center; vertical-align: middle; white-space: nowrap; font-weight: var(--fw-strong);
+}
+table.kpis th.kpi-delta-head { cursor: help; }
 td.kpi-cell {
   min-width: 64px; padding: 0; text-align: center; vertical-align: middle;
   border: 1px solid var(--panel);
@@ -303,13 +331,13 @@ ul.kpi-defs { list-style: none; margin: var(--sp-1) 0 0; padding: 0; }
 /* Panels D and E: lists */
 .month { font-size: var(--fs-sm); color: var(--muted); margin: var(--sp-3) 0 var(--sp-1); }
 .month:first-child { margin-top: 0; }
-ul.events, ul.press, ul.failing, ul.facts { list-style: none; margin: 0; padding: 0; }
-ul.events li, ul.press li {
+ul.events, ul.press, ul.failing, ul.facts, ul.c-list { list-style: none; margin: 0; padding: 0; }
+ul.events li, ul.press li, ul.c-list li {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3);
   padding: 6px 0; border-bottom: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
-ul.events li:last-child, ul.press li:last-child { border-bottom: 0; }
+ul.events li:last-child, ul.press li:last-child, ul.c-list li:last-child { border-bottom: 0; }
 .date { color: var(--muted); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
 .etype { color: var(--muted); font-size: var(--fs-xs); text-transform: capitalize; }
 ul.press li.unflagged, ul.press li.unflagged a { color: var(--faint); }
@@ -360,6 +388,10 @@ details.err-full pre {
   .g-rec-value, .g-quote { grid-column: 1 / -1; }
   th.kpi-company .name-full { display: none; }
   th.kpi-company .name-code { display: inline; }
+  table.kpis { --kpi-co-w: 76px; }
+  /* Phone: heading above its items, one item per line. */
+  #panel-changes .c-group { display: block; }
+  ul.c-list { flex-direction: column; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -373,7 +405,7 @@ details.err-full pre {
   .chart-controls, .modebar { display: none !important; }
   .panel { break-inside: avoid; }
   .two-col { grid-template-columns: 1fr; }
-  .g-chips, .g-more, .show-more { display: none !important; }
+  .g-chips, .g-more, .show-more, .c-more-line { display: none !important; }
   details.err-full { display: none; }
   .g-value, .g-quote { display: block; -webkit-line-clamp: none; overflow: visible; }
 }

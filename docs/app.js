@@ -239,6 +239,68 @@ function setBenchmarkVisible(on) {
   if (redrawChart) redrawChart();
 }
 
+// ---------- What changed strip ----------
+
+const CHANGES_LIMIT = 6;
+
+// Upcoming results and recent guidance changes for all companies; never the guidance counts.
+function renderChanges(ctx, data) {
+  const panel = 'panel-changes';
+  const since = addDays(ctx.today, -30);
+  const coming = upcomingEvents(data.events, ctx.today, 14).filter((e) => e.type === 'results')
+    .slice(0, CHANGES_LIMIT);
+  const recent = currentGuidance(data.guidance)
+    .filter((r) => isIsoDate(r.set_date) && r.set_date.slice(0, 10) >= since
+      && r.set_date.slice(0, 10) <= ctx.today)
+    .sort((a, b) => b.set_date.localeCompare(a.set_date))
+    .slice(0, CHANGES_LIMIT - coming.length);
+  if (!coming.length && !recent.length) {
+    return empty(panel,
+      'No results in the next 14 days and no guidance changes in the last 30 days.');
+  }
+
+  const group = (title, items) => el('div', {className: 'c-group'},
+    el('h3', {className: 'month'}, title), el('ul', {className: 'c-list'}, ...items));
+  const groups = el('div', {className: 'c-groups'});
+  if (coming.length) {
+    groups.appendChild(group('Coming up', coming.map((e) => {
+      const n = daysBetween(ctx.today, e.date);
+      const date = fmtDay(e.date) + (e.confirmed === true ? '' : ' (est.)');
+      return el('li', {},
+        companyChip(ctx, e.company),
+        el('span', {className: 'etype'}, 'Results'),
+        el('span', {className: 'nowrap date'}, safeUrl(e.source_url) ? link(e.source_url, date) : date),
+        n === 0 ? el('span', {className: 'badge badge-today'}, 'Reports today')
+          : el('span', {className: 'muted'}, n === 1 ? 'Tomorrow' : `in ${n} days`));
+    })));
+  }
+  if (recent.length) {
+    groups.appendChild(group('Recent guidance', recent.map((r) => {
+      const s = String(r.status ?? 'unknown');
+      return el('li', {},
+        statusBadge(s, capitalize(s)),
+        companyChip(ctx, r.company),
+        el('span', {}, metricLabel(r.metric)),
+        el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' ')),
+        el('strong', {className: 'c-value'}, String(r.value ?? '')),
+        el('span', {className: 'nowrap date'}, link(r.source_url, fmtDay(r.set_date))));
+    })));
+  }
+
+  // An in-page jump: link() opens a new tab, and the URL keeps a focused company's #CODE.
+  const more = el('a', {href: '#panel-guidance', className: 'c-more'}, 'See guidance tracker');
+  more.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    document.getElementById('panel-guidance')?.scrollIntoView();
+    const heading = document.getElementById('h-guidance');
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({preventScroll: true});
+    }
+  });
+  bodyOf(panel).replaceChildren(groups, el('p', {className: 'c-more-line'}, more));
+}
+
 // ---------- Panel A: scan strip ----------
 
 function renderScan(ctx, data) {
@@ -312,14 +374,22 @@ function renderScan(ctx, data) {
     }
     tile.appendChild(el('div', {className: 'tile-guidance'}, badge));
 
-    const next = events.find((e) => e.company === c.code);
+    // Results today win over any other event on the same day, so tile and strip agree.
+    const next = events.find((e) => e.company === c.code && e.type === 'results'
+      && e.date.slice(0, 10) === ctx.today) || events.find((e) => e.company === c.code);
     let eventText = 'no event scheduled';
+    let today = null;
     if (next) {
       const n = daysBetween(ctx.today, next.date);
-      eventText = `${capitalize(String(next.type ?? '').replace(/_/g, ' '))} ${fmtDay(next.date)} `
-        + (n === 0 ? '(today)' : `(${n}d)`);
+      const type = `${capitalize(String(next.type ?? '').replace(/_/g, ' '))} ${fmtDay(next.date)}`;
+      if (n === 0 && next.type === 'results') {
+        eventText = type + ' ';
+        today = el('span', {className: 'badge badge-today'}, 'Reports today');
+      } else {
+        eventText = type + ' ' + (n === 0 ? '(today)' : `(${n}d)`);
+      }
     }
-    tile.appendChild(el('div', {className: 'tile-event muted'}, eventText));
+    tile.appendChild(el('div', {className: 'tile-event muted'}, eventText, today));
 
     body.appendChild(tile);
   }
@@ -535,6 +605,29 @@ function drawChart(ctx, data, aligned, win) {
     traceKeys.push(companyKeys[f]);
   }
 
+  // The headline reads the same rebased lines, for every company whatever the focus.
+  const lastOf = (ys) => ys.findLast((v) => v !== null);
+  // Codes on narrow screens, like the legend; raw strings, never the escaped Plotly names.
+  const ends = series.map((s, i) => ({name: NARROW.matches ? String(s.company.code)
+    : String(s.company.name ?? s.company.code),
+    v: lastOf(companyTraces[i].y)})).filter((e) => isNum(e.v));
+  const headline = document.getElementById('chart-headline');
+  if (headline && ends.length) {
+    const lead = ends.reduce((a, e) => (e.v > a.v ? e : a));
+    const trail = ends.reduce((a, e) => (e.v < a.v ? e : a));
+    let text = `${win}: ${lead.name} leads ${signedPct(lead.v - 100)}`;
+    if (ends.length > 1) text += `, ${trail.name} trails ${signedPct(trail.v - 100)}`;
+    const benchEnd = lastOf(benchY);
+    if (bench && isNum(benchEnd)) text += ` · ${bench.name} ${signedPct(benchEnd - 100)}`;
+    // Set only on change, so a focus redraw does not re-announce it.
+    if (headline.textContent !== text) headline.textContent = text;
+    headline.hidden = false;
+  } else if (headline) {
+    // No company has a value in this window: never leave the last window's text up.
+    headline.textContent = '';
+    headline.hidden = true;
+  }
+
   // Place the end labels before drawing with an estimated range (5% padding, the last plot
   // height), so they never disappear; placeEndLabels corrects them once the plot exists.
   const shown = [100, ...companyTraces.flatMap((t) => t.y), ...(benchVisible ? benchY : [])]
@@ -574,6 +667,8 @@ function drawChart(ctx, data, aligned, win) {
 function hideChartControls() {
   const controls = document.querySelector('#panel-chart .chart-controls');
   if (controls) controls.hidden = true;
+  const headline = document.getElementById('chart-headline');
+  if (headline) headline.hidden = true;
 }
 
 function renderChart(ctx, data) {
@@ -752,7 +847,9 @@ function renderKpis(ctx, data) {
   };
 
   const head = el('tr', {}, el('th', {scope: 'col', className: 'kpi-corner'},
-    el('span', {className: 'visually-hidden'}, 'Company')));
+    el('span', {className: 'visually-hidden'}, 'Company')),
+    el('th', {scope: 'col', className: 'kpi-delta-head', title: 'Change in organic growth, '
+      + "each company's newest quarter vs the one before, percentage points"}, 'Δ q/q, pp'));
   for (let q = first; q <= last; q++) head.appendChild(el('th', {scope: 'col'}, quarterLabel(q)));
 
   const tbody = el('tbody');
@@ -769,7 +866,24 @@ function renderKpis(ctx, data) {
       el('span', {className: 'name-code', title: String(c.name ?? c.code)}, String(c.code)));
     const color = safeColor(c.color);
     if (color) name.style.borderLeftColor = color;
-    const tr = el('tr', {}, name);
+    // Δ q/q: this company's newest quarter vs the quarter directly before, both quarterly
+    // figures (a half-year never counts). Glyph and sign carry the direction, not color.
+    const newest = byQuarter.size ? Math.max(...byQuarter.keys()) : null;
+    const a = newest === null ? null : byQuarter.get(newest)?.organic_growth_pct;
+    const b = newest === null ? null : byQuarter.get(newest - 1)?.organic_growth_pct;
+    let delta = el('td', {className: 'kpi-delta kpi-none', 'aria-label': 'not available'}, '–');
+    if (isNum(a) && isNum(b)) {
+      const d = Math.round((a - b) * 10) / 10;
+      const prev = newest - 1;
+      const span = Math.floor(newest / 4) === Math.floor(prev / 4)
+        ? `Q${(newest % 4) + 1} vs ${quarterLabel(prev)}`
+        : `${quarterLabel(newest)} vs ${quarterLabel(prev)}`;
+      const words = d > 0 ? `up ${d.toFixed(1)}` : d < 0 ? `down ${Math.abs(d).toFixed(1)}` : null;
+      delta = el('td', {className: 'kpi-delta ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'flat'),
+        title: span, 'aria-label': `${span}: ` + (words ? words + ' percentage points' : 'no change')},
+      (d > 0 ? '▲ +' : d < 0 ? '▼ ' : '') + d.toFixed(1));
+    }
+    const tr = el('tr', {}, name, delta);
     for (let q = first; q <= last; q++) {
       if (byQuarter.has(q)) {
         tr.appendChild(valueCell(byQuarter.get(q), 1));
@@ -1213,7 +1327,14 @@ async function main() {
 
   document.getElementById('as-of').textContent = status?.run_at
     ? 'as of ' + fmtTimestamp(status.run_at) : 'as of unknown';
+  // The footnote names the same benchmark as the chart headline; the static text is a fallback.
+  const benchName = document.querySelector('#panel-chart .bench-name');
+  // Same fallback as buildAligned (name, else symbol), so the two never disagree.
+  if (benchName && ctx.benchmark) {
+    benchName.textContent = String(ctx.benchmark.name ?? ctx.benchmark.symbol);
+  }
 
+  runPanel('panel-changes', renderChanges, ctx, data);
   runPanel('panel-scan', renderScan, ctx, data);
   runPanel('panel-chart', renderChart, ctx, data);
   runPanel('panel-kpis', renderKpis, ctx, data);

@@ -255,7 +255,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   merge` (DESIGN.md C1, S2, P1) and `tweak: company filter for press releases` (its own
   chip row, separate from the focused company; Esc resets it).
 
-- [ ] **12g What changed.** Site only (`docs/index.html`, `app.js`, `style.css`): no data,
+- [x] **12g What changed.** Site only (`docs/index.html`, `app.js`, `style.css`): no data,
   schema or pipeline change, no LLM; everything is computed in the browser from files the
   site already loads, text via textContent and links via `link()`.
   (1) A "What changed" strip in a new full-width section under the header, above the
