@@ -273,13 +273,16 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   the tile's event line reads "Reports today" with a visible badge. (4) Chart headline:
   one computed line above the chart for the selected window, e.g. "YTD: Stagwell leads
   +76.9%, Omnicom trails −5.3% · S&P 500 +12.0%", from the same rebased series the chart
-  draws (companies only for lead and trail), updated on window change.
+  draws (companies only for lead and trail), updated on window change. (5) Chart
+  footnote: the static "S&P 500" in the footnote under the chart is filled from
+  companies.json's benchmark name, like the headline (moved from step 13).
   Acceptance: with today's data the strip lists PUB and HAVAS results with correct day
   counts and shows the guidance group or its absence correctly (hand-check against
   events.json and guidance.json); setting the browser date to a results day shows
   "Reports today" in the tile and the strip; the Δ column matches a hand calculation for
   three companies and shows "–" for DENTSU; the YTD headline's lead and trail match the
-  chart's last values; switching window updates it; no sideways scroll at 375px; every
+  chart's last values; switching window updates it; the footnote and headline name the
+  same benchmark (static text only as a fallback when companies.json lacks it); no sideways scroll at 375px; every
   new link and control works with Tab and Enter; zero console errors or CSP violations;
   `make check` green. Commit: `step 12g: what changed, growth delta, chart headline`.
 
@@ -352,6 +355,7 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
 - 2026-10-12: the chart footnote in index.html names "S&P 500" as static text instead of
   companies.json's benchmark name (noticed in 12e). Fold into step 13, which already
   edits index.html.
+  2026-10-12: moved into step 12g as fold-in (5), next to the new chart headline.
 - 2026-10-11: proposed step 12h "visual identity": hand-drawn inline SVG sparklines in
   each tile (company color, last 3 months, no library; DESIGN.md only rules out D3), and
   panel headings as a small uppercase kicker plus the headline. After 12g, before 13.
