@@ -178,7 +178,7 @@ main { display: grid; gap: var(--sp-4); }
   cursor: pointer;
 }
 .windows button[aria-pressed="true"] { background: var(--text); color: #ffffff; border-color: var(--text); }
-#chart { width: 100%; height: 420px; }
+#chart { width: 100%; height: 300px; }
 .footnote { margin: var(--sp-2) 0 0; color: var(--muted); font-size: var(--fs-xs); }
 
 /* Panel C: guidance table */
