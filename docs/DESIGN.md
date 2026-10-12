@@ -4,6 +4,9 @@ Revision 2026-10-11 (maintainer): the chart moves above organic growth and gets 
 (M1), and the guidance list becomes a one-row-per-company matrix with a summary line and
 a company filter (G1 to G6, step 12f).
 
+Revision 2026-10-11 (maintainer, second): 12e refinements R1 to R6 (legend click, end
+label spacing, focused tile and line, focused events, one Esc handler). See section 5.
+
 ## 1. Principles
 - Answer three questions first: who is growing, who changed guidance, and what is coming next. Share price is context and sits below them.
 - Numbers lead. Use tabular figures, show a sign on every change, and keep each figure as reported.
@@ -102,8 +105,18 @@ For event hover text, use "Publicis Groupe · Deal · {title}". Company names st
 | Benchmark toggle | "S&P 500" button next to `.windows`, not inside its "Chart window" group | Enter/Space; `aria-pressed` | no change |
 | Tile highlights a company | click the tile name (a `<button aria-pressed>`): other chart lines drop to opacity 0.25 | Enter/Space | clears the highlight |
 | KPI cell pin | click or focus | Tab | unpins and restores the hint |
-| Legend toggle | Plotly click | the benchmark toggle and tile buttons are the keyboard path | n/a |
+| Legend click | Plotly click: a company entry sets the focused company (R1); the benchmark entry acts as the "S&P 500" button | the benchmark toggle and tile buttons are the keyboard path | n/a |
 | Motion | the 150ms opacity fade on highlight | none under `prefers-reduced-motion` | n/a |
+
+### 12e refinements (added 2026-10-11)
+These settle how the 12e items above are built. They are not new features.
+- **R1 Legend click.** In `plotly_legendclick`, a company trace calls the focused-company setter and returns `false`, so Plotly does not hide it. The benchmark trace runs the same handler as the "S&P 500" button, so the button's `aria-pressed` and the trace visibility always match. Legend double-click is disabled (`legenddoubleclick` returns `false`).
+- **R2 End labels do not overlap.** Sort the end labels by last value and push them apart so they sit at least 12px apart vertically (convert with the y-axis range and plot height). Each label is the company code, escaped. The benchmark gets no end label; it stays in the legend.
+- **R3 Focused tile.** The tile name is a `<button aria-pressed>` styled as plain text: no background or border, inherited font and weight, left-aligned, same 2-line clamp, and `cursor: pointer`. When pressed, the tile shows a 2px outline in the company color (`safeColor`), on top of the M5 focus ring.
+- **R4 Focused line.** The focused company's line is 3.5 wide and drawn last (on top). The other company lines go to opacity 0.25. The benchmark stays as it is, so the comparison still reads.
+- **R5 Focused events.** While a company is focused, the event lines and markers show only that company's events. Clearing the focus brings all of them back.
+- **R6 One Esc handler.** One `keydown` listener on `document` handles Esc: it clears the focused company through the setter and unpins a pinned KPI cell, restoring the hint. It does nothing when nothing is focused or pinned. 12f adds the guidance filter to the same setter, not a second listener.
+- Check: in a grayscale screenshot at 1440px and 375px, no two end labels overlap; Tab to a tile name, press Enter, and only that company's line and events stand out; Esc restores everything and the live region announces it.
 
 ## 6. Scope split
 - **12d (90 min):**
@@ -119,9 +132,10 @@ For event hover text, use "Publicis Groupe · Deal · {title}". Company names st
   - Benchmark toggle (10)
   - Tile highlight, chart only, and Esc (20). Keep the focused company in one variable with one setter, so 12f's guidance filter can share it.
   - M6 (15)
+  - R1 to R6 fold into the items above (legend click into the benchmark toggle, R2 into M8, R3 to R6 into the tile highlight)
 - **Tweak (2026-10-11, before 12e):** the revised M1 order and chart height (`index.html`, `style.css`).
 - **12f (90 min):** G1–G6 (guidance matrix, summary line, company filter). Runs after 12e, because G4 reuses 12e's focused-company state and aria-live region.
-- **Deferred:** S2 and C1–C3 go to a later tweak, and S3 to step 13's freshness work. C3 (tinting a focused company's rows) is partly covered by G4's filter.
+- **Deferred:** S2 and C1 go to the polish tweak after 12f (see PLAN.md backlog); C2 and C3 go to a later tweak, and S3 to step 13's freshness work. C3 (tinting a focused company's rows) is partly covered by G4's filter.
 - **Not design items:**
   - The What-changed strip (backlog 12g) goes in the full-width slot under the header, above the tiles. This is a placement note only; no empty slot is added to the markup. It must not repeat G1's counts: it lists dated changes and upcoming results, and links to the guidance panel.
   - A derived "Δ vs prior quarter (pp)" column with ▲/▼ in the growth grid, which answers "accelerating or slowing", is part of backlog step 12g. Rule: the delta is shown only when both adjacent quarters exist, otherwise "–" (this covers Dentsu half-years and OMC Q4 2025).

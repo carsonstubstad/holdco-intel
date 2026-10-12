@@ -222,9 +222,12 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 - [ ] **12e Chart and interactivity.** Build the DESIGN.md items assigned to 12e: Plotly
   layout matching the tokens, benchmark styling, a keyboard-operable benchmark toggle,
   window selector states, the panel linking the brief specifies, focus styles, reduced
-  motion. Acceptance: every control works with Tab, Enter and Space and shows a focus
-  ring; each linking behavior works and Esc resets it; zero console errors or CSP
-  violations; `make check` green. Commit: `step 12e: chart styling and interactivity`.
+  motion, the print layout (M6), and refinements R1 to R6 (legend click, end label spacing,
+  focused tile and line, focused events, one Esc handler). Acceptance: every control works
+  with Tab, Enter and Space and shows a focus ring; each linking behavior works and Esc
+  resets it; no two end labels overlap at 1440px or 375px; print preview shows no split
+  panels; zero console errors or CSP violations; `make check` green.
+  Commit: `step 12e: chart styling and interactivity`.
 
 - [ ] **12f Guidance matrix and company filter.** Build DESIGN.md G1 to G6 in
   `renderGuidance` and `docs/style.css`: a summary line counted from current records, a
@@ -318,3 +321,19 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   12e/12f on load, so a reader can share "the Publicis view". Small; after 12f.
 - 2026-10-11: results-day line: on the day a company reports (from events.json), the
   tile or the What-changed strip says "Reports today". Deterministic; fold into 12g.
+- 2026-10-11: computed chart headline above the chart for the selected window, e.g.
+  "YTD: Stagwell leads +77%, Omnicom trails −5%, S&P 500 +12%". Computed from the same
+  rebased series the chart draws (no LLM, no new data), text via textContent, updated on
+  window change. Fold into 12g.
+- 2026-10-11: polish tweak after 12f (`app.js` and `style.css` only): DESIGN.md C1 (press
+  shows the first 10 plus "Show all (n)"), S2 (hide `.windows` and the S&P button when the
+  chart is empty), and failing-source error text in Data health clamped to one line with
+  the full text behind a `<details>`.
+- 2026-10-11: proposed step 12h "visual identity": hand-drawn inline SVG sparklines in
+  each tile (company color, last 3 months, no library; DESIGN.md only rules out D3), and
+  panel headings as a small uppercase kicker plus the headline. After 12g, before 13.
+  Needs a short DESIGN.md addition first (sizes, colors, empty state).
+- 2026-10-11: log-scale (or "% change") option on the chart's y-axis, because one
+  outlier (STGW ~180) squeezes the other five into a narrow band. Undecided; revisit
+  after 12e's highlight is live, which may be enough.
+- 2026-10-11: dark mode (a second token set plus Plotly colors). Candidate for Parked (v2).
