@@ -64,7 +64,7 @@ closed, and the Company column shows the code chip only (G2 to G4).
   - At 720px and below the legend shows company codes (hover keeps full names) and the x-axis uses at most 3 ticks, so the dates stay horizontal.
   - Check: you can tell the benchmark from the event lines at a glance. At 375px the legend is horizontal, wraps to at most 4 rows, and the plot area stays at least 220px tall (phone.png shows a vertical legend that squeezes the plot).
   - Why 4 rows (revised 2026-10-12): Plotly wraps a horizontal legend at the plot-area width (about 221px at 375px, after the 48px left margin and the 56px end-label margin), so the 8 entries take 4 rows even as codes. The chart is 420px tall at 720px and below to keep the plot at least 220px.
-- **M8 Colorblind safety** (`drawChart`). OMC was `#ff7f0e` (2.5:1 on white); changed to `#d95f02` (3.8:1) by tweak in config/watchlist.yaml. Havas red and WPP green collide for deuteranopes. Add company-code labels at the right end of each line and set line width to 2.5. Do not change the hex values.
+- **M8 Colorblind safety** (`drawChart`). OMC was `#ff7f0e` (2.5:1 on white); changed to `#d95f02` (3.8:1) by tweak in config/watchlist.yaml. Brand colors since tweak (2026-10-12): PUB gold, WPP navy, HAVAS red, STGW blue (maintainer pick; its yellow was too close to PUB gold); OMC orange and DENTSU purple kept. All pass 3:1. OMC and HAVAS look alike for deuteranopes, so the end-of-line codes carry identity. Add company-code labels at the right end of each line and set line width to 2.5. Do not change the hex values.
   - Check: in a grayscale screenshot, every line can be identified.
 
 **Should**

@@ -38,7 +38,7 @@ companies:
     ticker: PUB.PA
     exchange: Euronext Paris
     currency: EUR
-    color: "#1f77b4"
+    color: "#9A7D2E"
     shares_outstanding_m: 251.7        # diluted avg H1 2026 (results 2026-07-16)
     shares_verified: true
     news_query: '"Publicis Groupe"'
@@ -52,7 +52,7 @@ companies:
     fiscal_year_end: "12-31"
 
   - code: OMC
-    name: Omnicom Group (incl. IPG)
+    name: Omnicom
     ticker: OMC
     exchange: NYSE
     currency: USD
@@ -74,12 +74,12 @@ companies:
     notes: "Organic growth not comparable across the IPG close; label pre/post."
 
   - code: WPP
-    name: WPP plc
+    name: WPP
     ticker: WPP.L
     exchange: London Stock Exchange
     currency: GBP
     price_currency: GBX              # optional; unit of yfinance closes when it differs (pence)
-    color: "#2ca02c"
+    color: "#191D63"
     shares_outstanding_m: 1078.8       # in issue less treasury, 30 Jun 2026 (interim results)
     shares_verified: true
     news_query: '"WPP"'
@@ -94,11 +94,11 @@ companies:
     notes: "WPP.L quotes in pence (GBX). Divide by 100 before FX conversion."
 
   - code: HAVAS
-    name: Havas N.V.
+    name: Havas
     ticker: HAVAS.AS
     exchange: Euronext Amsterdam
     currency: EUR
-    color: "#d62728"
+    color: "#E2001A"
     shares_outstanding_m: 97.6         # net shares, 30 Jun 2026 (H1 results)
     shares_verified: true
     news_query: '"Havas"'
@@ -114,7 +114,7 @@ companies:
     notes: "Listed December 2024; price history starts then."
 
   - code: DENTSU
-    name: Dentsu Group Inc.
+    name: Dentsu
     ticker: 4324.T
     exchange: Tokyo Stock Exchange
     currency: JPY
@@ -130,11 +130,11 @@ companies:
     fiscal_year_end: "12-31"
 
   - code: STGW
-    name: Stagwell Inc.
+    name: Stagwell
     ticker: STGW
     exchange: NASDAQ
     currency: USD
-    color: "#8c564b"
+    color: "#4A9AB9"
     shares_outstanding_m: 262.0        # verify; Class A + Class C
     shares_verified: false
     news_query: '"Stagwell"'
