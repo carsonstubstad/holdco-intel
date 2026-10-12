@@ -101,6 +101,15 @@ function fmtDate(iso) {
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
 
+function fmtDay(iso) {
+  const [, m, d] = iso.slice(0, 10).split('-').map(Number);
+  return `${d} ${MONTHS[m - 1]}`;
+}
+
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function monthHeading(iso) {
   const [y, m] = iso.slice(0, 10).split('-').map(Number);
   return `${MONTHS_LONG[m - 1]} ${y}`;
@@ -186,10 +195,13 @@ function upcomingEvents(events, today, horizonDays) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function statusBadge(status) {
+function statusBadge(status, ...label) {
   const s = typeof status === 'string' ? status : 'unknown';
-  return el('span', {className: 'badge status-' + s.replace(/[^a-z_]/g, '')}, s);
+  return el('span', {className: 'badge status-' + s.replace(/[^a-z_]/g, '')},
+    ...(label.length ? label : [s]));
 }
+
+const STATUS_RANK = {raised: 0, cut: 0, new: 0, withdrawn: 0, held: 1};
 
 // ---------- Panel A: scan strip ----------
 
@@ -207,7 +219,8 @@ function renderScan(ctx, data) {
     const tile = el('article', {className: 'tile'});
     const color = safeColor(c.color);
     if (color) tile.style.borderTopColor = color;
-    tile.appendChild(el('div', {className: 'tile-name'}, String(c.name ?? c.code)));
+    const fullName = String(c.name ?? c.code);
+    tile.appendChild(el('div', {className: 'tile-name', title: fullName}, fullName));
     tile.appendChild(el('div', {className: 'tile-ticker'}, String(c.ticker ?? '')));
 
     const s = series ? series[c.ticker] : null;
@@ -245,14 +258,23 @@ function renderScan(ctx, data) {
 
     const mine = guidance.filter((g) => g.company === c.code && isIsoDate(g.set_date))
       .sort((a, b) => b.set_date.localeCompare(a.set_date));
-    tile.appendChild(el('div', {className: 'tile-guidance'},
-      mine.length ? statusBadge(mine[0].status)
-        : el('span', {className: 'badge status-none'}, 'no guidance yet')));
+    let badge = el('span', {className: 'badge status-none'}, 'no guidance yet');
+    if (mine.length) {
+      const g = mine[0];
+      const s = typeof g.status === 'string' ? g.status : 'unknown';
+      badge = statusBadge(s, el('span', {className: 'long'}, 'Guidance ' + s),
+        el('span', {className: 'short'}, capitalize(s)), ' · ' + fmtDay(g.set_date));
+    }
+    tile.appendChild(el('div', {className: 'tile-guidance'}, badge));
 
     const next = events.find((e) => e.company === c.code);
-    tile.appendChild(el('div', {className: 'tile-event muted'}, next
-      ? `next: ${String(next.type).replace(/_/g, ' ')} in ${daysBetween(ctx.today, next.date)} days`
-      : 'no event scheduled'));
+    let eventText = 'no event scheduled';
+    if (next) {
+      const n = daysBetween(ctx.today, next.date);
+      eventText = `${capitalize(String(next.type ?? '').replace(/_/g, ' '))} ${fmtDay(next.date)} `
+        + (n === 0 ? '(today)' : `(${n}d)`);
+    }
+    tile.appendChild(el('div', {className: 'tile-event muted'}, eventText));
 
     body.appendChild(tile);
   }
@@ -519,8 +541,8 @@ function renderKpis(ctx, data) {
     return td;
   };
 
-  const head = el('tr', {}, el('th', {scope: 'col'}, el('span', {className: 'visually-hidden'},
-    'Company')));
+  const head = el('tr', {}, el('th', {scope: 'col', className: 'kpi-corner'},
+    el('span', {className: 'visually-hidden'}, 'Company')));
   for (let q = first; q <= last; q++) head.appendChild(el('th', {scope: 'col'}, quarterLabel(q)));
 
   const tbody = el('tbody');
@@ -532,7 +554,9 @@ function renderKpis(ctx, data) {
       if (qs.length === 1 && !byQuarter.has(qs[0])) byQuarter.set(qs[0], r);
       if (qs.length === 2 && !halves.has(qs[0])) halves.set(qs[0], r);
     }
-    const name = el('th', {scope: 'row', className: 'kpi-company'}, String(c.name ?? c.code));
+    const name = el('th', {scope: 'row', className: 'kpi-company'},
+      el('span', {className: 'name-full'}, String(c.name ?? c.code)),
+      el('span', {className: 'name-code', title: String(c.name ?? c.code)}, String(c.code)));
     const color = safeColor(c.color);
     if (color) name.style.borderLeftColor = color;
     const tr = el('tr', {}, name);
@@ -562,40 +586,61 @@ function renderKpis(ctx, data) {
     }
   }
 
-  bodyOf(panel).replaceChildren(
-    el('div', {className: 'table-wrap'}, table),
+  // Definitions stay closed on screen and print open.
+  let defBox = null;
+  if (defList.childElementCount) {
+    defBox = el('details', {className: 'kpi-defs'}, el('summary', {}, 'Definitions'), defList);
+    let wasOpen = false;
+    window.addEventListener('beforeprint', () => {
+      wasOpen = defBox.open;
+      defBox.open = true;
+    });
+    window.addEventListener('afterprint', () => { defBox.open = wasOpen; });
+  }
+
+  const wrap = el('div', {className: 'table-wrap'}, table);
+  bodyOf(panel).replaceChildren(...[
+    wrap,
     detail,
     el('p', {className: 'footnote'}, 'As reported by each company; definitions differ, so '
       + 'figures are not directly comparable. A half-year figure spans two quarters only where '
       + 'no quarterly figure is published. Colors saturate at ±' + KPI_CLAMP + '%.'),
-    defList);
+    defBox,
+  ].filter(Boolean));
+  // Newest quarter first on narrow screens: start the grid scrolled to its right end.
+  wrap.scrollLeft = wrap.scrollWidth;
 }
 
 // ---------- Panel C: guidance tracker ----------
 
 function renderGuidance(ctx, data) {
   const panel = 'panel-guidance';
+  // Status changes first, then held, then anything else; newest set_date first within each.
+  const rank = (r) => (Object.hasOwn(STATUS_RANK, r.status) ? STATUS_RANK[r.status] : 2);
+  const setDate = (r) => (isIsoDate(r.set_date) ? r.set_date.slice(0, 10) : '');
   const rows = currentGuidance(data.guidance)
-    .sort((a, b) => String(a.company).localeCompare(String(b.company))
+    .sort((a, b) => rank(a) - rank(b) || setDate(b).localeCompare(setDate(a))
+      || String(a.company).localeCompare(String(b.company))
       || String(a.metric).localeCompare(String(b.metric)));
   if (!rows.length) return empty(panel, 'No guidance records yet.');
 
-  const head = el('tr', {}, ...['Company', 'Metric', 'Period', 'Value', 'Status', 'Set',
-    'Quote', 'Source', 'Age'].map((h) => el('th', {scope: 'col'}, h)));
+  const cols = [['Company'], ['Status'], ['Metric'], ['Period'], ['Value'], ['Set'],
+    ['Quote', 'col-quote'], ['Age', 'col-age']];
+  const head = el('tr', {}, ...cols.map(([h, cls]) => el('th', {scope: 'col', className: cls}, h)));
   const tbody = el('tbody');
   for (const r of rows) {
     const quote = String(r.quote ?? '');
-    const short = quote.length > 160 ? quote.slice(0, 159) + '…' : quote;
     tbody.appendChild(el('tr', {},
       el('td', {}, companyChip(ctx, r.company)),
+      el('td', {}, statusBadge(r.status)),
       el('td', {}, String(r.metric ?? '').replace(/_/g, ' ')),
       el('td', {}, String(r.period ?? '')),
       el('td', {className: 'value'}, String(r.value ?? '')),
-      el('td', {}, statusBadge(r.status)),
-      el('td', {className: 'nowrap'}, isIsoDate(r.set_date) ? fmtDate(r.set_date) : ''),
-      el('td', {className: 'quote', title: quote}, short),
-      el('td', {}, link(r.source_url, 'source')),
+      // The set date links to the source; without a valid date the link reads "source".
       el('td', {className: 'nowrap'},
+        link(r.source_url, isIsoDate(r.set_date) ? fmtDate(r.set_date) : 'source')),
+      el('td', {className: 'quote col-quote', title: quote}, el('span', {className: 'clamp'}, quote)),
+      el('td', {className: 'nowrap col-age'},
         isIsoDate(r.set_date) ? daysBetween(r.set_date, ctx.today) + 'd' : '')));
   }
   bodyOf(panel).replaceChildren(el('div', {className: 'table-wrap'},

@@ -29,21 +29,6 @@
       <div class="body tiles"></div>
     </section>
 
-    <section id="panel-chart" class="panel" aria-labelledby="h-chart">
-      <div class="panel-head">
-        <h2 id="h-chart">Relative performance</h2>
-        <div class="windows" role="group" aria-label="Chart window">
-          <button type="button" data-window="1M">1M</button>
-          <button type="button" data-window="3M">3M</button>
-          <button type="button" data-window="YTD" aria-pressed="true">YTD</button>
-          <button type="button" data-window="1Y">1Y</button>
-          <button type="button" data-window="2Y">2Y</button>
-        </div>
-      </div>
-      <div class="body"><div id="chart"></div></div>
-      <p class="footnote">Each line is rebased to 100 at the start of the window, in its own trading currency, price only (no dividends). The S&amp;P 500 is a US-dollar reference; for the European and Japanese stocks it is a rough market comparison, not a currency-matched one.</p>
-    </section>
-
     <section id="panel-kpis" class="panel" aria-labelledby="h-kpis">
       <h2 id="h-kpis">Organic growth, as reported</h2>
       <div class="body"></div>
@@ -60,6 +45,21 @@
         <div class="body"></div>
       </section>
     </div>
+
+    <section id="panel-chart" class="panel" aria-labelledby="h-chart">
+      <div class="panel-head">
+        <h2 id="h-chart">Relative performance</h2>
+        <div class="windows" role="group" aria-label="Chart window">
+          <button type="button" data-window="1M">1M</button>
+          <button type="button" data-window="3M">3M</button>
+          <button type="button" data-window="YTD" aria-pressed="true">YTD</button>
+          <button type="button" data-window="1Y">1Y</button>
+          <button type="button" data-window="2Y">2Y</button>
+        </div>
+      </div>
+      <div class="body"><div id="chart"></div></div>
+      <p class="footnote">Each line is rebased to 100 at the start of the window, in its own trading currency, price only (no dividends). The S&amp;P 500 is a US-dollar reference; for the European and Japanese stocks it is a rough market comparison, not a currency-matched one.</p>
+    </section>
 
     <section id="panel-press" class="panel" aria-labelledby="h-press">
       <h2 id="h-press">Press releases, last 30 days</h2>

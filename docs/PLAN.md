@@ -209,7 +209,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   `docs/DESIGN.md` has Must/Should/Could tiers, a token table and a 12d/12e split; no
   change to `docs/*.html|js|css`. Commit: `step 12c: design reviewer agent and approved brief`.
 
-- [ ] **12d Layout and type.** Build the DESIGN.md items assigned to 12d: tokens, type
+- [x] **12d Layout and type.** Build the DESIGN.md items assigned to 12d: tokens, type
   scale, spacing, panel hierarchy, tiles, badges and chips, empty states, phone layout.
   Mostly `docs/style.css`; markup changes only where the brief needs them.
   Acceptance: before/after screenshots at 1440px and 390px; no horizontal scroll at 390px;
