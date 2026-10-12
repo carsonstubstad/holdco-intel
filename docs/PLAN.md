@@ -251,6 +251,37 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   Acceptance: opening `/#PUB` loads with Publicis focused and guidance filtered; Esc
   clears the hash; `#xyz` changes nothing.
   Commit: `step 12f: guidance matrix and company filter`.
+  Note (2026-10-12): two tweaks followed: `tweak: press show-all, health details, event
+  merge` (DESIGN.md C1, S2, P1) and `tweak: company filter for press releases` (its own
+  chip row, separate from the focused company; Esc resets it).
+
+- [ ] **12g What changed.** Site only (`docs/index.html`, `app.js`, `style.css`): no data,
+  schema or pipeline change, no LLM; everything is computed in the browser from files the
+  site already loads, text via textContent and links via `link()`.
+  (1) A "What changed" strip in a new full-width section under the header, above the
+  tiles (DESIGN.md section 6 placement): "Coming up", results events in the next 14 days,
+  soonest first ("Reports today" on the day); then "Recent guidance", records whose
+  `set_date` is in the last 30 days, newest first, each as status badge, company, metric,
+  period, value and date, linked to its `source_url`. At most 6 lines, then a link to the
+  guidance panel. It never repeats the guidance summary line's counts. When both lists
+  are empty, one muted sentence.
+  (2) A "Δ q/q" column in the organic growth grid, right after the company name: the
+  newest grid quarter minus the quarter before, in percentage points, with ▲/▼ and a
+  sign (never color alone); "–" unless both quarters exist (covers Dentsu half-years,
+  OMC Q4 2025, STGW gaps).
+  Fold-ins (2026-10-12, from the Backlog): (3) results day: on a company's results date
+  the tile's event line reads "Reports today" with a visible badge. (4) Chart headline:
+  one computed line above the chart for the selected window, e.g. "YTD: Stagwell leads
+  +76.9%, Omnicom trails −5.3% · S&P 500 +12.0%", from the same rebased series the chart
+  draws (companies only for lead and trail), updated on window change.
+  Acceptance: with today's data the strip lists PUB and HAVAS results with correct day
+  counts and shows the guidance group or its absence correctly (hand-check against
+  events.json and guidance.json); setting the browser date to a results day shows
+  "Reports today" in the tile and the strip; the Δ column matches a hand calculation for
+  three companies and shows "–" for DENTSU; the YTD headline's lead and trail match the
+  chart's last values; switching window updates it; no sideways scroll at 375px; every
+  new link and control works with Tab and Enter; zero console errors or CSP violations;
+  `make check` green. Commit: `step 12g: what changed, growth delta, chart headline`.
 
 - [ ] **13 Ready to share.** `pipeline/stats.py` (computed numbers from runs.jsonl,
   status.json history and git log, "n/a" rather than estimates). README rewritten around
@@ -311,31 +342,13 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   plus 2 to 3 verbatim quotes grouped by theme (strategy, ai_and_data, outlook first),
   each linked to its source_url; empty state when commentary.json is missing. Strategy
   themes are the main reason executives use this page over a quote site.
-- 2026-10-09: "What changed" strip at the top of the site, for strategy executives who
-  want what is new since they last looked: guidance records whose set_date is in the last
-  30 days (raised, cut, new, held), and results dates in the next 14 days, one line each,
-  newest first, linked to source_url. Built deterministically from guidance.json and
-  events.json; no new data, no LLM. Proposed as step 12f (after 12e, before 13), with the
-  design-reviewer's placement from docs/DESIGN.md.
-  2026-10-11: renumbered to 12g (12f is now the guidance matrix), together with the growth
-  grid "Δ vs prior quarter" column. It must not repeat the guidance summary line's counts;
-  it lists dated changes and upcoming results and links to the guidance panel.
 - 2026-10-11: guidance records with metric `other` read as "other" on the site (STGW
   $475-525m, WPP £800-900m), which tells a reader nothing. Option: an optional
   `metric_label` in the guidance schema (e.g. "adjusted EBITDA"), filled by /curate from
   the source's own wording. A schema change, so its own small step or part of the next
   /curate step.
-- 2026-10-11: results-day line: on the day a company reports (from events.json), the
-  tile or the What-changed strip says "Reports today". Deterministic; fold into 12g.
-- 2026-10-11: computed chart headline above the chart for the selected window, e.g.
-  "YTD: Stagwell leads +77%, Omnicom trails −5%, S&P 500 +12%". Computed from the same
-  rebased series the chart draws (no LLM, no new data), text via textContent, updated on
-  window change. Fold into 12g.
-- 2026-10-11: polish tweak after 12f (`app.js` and `style.css` only): DESIGN.md C1 (press
-  shows the first 10 plus "Show all (n)"), S2 (hide `.chart-controls` when the chart is
-  empty), failing-source error text in Data health clamped to one line with the full text
-  behind a `<details>`, and events on the same date merged into one chart marker whose
-  hover lists each event (noticed in 12e: overlapping markers show only one hover).
+- 2026-10-12: Esc also collapses an expanded press list ("Show fewer"), through the one
+  Esc handler. Small; a later tweak.
 - 2026-10-12: the chart footnote in index.html names "S&P 500" as static text instead of
   companies.json's benchmark name (noticed in 12e). Fold into step 13, which already
   edits index.html.

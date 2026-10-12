@@ -139,7 +139,9 @@ screenshots), `creative-director` (visual directions). Every gate is the maintai
    when the maintainer asks.
 
 Planning chat answers every gate with a card: Verdict, What changes on the page (2 to 3
-plain bullets), I recommend (one line), Your next move (the exact phrase). Full agent
+plain bullets), I recommend (one line), Your next move (the exact phrase). At the plan
+gate the card opens with The plan (2 to 3 plain lines on what the executor will build),
+then Verdict, What I'd change (numbered, one line each), Your next move. Full agent
 output only on "details". The maintainer steers and does not read code: summarize diffs
 in plain words. A new planning chat starts per step, after the previous step is pushed.
 
