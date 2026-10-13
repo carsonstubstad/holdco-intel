@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-12T01:33:45Z",
+ "as_of": "2026-10-13T03:07:01Z",
  "companies": [
   {
    "code": "PUB",
@@ -7,11 +7,11 @@
    "ticker": "PUB.PA",
    "exchange": "Euronext Paris",
    "currency": "EUR",
-   "color": "#1f77b4"
+   "color": "#9A7D2E"
   },
   {
    "code": "OMC",
-   "name": "Omnicom Group (incl. IPG)",
+   "name": "Omnicom",
    "ticker": "OMC",
    "exchange": "NYSE",
    "currency": "USD",
@@ -19,23 +19,23 @@
   },
   {
    "code": "WPP",
-   "name": "WPP plc",
+   "name": "WPP",
    "ticker": "WPP.L",
    "exchange": "London Stock Exchange",
    "currency": "GBP",
-   "color": "#2ca02c"
+   "color": "#191D63"
   },
   {
    "code": "HAVAS",
-   "name": "Havas N.V.",
+   "name": "Havas",
    "ticker": "HAVAS.AS",
    "exchange": "Euronext Amsterdam",
    "currency": "EUR",
-   "color": "#d62728"
+   "color": "#E2001A"
   },
   {
    "code": "DENTSU",
-   "name": "Dentsu Group Inc.",
+   "name": "Dentsu",
    "ticker": "4324.T",
    "exchange": "Tokyo Stock Exchange",
    "currency": "JPY",
@@ -43,11 +43,11 @@
   },
   {
    "code": "STGW",
-   "name": "Stagwell Inc.",
+   "name": "Stagwell",
    "ticker": "STGW",
    "exchange": "NASDAQ",
    "currency": "USD",
-   "color": "#8c564b"
+   "color": "#4A9AB9"
   }
  ],
  "benchmark": {
