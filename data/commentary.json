@@ -1,0 +1,142 @@
+{
+  "headlines": [
+    {
+      "company": "PUB",
+      "release_date": "2026-10-13",
+      "headline": "Publicis reports Q3 2026 net revenue organic growth of +5.0% and confirms its full-year 2026 guidance.",
+      "headline_by": "curator",
+      "source_url": "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-third-quarter-2026-revenue",
+      "curated_at": "2026-10-15T02:39:20Z"
+    },
+    {
+      "company": "HAVAS",
+      "release_date": "2026-10-14",
+      "headline": "Havas reports Q3 2026 organic net revenue growth of +2.4% and confirms its full-year 2026 guidance.",
+      "headline_by": "curator",
+      "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
+      "curated_at": "2026-10-15T02:39:20Z"
+    }
+  ],
+  "records": [
+    {
+      "id": "pub-performance-2026-10-13-1",
+      "company": "PUB",
+      "theme": "performance",
+      "quote": "Q3 was another very strong quarter for Publicis, with organic growth of +5%, accelerating on the first half of the year and further widening the gap with our peers.",
+      "speaker": "Arthur Sadoun, Chairman and CEO",
+      "release_date": "2026-10-13",
+      "period": "Q3 2026",
+      "source_url": "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-third-quarter-2026-revenue",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "pub-ai_and_data-2026-10-13-1",
+      "company": "PUB",
+      "theme": "ai_and_data",
+      "quote": "Our marketing transformation capabilities benefited from the growing demand from clients for our AI-powered products and services, with Connected Media and Intelligent Creativity growing high-single-digit and single-digit respectively.",
+      "speaker": "Arthur Sadoun, Chairman and CEO",
+      "release_date": "2026-10-13",
+      "period": "Q3 2026",
+      "source_url": "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-third-quarter-2026-revenue",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "pub-clients_and_new_business-2026-10-13-1",
+      "company": "PUB",
+      "theme": "clients_and_new_business",
+      "quote": "At the same time, we had a record new business run, once again placing us at the top of the rankings.",
+      "speaker": "Arthur Sadoun, Chairman and CEO",
+      "release_date": "2026-10-13",
+      "period": "Q3 2026",
+      "source_url": "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-third-quarter-2026-revenue",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "pub-outlook-2026-10-13-1",
+      "company": "PUB",
+      "theme": "outlook",
+      "quote": "This was our 25th quarter of outperformance, and thanks to our unique ability to connect data, technology and talent through the Power of One, we are confident in confirming our full-year guidance for 2026 and in outperforming the market for the eighth consecutive year in 2027.",
+      "speaker": "Arthur Sadoun, Chairman and CEO",
+      "release_date": "2026-10-13",
+      "period": "Q3 2026",
+      "source_url": "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-third-quarter-2026-revenue",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "pub-strategy-2026-10-13-1",
+      "company": "PUB",
+      "theme": "strategy",
+      "quote": "Looking even further ahead, the reshaping of our industry around three global players is creating favorable conditions for our future growth.",
+      "speaker": "Arthur Sadoun, Chairman and CEO",
+      "release_date": "2026-10-13",
+      "period": "Q3 2026",
+      "source_url": "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-third-quarter-2026-revenue",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "havas-performance-2026-10-14-1",
+      "company": "HAVAS",
+      "theme": "performance",
+      "quote": "Havas delivered a solid third quarter, achieving organic growth in net revenue of +2.4%, in line with our full-year guidance.",
+      "speaker": "Yannick Bolloré, Chairman and CEO",
+      "release_date": "2026-10-14",
+      "period": "Q3 2026",
+      "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "havas-outlook-2026-10-14-1",
+      "company": "HAVAS",
+      "theme": "outlook",
+      "quote": "This performance reflects the resilience of our client-centric model in a macroeconomic and geopolitical environment that remains uncertain. Despite this backdrop, the strength of our fundamentals, together with our ability to adapt and win new business, give us confidence in our capacity to deliver sustainable, profitable growth.",
+      "speaker": "Yannick Bolloré, Chairman and CEO",
+      "release_date": "2026-10-14",
+      "period": "Q3 2026",
+      "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "havas-ai_and_data-2026-10-14-1",
+      "company": "HAVAS",
+      "theme": "ai_and_data",
+      "quote": "We remain firmly focused on our strategic priorities: advancing the deployment of our Converged.AI Operating System, investing responsibly in AI and preparing our talent for the continued transformation of our industry.",
+      "speaker": "Yannick Bolloré, Chairman and CEO",
+      "release_date": "2026-10-14",
+      "period": "Q3 2026",
+      "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "havas-strategy-2026-10-14-1",
+      "company": "HAVAS",
+      "theme": "strategy",
+      "quote": "We are also continuing to bring our talent, expertise and solutions together more seamlessly across the Group, helping clients build more desirable brands and reinforcing our position as a trusted business partner.",
+      "speaker": "Yannick Bolloré, Chairman and CEO",
+      "release_date": "2026-10-14",
+      "period": "Q3 2026",
+      "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "havas-capital_allocation-2026-10-14-1",
+      "company": "HAVAS",
+      "theme": "capital_allocation",
+      "quote": "Our disciplined approach to acquisitions is further strengthening the capabilities we bring to clients while supporting growth, and we will remain active in pursuing selected opportunities that support our long-term strategy.",
+      "speaker": "Yannick Bolloré, Chairman and CEO",
+      "release_date": "2026-10-14",
+      "period": "Q3 2026",
+      "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
+      "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    }
+  ]
+}

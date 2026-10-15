@@ -9,6 +9,15 @@ definitions:
   STGW: "Organic net revenue growth. Margin: adjusted EBITDA margin on net revenue."
 rows:
   - company: PUB
+    period: Q3 2026
+    organic_growth_pct: 5.0
+    revenue_local_m: 3808
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-10/Communiqu%C3%A9%20de%20presse%20-%20Q3%202026%20-%20EN.pdf"
+    note: "Net revenue."
+  - company: PUB
     period: H1 2026
     organic_growth_pct: 4.7
     revenue_local_m: 7229
@@ -188,6 +197,15 @@ rows:
     margin_pct: 16.0
     source_url: "https://investor.omc.com/news/news-details/2024/Omnicom-Reports-Third-Quarter-2024-Results/default.aspx"
     note: "Total organic growth."
+  - company: HAVAS
+    period: Q3 2026
+    organic_growth_pct: 2.4
+    revenue_local_m: 703
+    currency: EUR
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/"
+    note: "Net revenue."
   - company: HAVAS
     period: H1 2026
     organic_growth_pct: 2.5
