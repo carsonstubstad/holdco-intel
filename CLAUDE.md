@@ -23,7 +23,7 @@ docs/PLAN.md at the start of every session.
    series byte-identical). Local `make pipeline` runs may write `docs/data/` for testing;
    discard those changes (`git checkout -- docs/data`) before committing. `data/*.yaml`,
    `data/guidance.json`, `data/commentary.json` and `data/curate_state.json` are written
-   only by `/curate` or by the maintainer by hand (steps 08, 12, 14b and 15). Code never
+   only by `/curate` or by the maintainer by hand (steps 08, 12, 14b and 15b). Code never
    writes `data/`. The pipeline copies `data/*` into `docs/data/` as JSON; the site reads
    only `docs/data/`.
 5. Partial failure is normal. A collector that fails logs the failure into `status.json`
@@ -59,7 +59,7 @@ docs/PLAN.md at the start of every session.
 - Sources are limited to Yahoo Finance via yfinance and each company's own IR website
   (RSS/Atom, a JSON endpoint the IR page loads, or static HTML). No EDGAR, no LSE RNS, no
   newswires, no Google News (its robots.txt disallows the RSS path; see docs/FAILURES.md).
-  There is no third-party fallback for press releases. From step 15, `/curate` may also
+  There is no third-party fallback for press releases. From step 15a, `/curate` may also
   quote a dated document the maintainer pastes (call transcript, results slides, annual
   or integrated report, investor day or strategy material) when its URL is on the
   company's own registered domain. If that URL redirects to the company's IR vendor's
@@ -97,7 +97,7 @@ paste its output. `make serve` blocks: run it in the background, check the page 
 `curl -s localhost:8000 | head` plus a browser look, then stop it.
 
 A step is not done until its acceptance criteria in docs/PLAN.md are met and the box
-is ticked in the same commit. Exceptions: steps 09, 14b and 15, where /curate makes its own
+is ticked in the same commit. Exceptions: steps 09, 14b and 15b, where /curate makes its own
 data commit and the box is ticked in the step's closing commit.
 
 ## How to work in this repo

@@ -103,7 +103,8 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   in `data/events.yaml` (each with a stable `id`, company, date, type, title, source_url),
   including real dates that replace `confirmed: false` estimates. `pipeline/nudge.py` opens
   or updates a "Calendar review needed" Issue when candidates are new, linking to the site.
-  Until 08d, the maintainer copies approved candidates into events.yaml by hand. A failing
+  The maintainer copies approved candidates into events.yaml by hand (08d, which would
+  have automated this, was dropped). A failing
   calendar parser is a failed source in status.json, never "ok, 0".
   Acceptance: fixtures and a parse test per calendar; a candidate missing from events.yaml
   appears in event_candidates.json and raises the Issue in a manual workflow run.
@@ -308,123 +309,176 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 
 ## v2.0: scorecards, strategy quotes, share
 
-Planned 2026-10-15 (maintainer-approved in the planning chat). The page becomes three
-main panels, in this order: compare chips with one scorecard per company, "In their
-words" (verbatim management quotes by theme), then the share price chart. What changed,
-Press releases and Data health stay. Commentary gains sources beyond results releases.
-Step prompts are in `prompts/v2.0/`.
-- Removed: 08d (dropped, see Day 2) and 12h (replaced by the design gate, 16 and 17).
-- Moved: 13 keeps its number and runs last, after 17 and the press tweak.
+Planned 2026-10-15 (maintainer-approved in the planning chat), reviewed and renumbered
+the same day. The page becomes three main panels, in this order: compare chips with one
+scorecard per company, "In their words" (verbatim management quotes by theme), then the
+share price chart. What changed, Press releases and Data health stay. Commentary gains
+sources beyond results releases. Step prompts are in `prompts/v2.0/`.
+- Order: 15a, 15b, 16, 17, 18, 19, 20, 21, in number order. Q3 `/curate` runs happen
+  between steps, never during one (expected, last year plus 364 days: OMC about 20 Oct,
+  WPP about 29 Oct, STGW about 5 Nov, DENTSU about 13 Nov).
+- Renumbered 2026-10-15: old 15 became 15a (build) and 15b (run); the design gate became
+  16; old 16 and 17 became 17 and 18; the press tweak became 19 and took the AI &
+  products category from old 15; 20 (final design pass) is new; 13 Ready to share became
+  21 and runs last. Earlier mentions of "step 13" mean 21.
+- Removed: 08d (dropped, see Day 2) and 12h (replaced by 16 to 18 and 20).
 - Left out on purpose: no LLM-written summary on the site (quotes only; the 14b
   headlines stay in the data for the MCP tool), no "just reported" line, Data health
   stays a full panel, and the compare selection is shared by link, not remembered in
-  the browser.
-- Absorbed from the Backlog: the "Management says" panel (17), Esc collapses the press
-  list (press tweak), visual identity and the first-screen check (design gate), log scale
-  (retired: the compare chips rescale the chart), results dates shown three times (16),
-  the phone growth grid opening at its oldest quarter (17), Dentsu commentary (15).
-- Order: 15, then the design gate (it may run during 15 but edits only `prompts/` until
-  15 lands), then 16, 17, the press tweak and 13. Q3 `/curate` runs happen between
-  steps, never during one.
+  the browser. No market cap on the cards (it stays in the data and the MCP tool), no
+  8-quarter bars on the cards (Quarterly history covers the trend), no "All themes"
+  quotes tab (one company selected shows all its themes).
+- Absorbed from the Backlog: the "Management says" panel (18), Esc collapses the press
+  list (19), visual identity and the first-screen check (16 and 20), log scale (retired:
+  the compare chips rescale the chart), results dates shown three times (17), the phone
+  growth grid opening at its oldest quarter (18), Dentsu commentary (15b).
+- Design items found in the 17 to 19 reviews that do not fit that step's polish round go
+  to the Backlog marked "for 20".
 
-- [ ] **15 Strategy documents and estimated dates.** Two sessions, plan mode, no site
-  change. (0) First make `make check` green again: since the 14b data commits,
-  `tests/test_pipeline.py` fails because its repo fixture copies the real `data/` and
-  expects no commentary.json; the test must not depend on live data. (1)
-  `pipeline/verify_quote.py`: `--text --from N` reads past the 60,000-character
-  output limit (matching already searches the full text); prints the final URL after
-  redirects; `--company CODE` refuses a URL whose registered domain is not that company's
-  or whose final host's robots.txt disallows it (stdlib robotparser). (2) `/curate
-  --commentary CODE <url>` quotes one pasted, dated document: call transcript, results
-  slides, annual or integrated report, investor day or strategy material, or an
-  announcement already in press_releases.json. Transcripts: management only, never
-  analysts. At most 6 quotes per transcript, 4 per report or plan, 3 per slide deck, 2 per
-  announcement; NOT FOUND is dropped as before. (3) `schemas/commentary.schema.json`:
-  optional `source_type` (missing means results_release); `core/commentary.py`
-  `latest_only` keeps each company's newest document per source_type, so report and
-  investor day quotes are not hidden. (4) `core/calendar.py`: a found date equal to an
-  unconfirmed events.yaml date becomes a candidate to confirm (today it is skipped, so a
-  correct estimate stays "(est.)"). (5) An `ai_and_products` press category (not flagged,
-  word-bounded so "campaign" does not match), schema enum and classifier tests; cut first
-  if the step runs long. (6) Stagwell's robots.txt re-checked and its FAILURES.md row
-  corrected; ARCHITECTURE.md sections 5 and 6 updated. Session 2 runs `/curate
-  --commentary` on at most two documents per company (listed in the step prompt), and the
-  maintainer hand-enters an estimated next results date (`confirmed: false`) for each
-  company without a confirmed one. Tests use plain text and stubs, no network.
+- [ ] **15a Strategy documents: build.** Executor, plan mode, no site change. (0) First
+  make `make check` green again: since the 14b data commits, `tests/test_pipeline.py`
+  fails because its repo fixture copies the real `data/` and expects no commentary.json;
+  the test must not depend on live data. (1) `pipeline/verify_quote.py`: `--text --from
+  N` reads past the 60,000-character output limit (matching already searches the full
+  text); prints the final URL after redirects; `--company CODE` refuses a URL whose
+  registered domain is not that company's, or whose final host's robots.txt disallows it
+  (robots.txt fetched through `core/util.fetch()`, parsed with stdlib
+  `urllib.robotparser`). (2) `/curate --commentary CODE <url>` quotes one pasted, dated
+  document: call transcript, results slides, annual or integrated report, investor day or
+  strategy material, or an announcement already in press_releases.json. Transcripts:
+  management only, never analysts. At most 6 quotes per transcript, 4 per report or plan,
+  3 per slide deck, 2 per announcement; NOT FOUND is dropped as before. (3)
+  `schemas/commentary.schema.json`: optional `source_type` (missing means
+  results_release); `core/commentary.py` `latest_only` keeps each company's newest
+  document per source_type, so report and investor day quotes are not hidden. (4)
+  `core/calendar.py`: a found date equal to an unconfirmed events.yaml date becomes a
+  candidate to confirm (today it is skipped, so a correct estimate stays "(est.)");
+  `pipeline/nudge.py` drops the "arrives in step 08d" sentence from the Calendar Issue,
+  and its test follows. (5) Stagwell's robots.txt re-checked and its FAILURES.md row
+  corrected; ARCHITECTURE.md section 6 (commentary fields) updated. Tests use plain text
+  and stubs, no network.
   Acceptance: `make check` and `make validate` green; a test reads text past 60,000
-  characters with `--from`; an off-domain URL is refused before any fetch;
-  commentary.json uses at least four source_types and has DENTSU and STGW strategy quotes,
-  or a FAILURES.md row says why; after `make pipeline` every company has a next results
-  date in events.json (then `git checkout -- docs/data`).
-  Commits: `step 15: commentary documents, long PDFs, AI press category`, the `curate: ...`
-  data commits, then `step 15: strategy documents run` (ticks the box, as in 09 and 14b).
+  characters with `--from`; an off-domain URL is refused before any fetch; a test shows a
+  found date equal to an estimate becoming a candidate; the 23 existing commentary
+  records still validate. Commit: `step 15a: commentary documents and long PDFs`.
 
-- [ ] **Design gate (before 16).** Planning chat, no executor session. Screenshots of
-  today's page; a design-reviewer full brief and 2 to 3 creative-director directions for
-  the v2.0 page (scorecard card, compare chips, "In their words" rows and tabs, chart,
-  phone swipe row, print). The maintainer picks one. A `plan:` commit rewrites
-  docs/DESIGN.md (supersedes M1's order, M3, M4, G1 to G6 and R3 to R5; adds the scorecard,
-  chips, quotes panel, phone and print specs; decides whether cards carry small 8-quarter
-  bars) and finalizes the 16 and 17 prompts. Acceptance: every Must item for 16 and 17
-  names a file and a check. Commit: `plan: v2.0 design brief`.
+- [ ] **15b Strategy documents: run.** The maintainer, in a fresh session (commands load
+  when a session starts). `/curate --commentary` on at most two documents per company,
+  listed in the step prompt: strategy material and the latest quarter first (OMC's Investor
+  Day transcript now; its Q3 transcript with the Q3 run). Then an estimated next results
+  date (`confirmed: false`) by hand for each company without one: last year's date for the
+  same period plus 364 days (PUB needs one lookup: no FY 2025 results row is on file).
+  When the real date appears, the Calendar review Issue flags it for a hand copy.
+  Acceptance: commentary.json uses at least four source_types and has DENTSU and STGW
+  strategy quotes, or a FAILURES.md row says why; after `make pipeline` every company has
+  a next results date in events.json (then `git checkout -- docs/data`).
+  Commits: the `curate: ...` data commits, then `step 15b: strategy documents run`
+  (ticks the box, as in 09 and 14b).
 
-- [ ] **16 Compare chips, scorecards and chart.** Site only. (1) Compare chips: one
+- [ ] **16 Design the v2.0 page.** Planning chat, no executor session. Runs after 15b's
+  closing commit and before 17, so the mockups use real document quotes and (est.)
+  dates. Screenshots of today's page; a design-reviewer full brief and 2 to 3
+  creative-director directions for the v2.0 page (scorecard card, compare chips, "In
+  their words" rows and tabs, chart, phone swipe row, print). The step ends when the
+  maintainer picks one direction. Then docs/DESIGN.md is rewritten: it supersedes M1's
+  order, M3, M4, G1 to G6, R1, R3 to R5 and section 5's tile and legend rows (keeps the
+  tokens, M5 to M8, R2, the one Esc handler and the chart spec unless the pick changes
+  them); adds the scorecard, chips, quotes panel, phone and print specs, split between 17
+  and 18; carries the intro line and freshness note placement forward for 21. The 17 and
+  18 prompts are finalized, and two stale lines in `.claude/agents/` (12h, step 13) are
+  fixed. Step 20 revisits the look on the built page, so 16 sets the direction and need
+  not settle every detail. Acceptance: every Must item for 17 and 18 names a file and a
+  check. Commit: `step 16: v2.0 design brief`.
+
+- [ ] **17 Compare chips, scorecards and chart.** Site only. (1) Compare chips: one
   page-wide company selection, default all six, carried in the URL hash (`#PUB,WPP`;
   12f's `#PUB` still works; unknown codes ignored); "All" and Esc reset it. It replaces
-  the tile focus and the guidance chips; a legend click toggles the same selection, and
-  unselected companies stay in the legend (`legendonly`) so they can be clicked back.
-  (2) One card per selected company replaces the tiles, same rows in every card: organic
-  growth (latest period, 12g's delta); margin (latest period and its basis); guidance
-  "Top line" (organic growth, else revenue) and "Profit" (operating margin, else EPS),
-  each by G2's headline-record rule, with status badge and date link; shares (YTD, the
-  2-day move from the close before the latest results date to the close after it,
-  labelled, "pending" until that close exists, market cap approx; no price level,
-  currency or 1D move); next results date ("(est.)" when unconfirmed). (3) The Events
-  panel is removed; "Coming up" in What changed keeps upcoming dates. (4) The chart shows
-  only selected companies plus the benchmark and rescales; event markers only when a
-  subset is selected; the headline covers the shown companies. (5) Phone: cards in a
-  swipe row, no sideways page scroll; print: all six cards.
+  the tile focus and the guidance chips (the guidance matrix shows all six until 18
+  removes it); a legend click toggles the same selection, and unselected companies stay
+  in the legend (`legendonly`) so they can be clicked back. (2) One card per selected
+  company replaces the tiles, same rows in every card: organic growth (latest period,
+  12g's delta); margin (latest period and its basis); guidance "Top line" (organic
+  growth, else revenue) and "Profit" (operating margin, else EPS), each by G2's
+  headline-record rule, with status badge and date link; shares (YTD, and the 2-day move
+  from the close before the latest results date to the close after it, labelled e.g.
+  "Share move on Q3 results", "pending" until that close exists; no price level,
+  currency, 1D move or market cap); next results date ("(est.)" when unconfirmed). (3)
+  The Events panel is removed; "Coming up" in What changed keeps upcoming dates. (4) The
+  chart shows only selected companies plus the benchmark and rescales; event markers only
+  when a subset is selected; the headline covers the shown companies. (5) Phone: cards in
+  a swipe row, no sideways page scroll; print: all six cards.
   Acceptance: three cards match a hand check against kpis, guidance, events and prices
   (including the 2-day move); `/#PUB,WPP` opens with two companies and Esc restores six;
   a legend click hides and restores a company; hiding STGW rescales the chart; no event
   markers with all six shown; every chip works with Tab, Enter and Space; no sideways
   scroll at 375px; zero console errors or CSP violations; `make check` green.
-  Commit: `step 16: compare chips, scorecards and chart`.
+  If it runs long, the chart part (4) becomes 17b in a fresh session.
+  Commit: `step 17: compare chips, scorecards and chart`.
 
-- [ ] **17 In their words and folded sections.** Site only, plus ARCHITECTURE.md section
-  7. (1) "In their words" between the cards and the chart, from commentary.json: tabs
-  Strategy, AI & data, Clients, Outlook and All themes; one row per selected company with
-  its newest quote on the theme, the speaker when present, the source type, the date and
-  a link to source_url; with one company selected, one row per theme. A company with no
-  quote on the theme shows "No quote on this theme yet"; a missing commentary.json shows
-  the panel's empty sentence. Headlines are not shown. (2) Two collapsed sections under
-  the cards: "All guidance (n)" (G1's summary line and every current record with quote
-  and source; the guidance matrix panel is removed) and "Quarterly history" (the growth
-  grid and its definitions; on phones it opens at the newest quarter). Both print open.
-  (3) The What changed link points at "All guidance". (4) ARCHITECTURE.md section 7
-  describes the v2.0 page.
+- [ ] **18 In their words and folded sections.** Site only, plus ARCHITECTURE.md
+  sections 2 and 7. (1) "In their words" between the cards and the chart, from
+  commentary.json: tabs Strategy, AI & data, Clients and Outlook; one row per selected
+  company with its newest quote on the theme, the speaker when present, the source type,
+  the date and a link to source_url; with one company selected, one row per theme (all
+  six themes, so performance and capital allocation show there). A company with no quote
+  on the theme shows "No quote on this theme yet"; a missing commentary.json shows the
+  panel's empty sentence. Headlines are not shown. (2) Two collapsed sections under the
+  cards: "All guidance (n)" (G1's summary line and every current record with quote and
+  source; the guidance matrix panel is removed) and "Quarterly history" (the growth grid
+  and its definitions; on phones it opens at the newest quarter). Both print open. (3)
+  The What changed link points at "All guidance". (4) ARCHITECTURE.md section 7 describes
+  the v2.0 page; section 2's "step 13 stats" note reads step 21.
   Acceptance: every tab shows a quote or the "no quote" line for each selected company,
   and three quote links open the right document; WPP alone shows one row per theme; each
   folded section opens in one click and prints open; hiding commentary.json shows the
   empty sentence; no sideways scroll at 375px; zero console errors; `make check` green.
-  Commit: `step 17: in their words and folded sections`.
-  Then `tweak: press defaults and Esc` (`docs/app.js`, `docs/style.css`): key categories
-  by default (results, guidance, m_and_a, capital_markets, leadership, client,
-  ai_and_products) with "Show all (n)" for the rest; press follows the compare chips (its
-  own chips go); Esc also collapses an expanded list.
+  If it runs long, Part 1 commits as `step 18: partial, in their words` and Parts 2 to 4
+  become 18b. Commit: `step 18: in their words and folded sections`.
 
-- [ ] **13 Ready to share.** Moved into v2.0 on 2026-10-15: runs last, so the README and
-  the intro line describe the v2.0 page. `pipeline/stats.py` (computed numbers from runs.jsonl,
-  status.json history and git log, "n/a" rather than estimates). README rewritten around
-  the live Pages link: what it is, who it is for, the numbers, architecture (Mermaid),
-  data sources and limits, why the LLM step is local, failures and fixes, run it yourself,
-  disclaimer. Site: a one-line "what am I looking at" intro and a data-freshness note
-  (prices as of, curated as of, from status.json), meta description and Open Graph
-  title/description, inline SVG favicon. No GIF, no recording.
+- [ ] **19 Press: AI & products and key items.** (1) A new `ai_and_products` press
+  category after `client` (config/watchlist.yaml classification,
+  schemas/press_releases.schema.json enum, classifier tests, ARCHITECTURE.md section 5):
+  not flagged, for product, platform, partnership and AI launches, word-bounded so
+  "campaign" does not match; the plan lists every fixture and live title that moves out
+  of "other". (2) Site (`docs/app.js`, `docs/style.css`): press shows key categories by
+  default (results, guidance, m_and_a, capital_markets, leadership, client,
+  ai_and_products) with "Show all (n)" for the rest, and their badges in words; press
+  follows the compare chips (its own chips go); Esc also collapses an expanded list;
+  print shows every item.
+  Acceptance: `make check` and `make validate` green; a classifier test keeps a
+  "campaign" title out of ai_and_products; after `make pipeline` the moved titles match
+  the plan's list (then `git checkout -- docs/data`); the default count per company
+  matches a hand count from press_releases.json; Esc collapses the list; no sideways
+  scroll at 375px; zero console errors. Commit: `step 19: press AI & products and key
+  items`.
+
+- [ ] **20 Final design pass.** On the finished v2.0 page, after 19, so the look is
+  judged on what was built (e.g. the scorecard simplified once it is seen with real
+  data). Planning chat first: after-screenshots at 1440px and 375px plus a print preview,
+  a design-reviewer full brief on the built page, the 10-second reader test on every
+  panel and card row, and the "for 20" Backlog lines. The maintainer picks what fits about
+  90 minutes, removal and simplification first; a `plan: v2.0 final design` commit revises
+  docs/DESIGN.md and the step prompt is written. Then the executor builds the picks in one
+  session. Site only (docs/index.html, app.js, style.css): no new panel or feature, no
+  data, schema or pipeline change, no new dependency; anything bigger goes to the Backlog.
+  Acceptance: each picked item's DESIGN.md check passes; before and after screenshots at
+  1440px and 375px with page heights noted, and neither is taller than before; no
+  sideways scroll at 375px; print preview shows no split panels; zero console errors or
+  CSP violations; `make check` green. Commit: `step 20: final design pass`.
+
+- [ ] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
+  line describe the final v2.0 page. `pipeline/stats.py` (computed numbers from
+  runs.jsonl, status.json history and git log, "n/a" rather than estimates). README
+  rewritten around the live Pages link: what it is, who it is for, the numbers,
+  architecture (Mermaid), data sources and limits, why the LLM step is local, failures and
+  fixes, run it yourself, disclaimer. Site: a one-line "what am I looking at" intro (no
+  hardcoded benchmark name) and a data-freshness note (prices as of, curated as of, from
+  status.json), dates shown as DESIGN.md S3 says ("9 Oct 2026, 01:51 UTC"), meta
+  description and Open Graph title/description, inline SVG favicon. No GIF, no recording.
   Acceptance: `uv run python -m pipeline.stats` prints real numbers; README's first screen
   has the link, the one-line description and the disclaimer; the live Pages URL works on a
   real phone without horizontal scroll and on desktop with zero console errors.
-  Commit: `step 13: ready to share`.
+  Commit: `step 21: ready to share`.
 
 ## Parked (later, after v2.0)
 
@@ -453,3 +507,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-11: dark mode (a second token set plus Plotly colors). Candidate for Parked.
 - 2026-10-12 (12g review): "Reports today" reuses the blue of the "New" guidance badge.
   Check for confusion on the first real results day; a tweak if it confuses.
+- 2026-10-15 (v2.0 review): show the S&P 500's move over the same two days next to a
+  card's results move.
+- 2026-10-15 (v2.0 review): print follows the chosen companies (a peer-set handout).
+- 2026-10-15 (v2.0 review): once `metric_label` exists (2026-10-11 line), Stagwell's
+  adjusted EBITDA guidance as its card's Profit line.
