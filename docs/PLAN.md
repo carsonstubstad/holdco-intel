@@ -305,7 +305,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
   theme filtering; in a fresh session the MCP tool returns empty lists plus the note (no
   error) before 14b. Commit: `step 14a: commentary data path and get_commentary MCP tool`.
 
-- [ ] **14b /curate commentary and first run.** `.claude/commands/curate.md` gains a
+- [x] **14b /curate commentary and first run.** `.claude/commands/curate.md` gains a
   "Management commentary" section and a `--commentary` flag: 3 to 6 verbatim quotes per
   results release (at most 50 words each), each verified with verify_quote (NOT FOUND
   means dropped, never reworded), plus an optional neutral headline backed by those
