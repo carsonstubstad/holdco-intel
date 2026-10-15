@@ -40,6 +40,11 @@
           "release_date": {"type": "string", "format": "date"},
           "period": {"type": "string", "description": "Q2 2026, H1 2026, FY2025"},
           "source_url": {"type": "string", "format": "uri"},
+          "source_type": {
+            "type": "string",
+            "enum": ["results_release", "call_transcript", "results_slides", "annual_report", "investor_day", "strategy_plan", "announcement"],
+            "description": "Kind of document quoted. Missing means results_release."
+          },
           "curated_at": {"type": "string", "format": "date-time"},
           "verified": {"const": true, "description": "verify_quote.py passed; unverified records are never written."}
         }

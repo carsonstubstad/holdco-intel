@@ -279,18 +279,18 @@ def candidate_id(company: str, date: str, kind: str) -> str:
 def find_candidates(
     calendar_events: list[dict], press_events: list[dict], events: list[dict], today: str
 ) -> list[dict]:
-    """Return future results/agm/capital_markets_day dates missing from events.yaml, deduped by
-    id (calendar wins); a same-type yaml date within 30 days is named in `replaces`."""
+    """Return future results/agm/capital_markets_day dates missing from events.yaml, or there
+    only as an estimate (confirmed not true), deduped by id (calendar wins); the nearest
+    same-type yaml date within 30 days, the estimate itself included, is named in `replaces`."""
     candidates: dict[str, dict] = {}
     for found in calendar_events + press_events:
         if found["date"] < today or found["type"] not in CANDIDATE_TYPES:
             continue
-        same = [
-            e["date"]
-            for e in events
-            if e["company"] == found["company"] and e["type"] == found["type"]
+        rows = [
+            e for e in events if e["company"] == found["company"] and e["type"] == found["type"]
         ]
-        if found["date"] in same:
+        same = [e["date"] for e in rows]
+        if any(e["date"] == found["date"] and e.get("confirmed") is True for e in rows):
             continue
         day = datetime.date.fromisoformat(found["date"])
 

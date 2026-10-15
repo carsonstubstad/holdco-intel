@@ -15,6 +15,20 @@ THEMES = (
     "outlook",
     "capital_allocation",
 )
+SOURCE_TYPES = (
+    "results_release",
+    "call_transcript",
+    "results_slides",
+    "annual_report",
+    "investor_day",
+    "strategy_plan",
+    "announcement",
+)
+
+
+def _kind(item: dict) -> tuple[str, str]:
+    """(company, source_type), where missing (as on headlines) means results_release."""
+    return item["company"], item.get("source_type") or "results_release"
 
 
 def get_commentary(
@@ -24,7 +38,8 @@ def get_commentary(
     *,
     path: Path | str = COMMENTARY_PATH,
 ) -> dict:
-    """Return {headlines, records} from commentary.json; latest_only keeps newest release each."""
+    """Return {headlines, records} from commentary.json; latest_only keeps each company's newest
+    document per source_type."""
     path = Path(path)
     data = {}
     if path.exists():
@@ -36,11 +51,11 @@ def get_commentary(
         headlines = [h for h in headlines if str(h["company"]).upper() == code.upper()]
         records = [r for r in records if str(r["company"]).upper() == code.upper()]
     if latest_only:
-        newest: dict[str, str] = {}
+        newest: dict[tuple[str, str], str] = {}
         for item in headlines + records:
-            newest[item["company"]] = max(newest.get(item["company"], ""), item["release_date"])
-        headlines = [h for h in headlines if h["release_date"] == newest[h["company"]]]
-        records = [r for r in records if r["release_date"] == newest[r["company"]]]
+            newest[_kind(item)] = max(newest.get(_kind(item), ""), item["release_date"])
+        headlines = [h for h in headlines if h["release_date"] == newest[_kind(h)]]
+        records = [r for r in records if r["release_date"] == newest[_kind(r)]]
     if theme:
         records = [r for r in records if r["theme"] == theme]
     order = {str(c["code"]).upper(): i for i, c in enumerate(load_watchlist()["companies"])}

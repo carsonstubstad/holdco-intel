@@ -127,20 +127,31 @@ def _found(company="OMC", date="2026-10-21", kind="results", title="Q3 call", so
             "source_url": "https://example.com/e", "source": source, "fetched_at": "x"}
 
 
-def _yaml(company="OMC", date="2026-10-20", kind="results"):
-    return {"company": company, "date": date, "type": kind, "title": "t", "confirmed": False}
+def _yaml(company="OMC", date="2026-10-20", kind="results", confirmed=False):
+    return {"company": company, "date": date, "type": kind, "title": "t", "confirmed": confirmed}
 
 
-def test_candidates_skip_exact_match_past_and_other_types():
+def test_candidates_skip_confirmed_exact_match_past_and_other_types():
     found = [
-        _found(date="2026-10-20"),  # already in yaml
+        _found(date="2026-10-20"),  # already in yaml, confirmed
         _found(date="2026-10-01"),  # past
         _found(kind="other", date="2026-11-01"),
         _found(company="WPP", kind="agm", date="2027-05-07"),
     ]
-    got = calendar.find_candidates(found, [], [_yaml()], "2026-10-07")
+    got = calendar.find_candidates(found, [], [_yaml(confirmed=True)], "2026-10-07")
     assert [(c["company"], c["date"], c["type"]) for c in got] == [("WPP", "2027-05-07", "agm")]
     assert got[0]["replaces"] is None and got[0]["confirmed"] is True
+
+
+def test_found_date_equal_to_estimate_becomes_candidate():
+    no_key = {k: v for k, v in _yaml().items() if k != "confirmed"}
+    for estimate in (_yaml(), no_key):  # confirmed: false, or no confirmed key at all
+        (got,) = calendar.find_candidates([_found(date="2026-10-20")], [], [estimate], "2026-10-07")
+        assert (got["date"], got["replaces"], got["confirmed"]) == (
+            "2026-10-20",
+            "2026-10-20",
+            True,
+        )
 
 
 def test_candidate_replaces_nearest_same_type_date_within_30_days():

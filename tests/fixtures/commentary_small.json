@@ -28,6 +28,7 @@
       "release_date": "2026-08-07",
       "period": "H1 2026",
       "source_url": "https://example.com/wpp/h1-2026",
+      "source_type": "results_release",
       "curated_at": "2026-08-08T10:00:00Z",
       "verified": true
     },
@@ -40,7 +41,34 @@
       "release_date": "2026-08-07",
       "period": "H1 2026",
       "source_url": "https://example.com/wpp/h1-2026",
+      "source_type": "results_release",
       "curated_at": "2026-08-08T10:00:00Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-strategy-2026-03-20-1",
+      "company": "WPP",
+      "theme": "strategy",
+      "quote": "Test quote: the annual report sets out our simplified strategy.",
+      "speaker": "Test Speaker, CEO",
+      "release_date": "2026-03-20",
+      "period": "FY2025",
+      "source_url": "https://example.com/wpp/annual-report-2025",
+      "source_type": "annual_report",
+      "curated_at": "2026-03-21T10:00:00Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-strategy-2025-03-21-1",
+      "company": "WPP",
+      "theme": "strategy",
+      "quote": "Test quote: an older annual report statement on strategy.",
+      "speaker": null,
+      "release_date": "2025-03-21",
+      "period": "FY2024",
+      "source_url": "https://example.com/wpp/annual-report-2024",
+      "source_type": "annual_report",
+      "curated_at": "2025-03-22T10:00:00Z",
       "verified": true
     },
     {

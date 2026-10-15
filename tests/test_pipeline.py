@@ -134,6 +134,8 @@ def _set_last_curate(repo: Path, value: str | None) -> None:
 
 
 def test_pipeline_tolerates_failure_and_writes_everything(repo, capsys):
+    # pins the missing-file path for commentary, independent of the live data/commentary.json
+    (repo / "data" / "commentary.json").unlink(missing_ok=True)
     _set_last_curate(repo, f"{_ago(10)}T12:00:00Z")
     assert run.main(repo) == 0
 
@@ -225,6 +227,6 @@ def test_pipeline_copies_commentary(repo):
     copied = _load(repo, "commentary")
     validator = Draft202012Validator(schema, format_checker=FORMAT_CHECKER)
     assert not list(validator.iter_errors(copied))
-    assert len(copied["records"]) == 5 and len(copied["headlines"]) == 2
+    assert len(copied["records"]) == 7 and len(copied["headlines"]) == 2
     source = _load(repo, "status")["sources"]["commentary"]
-    assert source["ok"] is True and source["items"] == 5
+    assert source["ok"] is True and source["items"] == 7

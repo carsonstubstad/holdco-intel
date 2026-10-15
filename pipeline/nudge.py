@@ -61,6 +61,8 @@ def build_calendar_body(doc: dict, site_url: str) -> str:
         url = safe_url(item["source_url"])
         link = f" ({url})" if url else ""
         replaces = f", replaces {item['replaces']}" if item.get("replaces") else ""
+        if item.get("replaces") == item["date"]:
+            replaces = ", confirms the estimated date"
         marker = " (new)" if item["id"] in new else ""
         lines.append(
             f"- {item['date']} {item['company']} {item['type']}: "
@@ -71,8 +73,8 @@ def build_calendar_body(doc: dict, site_url: str) -> str:
         "",
         f"Dashboard: {site}" if site else "Dashboard: (site_url not set)",
         (
-            "Approval from the dashboard arrives in step 08d; until then copy approved dates "
-            "into data/events.yaml by hand."
+            "Copy approved dates into data/events.yaml by hand; for a date that confirms an "
+            "estimate, set confirmed: true and its source URL."
         ),
     ]
     return "\n".join(lines) + "\n"

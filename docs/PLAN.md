@@ -335,7 +335,7 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
 - Design items found in the 17 to 19 reviews that do not fit that step's polish round go
   to the Backlog marked "for 20".
 
-- [ ] **15a Strategy documents: build.** Executor, plan mode, no site change. (0) First
+- [x] **15a Strategy documents: build.** Executor, plan mode, no site change. (0) First
   make `make check` green again: since the 14b data commits, `tests/test_pipeline.py`
   fails because its repo fixture copies the real `data/` and expects no commentary.json;
   the test must not depend on live data. (1) `pipeline/verify_quote.py`: `--text --from

@@ -79,7 +79,16 @@ def test_calendar_body_lists_every_pending_candidate_even_when_none_new(tmp_path
     )
     assert bullets[1].startswith("- 2026-11-03 OMC results: ")
     assert "Dashboard: https://carsonstubstad.github.io/holdco-intel/" in lines
-    assert lines[-1].startswith("Approval from the dashboard arrives in step 08d")
+    assert lines[-1].startswith("Copy approved dates into data/events.yaml by hand")
+    assert "08d" not in "\n".join(lines)
+
+
+def test_calendar_body_names_a_confirmed_estimate():
+    doc = {"items": [_candidate("aaaaaaaaaaaa", "2026-10-20", replaces="2026-10-20")],
+           "new_ids": []}
+    bullet = next(ln for ln in nudge.build_calendar_body(doc, "").splitlines() if ln[:2] == "- ")
+    assert bullet.endswith("(https://investor.omc.com/e), confirms the estimated date")
+    assert "replaces" not in bullet
 
 
 def test_calendar_body_marks_new_ids():
