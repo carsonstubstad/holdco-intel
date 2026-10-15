@@ -23,7 +23,7 @@ docs/PLAN.md at the start of every session.
    series byte-identical). Local `make pipeline` runs may write `docs/data/` for testing;
    discard those changes (`git checkout -- docs/data`) before committing. `data/*.yaml`,
    `data/guidance.json`, `data/commentary.json` and `data/curate_state.json` are written
-   only by `/curate` or by the maintainer by hand (steps 08, 12 and 14b). Code never
+   only by `/curate` or by the maintainer by hand (steps 08, 12, 14b and 15). Code never
    writes `data/`. The pipeline copies `data/*` into `docs/data/` as JSON; the site reads
    only `docs/data/`.
 5. Partial failure is normal. A collector that fails logs the failure into `status.json`
@@ -59,7 +59,13 @@ docs/PLAN.md at the start of every session.
 - Sources are limited to Yahoo Finance via yfinance and each company's own IR website
   (RSS/Atom, a JSON endpoint the IR page loads, or static HTML). No EDGAR, no LSE RNS, no
   newswires, no Google News (its robots.txt disallows the RSS path; see docs/FAILURES.md).
-  There is no third-party fallback for press releases.
+  There is no third-party fallback for press releases. From step 15, `/curate` may also
+  quote a dated document the maintainer pastes (call transcript, results slides, annual
+  or integrated report, investor day or strategy material) when its URL is on the
+  company's own registered domain. If that URL redirects to the company's IR vendor's
+  file host (e.g. investor.omc.com/files to q4cdn.com), it is used only when robots.txt
+  on the final host allows it, and `source_url` stays the company's own URL. A
+  third-party host linked directly (e.g. WPP's res.cloudinary.com) stays out.
 - Config-driven. Companies are defined only in `config/watchlist.yaml`. No ticker, URL
   or company name is hardcoded anywhere else.
 - The chart benchmark is `dashboard.benchmark` in the watchlist. It is not a company: it
@@ -91,8 +97,8 @@ paste its output. `make serve` blocks: run it in the background, check the page 
 `curl -s localhost:8000 | head` plus a browser look, then stop it.
 
 A step is not done until its acceptance criteria in docs/PLAN.md are met and the box
-is ticked in the same commit. Exceptions: steps 09 and 14b, where /curate makes its own data
-commit and the box is ticked in the step's closing commit.
+is ticked in the same commit. Exceptions: steps 09, 14b and 15, where /curate makes its own
+data commit and the box is ticked in the step's closing commit.
 
 ## How to work in this repo
 
@@ -125,7 +131,7 @@ screenshots), `creative-director` (visual directions). Every gate is the maintai
 
 1. Prompt: the planning chat drafts or edits the step prompt; the maintainer approves
    it and, in plan mode, points the executor at the file ("Follow the fenced Prompt
-   block in prompts/v1.1/step-<id>.md").
+   block in prompts/<version>/step-<id>.md", e.g. prompts/v2.0/).
 2. Plan: plan mode saves the plan to `~/.claude/plans/`; it opens with "In plain words"
    (at most 5 lines on what a reader will see change). The planning chat runs
    `plan-reviewer` and shows the maintainer a card. After the maintainer says "send it",
