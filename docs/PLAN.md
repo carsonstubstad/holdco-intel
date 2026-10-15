@@ -512,3 +512,11 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-15 (v2.0 review): print follows the chosen companies (a peer-set handout).
 - 2026-10-15 (v2.0 review): once `metric_label` exists (2026-10-11 line), Stagwell's
   adjusted EBITDA guidance as its card's Profit line.
+- 2026-10-15 (15a): `/curate` document mode could also draft guidance and KPI rows from
+  slides or transcripts when the results release lacks them (e.g. Dentsu FY rows, guidance
+  given only on the call). Decide after 15b shows what the documents yield.
+- 2026-10-15 (15a review): verify_quote checks robots.txt on a redirect's final host only
+  after the download; checking each hop before following it needs a change to
+  `core/util.fetch()`.
+- 2026-10-15 (15a review): each `--from` chunk downloads and parses the whole document
+  again, so a very long PDF is slow to read in 15b. Note how slow in 15b before deciding.
