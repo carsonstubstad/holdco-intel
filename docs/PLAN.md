@@ -390,3 +390,7 @@ new step, Parked (v2), or no (breaks a hard rule), then moves the line.
   app.js sets scrollLeft to the newest (also before 12g). A tweak.
 - 2026-10-12 (12g review): "Reports today" reuses the blue of the "New" guidance badge.
   Check for confusion on the first real results day; a tweak if it confuses.
+- 2026-10-15 (14b run): Dentsu has no commentary (results notices are pointer pages).
+  Its same-domain semiannual report PDF (already used for half-year KPIs) likely has a
+  CEO message; quoting it means widening /curate's "release or its LINKS PDF" source
+  rule. Small /curate step, after the design rework.
