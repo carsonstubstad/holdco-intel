@@ -15,6 +15,30 @@
       "headline_by": "curator",
       "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
       "curated_at": "2026-10-15T02:39:20Z"
+    },
+    {
+      "company": "OMC",
+      "release_date": "2026-07-28",
+      "headline": "Omnicom reports Q2 2026 Core Operations organic revenue growth of 6.1% and an Adjusted EBITA margin of 17.8%.",
+      "headline_by": "curator",
+      "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
+      "curated_at": "2026-10-15T02:52:34Z"
+    },
+    {
+      "company": "WPP",
+      "release_date": "2026-08-06",
+      "headline": "WPP reports H1 2026 revenue less pass-through costs down 4.7% LFL and maintains its full-year headline operating margin expectation of 12% to 13%.",
+      "headline_by": "curator",
+      "source_url": "https://www.wpp.com/en/news/2026-interim-results",
+      "curated_at": "2026-10-15T02:52:34Z"
+    },
+    {
+      "company": "STGW",
+      "release_date": "2026-07-30",
+      "headline": "Stagwell reports Q2 2026 organic net revenue growth of 5% and raises its full-year 2026 adjusted EPS guidance to $1.03 to $1.17.",
+      "headline_by": "curator",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
+      "curated_at": "2026-10-15T02:52:34Z"
     }
   ],
   "records": [
@@ -136,6 +160,162 @@
       "period": "Q3 2026",
       "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
       "curated_at": "2026-10-15T02:39:20Z",
+      "verified": true
+    },
+    {
+      "id": "omc-performance-2026-07-28-1",
+      "company": "OMC",
+      "theme": "performance",
+      "quote": "Our second quarter results reflect the momentum of the new Omnicom. Revenue in our Core Operations grew 6.1% organically and we had strong margin expansion",
+      "speaker": "John Wren, Chairman and CEO",
+      "release_date": "2026-07-28",
+      "period": "Q2 2026",
+      "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "omc-strategy-2026-07-28-1",
+      "company": "OMC",
+      "theme": "strategy",
+      "quote": "We are built for an era where speed, integration, and scale matter most.",
+      "speaker": "John Wren, Chairman and CEO",
+      "release_date": "2026-07-28",
+      "period": "Q2 2026",
+      "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "omc-clients_and_new_business-2026-07-28-1",
+      "company": "OMC",
+      "theme": "clients_and_new_business",
+      "quote": "Clients are consolidating more work with us because they see the competitive advantage our connected capabilities deliver.",
+      "speaker": "John Wren, Chairman and CEO",
+      "release_date": "2026-07-28",
+      "period": "Q2 2026",
+      "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-performance-2026-08-06-1",
+      "company": "WPP",
+      "theme": "performance",
+      "quote": "While legacy account losses continue to weigh, Q2 saw a further sequential improvement in LFL growth, highlighting the momentum we are building across the company and demonstrating that our strategy to become the trusted growth partner for the world’s leading brands is beginning to deliver.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-08-06",
+      "period": "H1 2026",
+      "source_url": "https://www.wpp.com/en/news/2026-interim-results",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-strategy-2026-08-06-1",
+      "company": "WPP",
+      "theme": "strategy",
+      "quote": "We are successfully transitioning from a complex holding company to a single, integrated company – with four operating units across four regions, all underpinned by WPP Open, our agentic marketing platform, which enables and connects everything we do.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-08-06",
+      "period": "H1 2026",
+      "source_url": "https://www.wpp.com/en/news/2026-interim-results",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-clients_and_new_business-2026-08-06-1",
+      "company": "WPP",
+      "theme": "clients_and_new_business",
+      "quote": "While the turnaround of our financial performance will take time to fully flow through, our strong new business wins and improved client retention, as well as progress on cost savings and portfolio actions, demonstrate that we are building a simpler, more competitive and higher-performing WPP.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-08-06",
+      "period": "H1 2026",
+      "source_url": "https://www.wpp.com/en/news/2026-interim-results",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-ai_and_data-2026-08-06-1",
+      "company": "WPP",
+      "theme": "ai_and_data",
+      "quote": "Open Intelligence, our AI-powered data layer, is being actively deployed, driving meaningful uplift in media performance for clients.",
+      "speaker": null,
+      "release_date": "2026-08-06",
+      "period": "H1 2026",
+      "source_url": "https://www.wpp.com/en/news/2026-interim-results",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-capital_allocation-2026-08-06-1",
+      "company": "WPP",
+      "theme": "capital_allocation",
+      "quote": "We are on track to deliver £100m of in-year savings in 2026 as part of the broader Elevate28 programme targeting £500m in gross annualised cost savings by 2028, unlocking capital to support reinvestment into our primary growth engines.",
+      "speaker": null,
+      "release_date": "2026-08-06",
+      "period": "H1 2026",
+      "source_url": "https://www.wpp.com/en/news/2026-interim-results",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-ai_and_data-2026-07-30-1",
+      "company": "STGW",
+      "theme": "ai_and_data",
+      "quote": "Our second quarter results demonstrate Stagwell is thriving in today’s AI era.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-clients_and_new_business-2026-07-30-1",
+      "company": "STGW",
+      "theme": "clients_and_new_business",
+      "quote": "Stagwell’s unique combination of software, services and engineers is being embraced by the industry leading to another record-breaking Net New Business quarter of $171 million, highlighted by recent wins with IBM, Adobe, Mondelez and Heineken",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-performance-2026-07-30-1",
+      "company": "STGW",
+      "theme": "performance",
+      "quote": "Our organic net revenue growth continues to accelerate, led by 18% growth in our Digital Transformation segment, and 12% growth in Communications as the political cycle starts to ramp up.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-outlook-2026-07-30-1",
+      "company": "STGW",
+      "theme": "outlook",
+      "quote": "Strong growth, combined with proactive cost management and share repurchases, means we are raising our adjusted EPS outlook for the year today, and we expect to deliver double-digit growth in the second half, the lions’ share of which will be organic.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
+      "curated_at": "2026-10-15T02:52:34Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-capital_allocation-2026-07-30-1",
+      "company": "STGW",
+      "theme": "capital_allocation",
+      "quote": "These strong results, combined with continued share repurchases, resulted in 39% growth in adjusted EPS to $0.25.",
+      "speaker": "Ryan Greene, CFO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
+      "curated_at": "2026-10-15T02:52:34Z",
       "verified": true
     }
   ]
