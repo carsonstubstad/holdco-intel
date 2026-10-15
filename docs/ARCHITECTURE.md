@@ -110,6 +110,12 @@ Read locations: prices, FX and status read committed `docs/data/` (history only 
 there). Events, guidance and KPIs read their source of truth in `data/`. News and press
 releases fetch live; their committed copies are in `docs/data/`.
 
+Management commentary lives in `data/commentary.json`: verbatim, verified quotes by theme plus
+an optional one-line curator headline per company and release. Only `/curate` writes it.
+`core/commentary.py` `get_commentary()` reads it, the pipeline copies it to
+`docs/data/commentary.json`, and the MCP tool `get_commentary` serves it. The site does not
+read it yet.
+
 ```python
 # core/config.py
 def load_watchlist(path: str = "config/watchlist.yaml") -> dict:
@@ -227,6 +233,7 @@ Formal JSON Schema lives in `schemas/`. Summary of each file:
 - press_releases.json: `{as_of, last_curate_at, items: [{id, company, title, url, published, category, flagged, source, fetched_at}], new_since_last_curate: [id]}`
 - events.json: `{as_of, items: [{company, date, type, title, confirmed, source_url}]}`
 - guidance.json: `{as_of, records: [{id, company, metric, period, value, unit, status, set_date, quote, source_url, supersedes, curated_at}]}`
+- commentary.json: `{as_of, headlines: [{company, release_date, headline, headline_by, source_url, curated_at}], records: [{id, company, theme, quote, speaker, release_date, period, source_url, curated_at, verified}]}`
 - kpis.json: `{as_of, definitions: {CODE: text}, rows: [{company, period, organic_growth_pct, revenue_local_m, currency, margin_metric, margin_pct, source_url, note}]}`
 - status.json: `{run_at, runtime_ms, run_id, sources: {name: {ok, items, ms, error, last_ok}}, guidance_age_days, counts: {companies, sources_total, sources_ok, press_releases, flagged_new, news, events_upcoming}}`
 

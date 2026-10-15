@@ -291,7 +291,7 @@ Legend: [ ] todo, [x] done. Add a one-line note under a step if reality differed
 
 ## Day 5: management commentary (MCP)
 
-- [ ] **14a Commentary data path and MCP tool.** `schemas/commentary.schema.json`
+- [x] **14a Commentary data path and MCP tool.** `schemas/commentary.schema.json`
   (records: verbatim quote of at most 400 characters, theme from performance, strategy,
   ai_and_data, clients_and_new_business, outlook or capital_allocation, speaker only when
   attributed, release_date, period, source_url, verified true; headlines: one curator

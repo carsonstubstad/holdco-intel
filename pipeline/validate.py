@@ -18,6 +18,7 @@ DOCS_DATA = [
     "press_releases",
     "events",
     "guidance",
+    "commentary",
     "kpis",
     "status",
     "companies",
@@ -25,6 +26,7 @@ DOCS_DATA = [
 ]
 TARGETS = [(f"docs/data/{name}.json", name) for name in DOCS_DATA] + [
     ("data/guidance.json", "guidance"),
+    ("data/commentary.json", "commentary"),
     ("data/events.yaml", "events"),
     ("data/kpis.yaml", "kpis"),
 ]

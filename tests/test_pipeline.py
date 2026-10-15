@@ -21,6 +21,7 @@ OUTPUTS = [
     "press_releases",
     "events",
     "guidance",
+    "commentary",
     "kpis",
     "status",
     "event_candidates",
@@ -157,8 +158,10 @@ def test_pipeline_tolerates_failure_and_writes_everything(repo, capsys):
     assert status["sources"]["prices"]["ok"] is True
     assert "press_releases:HAVAS" not in status["sources"]
     assert status["counts"]["news"] == 0
-    assert status["counts"]["sources_total"] == 15  # 5 calendars: DENTSU has none
-    assert status["counts"]["sources_ok"] == 13
+    assert status["counts"]["sources_total"] == 16  # 5 calendars: DENTSU has none
+    assert status["counts"]["sources_ok"] == 14
+    assert status["sources"]["commentary"]["ok"] is True  # missing data file: ok, 0 items
+    assert status["sources"]["commentary"]["items"] == 0
     wpp_cal = status["sources"]["calendar:WPP"]
     assert wpp_cal["ok"] is False and "calendar down" in wpp_cal["error"]
     assert "calendar:DENTSU" not in status["sources"]
@@ -212,3 +215,16 @@ def test_calendar_candidate_drops_once_in_events_yaml(repo):
     run.main(repo)
     dates = {(c["company"], c["date"]) for c in _load(repo, "event_candidates")["items"]}
     assert ("HAVAS", _ahead(12)) not in dates
+
+
+def test_pipeline_copies_commentary(repo):
+    shutil.copy(ROOT / "tests" / "fixtures" / "commentary_small.json",
+                repo / "data" / "commentary.json")
+    run.main(repo)
+    schema = json.loads((ROOT / "schemas" / "commentary.schema.json").read_text())
+    copied = _load(repo, "commentary")
+    validator = Draft202012Validator(schema, format_checker=FORMAT_CHECKER)
+    assert not list(validator.iter_errors(copied))
+    assert len(copied["records"]) == 5 and len(copied["headlines"]) == 2
+    source = _load(repo, "status")["sources"]["commentary"]
+    assert source["ok"] is True and source["items"] == 5

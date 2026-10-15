@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "commentary.schema.json",
+  "title": "data/commentary.json (also copied to docs/data/commentary.json)",
+  "type": "object",
+  "required": ["headlines", "records"],
+  "properties": {
+    "as_of": {"type": "string", "format": "date-time"},
+    "headlines": {
+      "type": "array",
+      "description": "curator's paraphrase, not verifiable by verify_quote",
+      "items": {
+        "type": "object",
+        "required": ["company", "release_date", "headline", "headline_by", "source_url", "curated_at"],
+        "properties": {
+          "company": {"type": "string"},
+          "release_date": {"type": "string", "format": "date"},
+          "headline": {"type": "string", "maxLength": 160},
+          "headline_by": {"const": "curator"},
+          "source_url": {"type": "string", "format": "uri"},
+          "curated_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "company", "theme", "quote", "release_date", "period", "source_url", "curated_at", "verified"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+-(performance|strategy|ai_and_data|clients_and_new_business|outlook|capital_allocation)-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]+$",
+            "description": "code-theme-releasedate-n, lowercase, e.g. wpp-strategy-2026-08-07-1"
+          },
+          "company": {"type": "string"},
+          "theme": {"type": "string", "enum": ["performance", "strategy", "ai_and_data", "clients_and_new_business", "outlook", "capital_allocation"]},
+          "quote": {"type": "string", "minLength": 20, "maxLength": 400, "description": "Verbatim from the source. verify_quote.py must find it."},
+          "speaker": {"type": ["string", "null"], "description": "Only when the release attributes the words, e.g. 'Mark Read, CEO'; never inferred."},
+          "release_date": {"type": "string", "format": "date"},
+          "period": {"type": "string", "description": "Q2 2026, H1 2026, FY2025"},
+          "source_url": {"type": "string", "format": "uri"},
+          "curated_at": {"type": "string", "format": "date-time"},
+          "verified": {"const": true, "description": "verify_quote.py passed; unverified records are never written."}
+        }
+      }
+    }
+  }
+}

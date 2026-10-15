@@ -5,6 +5,7 @@ import asyncio
 import pytest
 
 from mcp_server import server
+from tests.test_commentary import FIXTURE as COMMENTARY_FIXTURE
 from tests.test_prices import FIXTURE
 
 EXPECTED_TOOLS = {
@@ -12,6 +13,7 @@ EXPECTED_TOOLS = {
     "get_press_releases",
     "get_events",
     "get_guidance",
+    "get_commentary",
     "get_kpis",
     "get_status",
     "list_companies",
@@ -66,3 +68,26 @@ def test_price_history_benchmark(monkeypatch, code):
     assert result["symbol"] == "^GSPC"
     assert result["name"] == "S&P 500"
     assert result["dates"] == ["2026-10-01", "2026-10-02"]
+
+
+def test_commentary_missing_file_gives_empty_lists_and_note(monkeypatch, tmp_path):
+    monkeypatch.setattr(server.commentary, "COMMENTARY_PATH", tmp_path / "nope.json")
+    result = server.get_commentary()
+    assert "error" not in result
+    assert result["headlines"] == [] and result["records"] == []
+    assert result["note"] == server.COMMENTARY_NOTE
+
+
+def test_commentary_reads_records(monkeypatch):
+    monkeypatch.setattr(server.commentary, "COMMENTARY_PATH", COMMENTARY_FIXTURE)
+    result = server.get_commentary("WPP", theme="outlook")
+    assert [r["id"] for r in result["records"]] == ["wpp-outlook-2026-08-07-1"]
+    assert [h["company"] for h in result["headlines"]] == ["WPP"]
+
+
+@pytest.mark.parametrize("kwargs", [{"code": "NOPE"}, {"theme": "gossip"}])
+def test_commentary_rejects_unknown_code_and_theme(monkeypatch, kwargs):
+    monkeypatch.setattr(server.commentary, "COMMENTARY_PATH", COMMENTARY_FIXTURE)
+    result = server.get_commentary(**kwargs)
+    assert result["as_of"] is None
+    assert "error" in result

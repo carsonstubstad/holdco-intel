@@ -1,0 +1,83 @@
+{
+  "as_of": "2026-08-08T10:00:00Z",
+  "headlines": [
+    {
+      "company": "WPP",
+      "release_date": "2026-08-07",
+      "headline": "Test headline: WPP says simplification is on track.",
+      "headline_by": "curator",
+      "source_url": "https://example.com/wpp/h1-2026",
+      "curated_at": "2026-08-08T10:00:00Z"
+    },
+    {
+      "company": "PUB",
+      "release_date": "2026-07-17",
+      "headline": "Test headline: Publicis raises its organic growth range.",
+      "headline_by": "curator",
+      "source_url": "https://example.com/pub/h1-2026",
+      "curated_at": "2026-07-18T10:00:00Z"
+    }
+  ],
+  "records": [
+    {
+      "id": "wpp-strategy-2026-08-07-1",
+      "company": "WPP",
+      "theme": "strategy",
+      "quote": "Test quote: we continue to simplify our structure and our offer.",
+      "speaker": "Test Speaker, CEO",
+      "release_date": "2026-08-07",
+      "period": "H1 2026",
+      "source_url": "https://example.com/wpp/h1-2026",
+      "curated_at": "2026-08-08T10:00:00Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-outlook-2026-08-07-1",
+      "company": "WPP",
+      "theme": "outlook",
+      "quote": "Test quote: we reiterate our guidance for the full year.",
+      "speaker": null,
+      "release_date": "2026-08-07",
+      "period": "H1 2026",
+      "source_url": "https://example.com/wpp/h1-2026",
+      "curated_at": "2026-08-08T10:00:00Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-strategy-2026-02-27-1",
+      "company": "WPP",
+      "theme": "strategy",
+      "quote": "Test quote: an older strategy statement from the full year release.",
+      "speaker": null,
+      "release_date": "2026-02-27",
+      "period": "FY2025",
+      "source_url": "https://example.com/wpp/fy-2025",
+      "curated_at": "2026-02-28T10:00:00Z",
+      "verified": true
+    },
+    {
+      "id": "pub-strategy-2026-07-17-1",
+      "company": "PUB",
+      "theme": "strategy",
+      "quote": "Test quote: our data and technology platform keeps winning.",
+      "speaker": null,
+      "release_date": "2026-07-17",
+      "period": "H1 2026",
+      "source_url": "https://example.com/pub/h1-2026",
+      "curated_at": "2026-07-18T10:00:00Z",
+      "verified": true
+    },
+    {
+      "id": "pub-ai_and_data-2026-07-17-1",
+      "company": "PUB",
+      "theme": "ai_and_data",
+      "quote": "Test quote: AI is embedded across every part of our offer.",
+      "speaker": null,
+      "release_date": "2026-07-17",
+      "period": "H1 2026",
+      "source_url": "https://example.com/pub/h1-2026",
+      "curated_at": "2026-07-18T10:00:00Z",
+      "verified": true
+    }
+  ]
+}

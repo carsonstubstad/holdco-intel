@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 from core.calendar import find_candidates, get_calendar, scan_press_releases
+from core.commentary import get_commentary
 from core.config import load_watchlist
 from core.events import get_events
 from core.guidance import get_guidance
@@ -182,6 +183,11 @@ def main(root: Path = Path(".")) -> int:
         write_json_atomic(out / "guidance.json", {"as_of": run_at, "records": records})
         return len(records), records
 
+    def commentary_step():
+        payload = get_commentary(latest_only=False, path=data / "commentary.json")
+        write_json_atomic(out / "commentary.json", {"as_of": run_at, **payload})
+        return len(payload["records"]), None
+
     def kpis_step():
         path = data / "kpis.yaml"
         payload = {
@@ -229,6 +235,7 @@ def main(root: Path = Path(".")) -> int:
     except Exception as exc:  # noqa: BLE001 - a bad previous file must not stop the run
         print(f"[pipeline] event_candidates FAIL: {type(exc).__name__}: {exc}"[:300])
     records = _step(status, prev_sources, "guidance", guidance_step) or []
+    _step(status, prev_sources, "commentary", commentary_step)
     _step(status, prev_sources, "kpis", kpis_step)
 
     curated = [r["curated_at"] for r in records if r.get("curated_at")]
