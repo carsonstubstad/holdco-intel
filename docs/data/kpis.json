@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-15T00:44:11Z",
+ "as_of": "2026-10-15T03:00:06Z",
  "definitions": {
   "PUB": "Organic growth: net revenue growth at constant scope and FX. Margin: operating margin on net revenue.",
   "OMC": "Organic growth: revenue growth excluding acquisitions, disposals and FX. Margin: adjusted EBITA margin. Not comparable across the IPG close (Nov 2025).",
@@ -140,6 +140,17 @@
    "margin_pct": 17.4,
    "source_url": "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-07/Communiqu%C3%A9%20de%20presse%20-%202026.06%20-%20EN_0.pdf",
    "note": "Net revenue. Headline operating margin (excl. LiveRamp transaction costs) 17.5%."
+  },
+  {
+   "company": "PUB",
+   "period": "Q3 2026",
+   "organic_growth_pct": 5.0,
+   "revenue_local_m": 3808,
+   "currency": "EUR",
+   "margin_metric": null,
+   "margin_pct": null,
+   "source_url": "https://www.publicisgroupe.com/sites/default/files/press-releases/2026-10/Communiqu%C3%A9%20de%20presse%20-%20Q3%202026%20-%20EN.pdf",
+   "note": "Net revenue."
   },
   {
    "company": "OMC",
@@ -568,6 +579,17 @@
    "margin_metric": "adjusted EBIT margin",
    "margin_pct": 11.0,
    "source_url": "https://www.havas.com/press_release/havas-reports-solid-h1-2026-results-with-organic-growth-of-2-5-and-further-improvement-in-adjusted-ebit-margin/",
+   "note": "Net revenue."
+  },
+  {
+   "company": "HAVAS",
+   "period": "Q3 2026",
+   "organic_growth_pct": 2.4,
+   "revenue_local_m": 703,
+   "currency": "EUR",
+   "margin_metric": null,
+   "margin_pct": null,
+   "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
    "note": "Net revenue."
   },
   {
