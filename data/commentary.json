@@ -551,6 +551,19 @@
       "source_type": "investor_day",
       "curated_at": "2026-10-15T23:26:37Z",
       "verified": true
+    },
+    {
+      "id": "dentsu-ai_and_data-2026-08-31-1",
+      "company": "DENTSU",
+      "theme": "ai_and_data",
+      "quote": "As AI continues to evolve at a rapid pace, the ability to solve short-term challenges will become increasingly sophisticated and efficient. Access to information will become more uniform, and many services are likely to become commoditized.",
+      "speaker": "Takeshi Sano, President & Global CEO",
+      "release_date": "2026-08-31",
+      "period": "FY 2025",
+      "source_url": "https://www.group.dentsu.com/en/sustainability/common/pdf/integrated-report2026_01.pdf",
+      "source_type": "annual_report",
+      "curated_at": "2026-10-15T23:40:07Z",
+      "verified": true
     }
   ]
 }
