@@ -564,6 +564,84 @@
       "source_type": "annual_report",
       "curated_at": "2026-10-15T23:40:07Z",
       "verified": true
+    },
+    {
+      "id": "stgw-strategy-2026-07-30-1",
+      "company": "STGW",
+      "theme": "strategy",
+      "quote": "The market is increasingly moving away from commoditized IT services with thousands of low-cost engineers towards higher value work that combines business strategy, technology, creativity and AI transformation.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:49:58Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-ai_and_data-2026-07-30-2",
+      "company": "STGW",
+      "theme": "ai_and_data",
+      "quote": "that work is getting far more efficient, because about 75% of the coding now is done agentically.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:49:58Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-clients_and_new_business-2026-07-30-2",
+      "company": "STGW",
+      "theme": "clients_and_new_business",
+      "quote": "Our pipeline has never been stronger. We expect cumulative year-end pipeline to be about 30% higher than last year.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:49:58Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-outlook-2026-07-30-2",
+      "company": "STGW",
+      "theme": "outlook",
+      "quote": "We are also carefully managing our costs throughout the business as we grow and expect our margins to continue expanding. This should mean solid growth and adjusted EBITDA in 2027 and then excellent growth in 2028 with the political season as well.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:49:58Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-capital_allocation-2026-07-30-2",
+      "company": "STGW",
+      "theme": "capital_allocation",
+      "quote": "With industry-leading growth, expanding margins, and growing free cash flow, we do not believe that our current trading multiples are appropriate. To that end, we’ll continue leveraging our buyback authorization to shrink our share count further to have a positive compounding impact on our adjusted EPS growth.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:49:58Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-performance-2026-07-30-2",
+      "company": "STGW",
+      "theme": "performance",
+      "quote": "Since launching our cost reduction program in April of 2025, we have actioned approximately $70 million of annualized savings and remain on track to achieve our year-end target of $80 million to $100 million.",
+      "speaker": "Ryan Greene, CFO",
+      "release_date": "2026-07-30",
+      "period": "Q2 2026",
+      "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:49:58Z",
+      "verified": true
     }
   ]
 }
