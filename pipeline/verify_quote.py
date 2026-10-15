@@ -33,7 +33,7 @@ WINDOW = 120
 WINDOW_STEP = 20
 TEXT_LIMIT = 60000
 MAX_LINKS = 20
-ROBOTS_REFUSE = (401, 403, 429)
+ROBOTS_TOO_MANY = 429
 
 INVISIBLE = dict.fromkeys(map(ord, "\u00ad\u200b\u200c\u200d\u2060\ufeff"))
 PUNCTUATION = str.maketrans(
@@ -192,7 +192,8 @@ def _robots(url: str, cache: dict) -> tuple[RobotFileParser, list[str]] | str:
         cache[root] = (rp, _disallows(text, _agent()))
     except requests.HTTPError as e:
         status = e.response.status_code if e.response is not None else None
-        if status is not None and 400 <= status < 500 and status not in ROBOTS_REFUSE:
+        # RFC 9309: 4xx except 429 = no rules; 429, 5xx and no response stay refusals
+        if status is not None and 400 <= status < 500 and status != ROBOTS_TOO_MANY:
             rp.parse([])  # no robots.txt: nothing is disallowed
             cache[root] = (rp, [])
         else:

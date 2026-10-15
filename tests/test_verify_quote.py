@@ -334,18 +334,24 @@ def test_robots_wildcard_fails_closed(route, capsys, robots, path, rule):
 
 
 @pytest.mark.parametrize(
-    "q4cdn_robots", ["User-agent: *\nAllow: /\n", "User-agent: *\nDisallow: /\n"]
+    ("q4cdn_robots", "allowed"),
+    [
+        (_text("User-agent: *\nAllow: /\n", f"{Q4CDN}/robots.txt"), True),
+        (_text("User-agent: *\nDisallow: /\n", f"{Q4CDN}/robots.txt"), False),
+        # the real q4cdn host answers 403 for robots.txt: no robots.txt, so nothing is disallowed
+        (_http_error(403, f"{Q4CDN}/robots.txt"), True),
+    ],
 )
-def test_redirect_to_other_host_needs_its_robots(route, capsys, q4cdn_robots):
+def test_redirect_to_other_host_needs_its_robots(route, capsys, q4cdn_robots, allowed):
     log = route({
         f"{OMC}/robots.txt": _text("User-agent: *\nCrawl-delay: 10\n", f"{OMC}/robots.txt"),
         f"{OMC}/files/q3": _response(DOC_HTML, f"{Q4CDN}/doc/q3", "text/html"),
-        f"{Q4CDN}/robots.txt": _text(q4cdn_robots, f"{Q4CDN}/robots.txt"),
+        f"{Q4CDN}/robots.txt": q4cdn_robots,
     })
     code = verify_quote.main(["--company", "OMC", "--text", f"{OMC}/files/q3"])
     out = capsys.readouterr().out
     assert log == [f"{OMC}/robots.txt", "sleep 10.0", f"{OMC}/files/q3", f"{Q4CDN}/robots.txt"]
-    if "Allow" in q4cdn_robots:
+    if allowed:
         assert code == 0
         assert out.splitlines()[0] == f"URL: {Q4CDN}/doc/q3"
         assert "DOCUMENT BODY" in out
@@ -358,10 +364,11 @@ def test_redirect_to_other_host_needs_its_robots(route, capsys, q4cdn_robots):
 @pytest.mark.parametrize(
     ("answer", "refusal"),
     [
+        # RFC 9309: any 4xx except 429 means no robots.txt
+        (_http_error(401, f"{WPP}/robots.txt"), None),
+        (_http_error(403, f"{WPP}/robots.txt"), None),
         (_http_error(404, f"{WPP}/robots.txt"), None),
         (_http_error(410, f"{WPP}/robots.txt"), None),
-        (_http_error(401, f"{WPP}/robots.txt"), "returned HTTP 401"),
-        (_http_error(403, f"{WPP}/robots.txt"), "returned HTTP 403"),
         (_http_error(429, f"{WPP}/robots.txt"), "returned HTTP 429"),
         (_http_error(503, f"{WPP}/robots.txt"), "returned HTTP 503"),
         (requests.HTTPError("no response attached"), "returned HTTP None"),
