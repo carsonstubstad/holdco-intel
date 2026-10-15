@@ -317,6 +317,84 @@
       "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
       "curated_at": "2026-10-15T02:52:34Z",
       "verified": true
+    },
+    {
+      "id": "wpp-performance-2026-02-26-1",
+      "company": "WPP",
+      "theme": "performance",
+      "quote": "When we consider what is WPP-specific, the major negative impact to call out both for the full year and for the fourth quarter is the impact of gross client losses which deteriorated through the year.",
+      "speaker": "Joanne Wilson, CFO",
+      "release_date": "2026-02-26",
+      "period": "FY 2025",
+      "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:09:13Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-strategy-2026-02-26-1",
+      "company": "WPP",
+      "theme": "strategy",
+      "quote": "We have a bold plan to make WPP a simpler more integrated company, one that’s fit for the future and relentlessly focused on growth and brilliant execution.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-02-26",
+      "period": "FY 2025",
+      "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:09:13Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-ai_and_data-2026-02-26-1",
+      "company": "WPP",
+      "theme": "ai_and_data",
+      "quote": "For marketing agencies that can pivot, adapt, put AI to work and offer the full breadth of integrated services, I believe there’s a once-in-a-generation growth opportunity and the new WPP is built to seize this opportunity.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-02-26",
+      "period": "FY 2025",
+      "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:09:13Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-clients_and_new_business-2026-02-26-1",
+      "company": "WPP",
+      "theme": "clients_and_new_business",
+      "quote": "In fact, the impact from new business wins in 2026 already exceeds the impact of new business wins for all of 2025 combined and its only February!",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-02-26",
+      "period": "FY 2025",
+      "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:09:13Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-outlook-2026-02-26-1",
+      "company": "WPP",
+      "theme": "outlook",
+      "quote": "The next phase is about building on these foundations and returning the company to growth sometime during 2027 and the third phase will be about accelerating our growth so we can capture our fair share of the market from 2028 and beyond.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-02-26",
+      "period": "FY 2025",
+      "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:09:13Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-capital_allocation-2026-02-26-1",
+      "company": "WPP",
+      "theme": "capital_allocation",
+      "quote": "We do, however, expect average net debt to remain broadly stable and note that any proceeds from asset disposals during the year will be used to strengthen our balance sheet, providing a greater degree of financial flexibility.",
+      "speaker": "Joanne Wilson, CFO",
+      "release_date": "2026-02-26",
+      "period": "FY 2025",
+      "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+      "source_type": "call_transcript",
+      "curated_at": "2026-10-15T23:09:13Z",
+      "verified": true
     }
   ]
 }
