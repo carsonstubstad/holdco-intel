@@ -546,3 +546,14 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-15 (step 17, for 20): with the Events panel gone, upcoming capital markets days,
   deals and AGMs show nowhere while all six companies are shown (chart markers appear
   only for a subset). Decide whether Coming up lists them.
+- 2026-10-15 (step 18 review, for 20): the In their words theme buttons read as plain
+  underlined text; make them look like buttons you press, without looking like the
+  company chips (e.g. one joined segmented bar, the pressed segment light grey). Decide
+  with the chart's window buttons, which share the style.
+- 2026-10-15 (step 18 review, for 20): fold the "No quote on this theme yet." rows into
+  one line ("No Clients quote yet: HAVAS, DENTSU"), as the one-company view does.
+- 2026-10-15 (step 18 review, for 20): All guidance drops records whose company code is
+  not in companies.json (the old tracker listed them). None exist today.
+- 2026-10-15 (step 18 review): /curate quotes must stand alone; leave out openers such
+  as "At the same time," (PUB Clients, 13 Oct). A rule in `.claude/commands/curate.md`;
+  sort before the next /curate run (OMC Q3, about 20 Oct).
