@@ -85,6 +85,23 @@ def test_commentary_reads_records(monkeypatch):
     assert [h["company"] for h in result["headlines"]] == ["WPP"]
 
 
+@pytest.mark.parametrize(
+    ("last_curate_at", "expected"),
+    [
+        ("2026-08-01T00:00:00Z", "2026-08-08T10:00:00Z"),  # document run after last /curate
+        ("2026-09-01T00:00:00Z", "2026-09-01T00:00:00Z"),  # /curate run is the newer one
+    ],
+)
+def test_commentary_as_of_is_newer_of_curate_state_and_records(
+    monkeypatch, tmp_path, last_curate_at, expected
+):
+    state = tmp_path / "curate_state.json"
+    state.write_text(f'{{"last_curate_at": "{last_curate_at}", "items_reviewed": 0}}')
+    monkeypatch.setattr(server, "CURATE_STATE", state)
+    monkeypatch.setattr(server.commentary, "COMMENTARY_PATH", COMMENTARY_FIXTURE)
+    assert server.get_commentary("PUB", theme="outlook")["as_of"] == expected
+
+
 @pytest.mark.parametrize("kwargs", [{"code": "NOPE"}, {"theme": "gossip"}])
 def test_commentary_rejects_unknown_code_and_theme(monkeypatch, kwargs):
     monkeypatch.setattr(server.commentary, "COMMENTARY_PATH", COMMENTARY_FIXTURE)
