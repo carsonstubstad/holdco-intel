@@ -2,10 +2,9 @@
 // Holdco Intel dashboard. Plain DOM, no framework. All external text goes in via text nodes.
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
-  'September', 'October', 'November', 'December'];
 const MARKER_TYPES = ['results', 'capital_markets_day', 'deal'];
 const DAY_MS = 86400000;
+const NBSP = String.fromCharCode(160); // keeps a headline figure on its label's line
 const HOVER_BR = '<br>'; // the only markup joined into Plotly hover text; every part is escaped
 
 // ---------- DOM helpers ----------
@@ -107,13 +106,13 @@ function fmtDay(iso) {
   return `${d} ${MONTHS[m - 1]}`;
 }
 
-function capitalize(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
+// "6 Aug" in the given year, "2 Feb 2027" otherwise.
+function fmtDayIn(iso, year) {
+  return iso.slice(0, 4) === String(year) ? fmtDay(iso) : fmtDate(iso);
 }
 
-function monthHeading(iso) {
-  const [y, m] = iso.slice(0, 10).split('-').map(Number);
-  return `${MONTHS_LONG[m - 1]} ${y}`;
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function fmtTimestamp(ts) {
@@ -123,14 +122,14 @@ function fmtTimestamp(ts) {
 
 // ---------- number helpers ----------
 
-const fmt2 = new Intl.NumberFormat(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
 function pct(a, b) {
   return (a / b - 1) * 100;
 }
 
+// Rounded first, then signed, so a value that rounds to zero reads "0.0%", never "-0.0%".
 function signedPct(p) {
-  return (p > 0 ? '+' : '') + p.toFixed(1) + '%';
+  const r = Number(p.toFixed(1));
+  return (r > 0 ? '+' : '') + (r === 0 ? 0 : r).toFixed(1) + '%';
 }
 
 function nonNullPoints(series) {
@@ -204,32 +203,65 @@ function statusBadge(status, ...label) {
 
 const STATUS_RANK = {raised: 0, cut: 0, new: 0, withdrawn: 0, held: 1};
 
-// ---------- shared view state: one focused company, chart toggles ----------
+// ---------- shared view state: one company selection, chart toggles ----------
 
-let focusedCode = null; // the focused company's code, or null
+let selected = new Set(); // codes of the companies the cards and chart show; set in main()
 let benchVisible = true;
 let eventsVisible = true;
 let redrawChart = null; // set by renderChart once the chart exists
+let showSelection = null; // set by renderCards
 let unpinKpi = null; // set by renderKpis
-let filterGuidance = null; // set by renderGuidance
-let resetPress = null; // set by renderPress; the press filter is its own, not focusedCode
+let resetPress = null; // set by renderPress; the press filter is its own until step 19
 
-// Sets (code) or clears (null) the focused company and updates every view that shows it.
-function setFocusedCompany(ctx, code) {
-  const next = typeof code === 'string' && Object.hasOwn(ctx.byCode, code) ? code : null;
-  if (next === focusedCode) return;
-  focusedCode = next;
-  for (const btn of document.querySelectorAll('#panel-scan .tile-name[data-code]')) {
-    const on = btn.dataset.code === next;
-    btn.setAttribute('aria-pressed', String(on));
-    btn.closest('.tile')?.classList.toggle('is-focused', on);
+function allCodes(ctx) {
+  return ctx.list.map((c) => c.code);
+}
+
+// Codes named in the URL hash (#PUB,WPP), in companies.json order; unknown codes are ignored.
+// [] when none is valid (or the hash does not decode): the hash is then not a selection, e.g.
+// an in-page anchor, and is left alone.
+function selectionFromHash(ctx) {
+  let raw = '';
+  try {
+    raw = decodeURIComponent(location.hash.slice(1));
+  } catch (e) {
+    raw = '';
   }
+  const wanted = new Set(raw.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean));
+  return allCodes(ctx).filter((c) => wanted.has(String(c).toUpperCase()));
+}
+
+// The URL carries the selection (#PUB,WPP) without adding history entries; all six clears it.
+function writeHash(ctx) {
+  const codes = allCodes(ctx).filter((c) => selected.has(c));
+  history.replaceState(null, '', codes.length === ctx.list.length
+    ? location.pathname + location.search : '#' + codes.join(','));
+}
+
+// The one setter: sets the shown companies and updates every view that follows them.
+function setSelection(ctx, codes, announce = true) {
+  const want = new Set(codes);
+  let next = allCodes(ctx).filter((c) => want.has(c));
+  if (!next.length) next = allCodes(ctx);
+  if (next.length === selected.size && next.every((c) => selected.has(c))) return;
+  selected = new Set(next);
+  if (showSelection) showSelection();
   if (redrawChart) redrawChart();
-  if (filterGuidance) filterGuidance();
-  // The URL carries the focused company (#PUB) without adding history entries.
-  history.replaceState(null, '', next ? '#' + next : location.pathname + location.search);
-  document.getElementById('announce').textContent = next
-    ? 'Highlighting ' + companyName(ctx, next) : 'Highlight cleared';
+  writeHash(ctx);
+  if (announce) {
+    document.getElementById('announce').textContent = next.length === ctx.list.length
+      ? 'Showing all companies' : 'Showing ' + next.map((c) => companyName(ctx, c)).join(', ');
+  }
+}
+
+// Hides or shows one company; the last one shown stays shown.
+function toggleCompany(ctx, code) {
+  if (!selected.has(code)) return setSelection(ctx, [...selected, code]);
+  if (selected.size === 1) {
+    document.getElementById('announce').textContent = 'At least one company stays shown';
+    return;
+  }
+  setSelection(ctx, [...selected].filter((c) => c !== code));
 }
 
 // Shows or hides the benchmark line; the toggle button and the legend entry stay in sync.
@@ -287,7 +319,7 @@ function renderChanges(ctx, data) {
     })));
   }
 
-  // An in-page jump: link() opens a new tab, and the URL keeps a focused company's #CODE.
+  // An in-page jump: link() opens a new tab, and the URL keeps the selection's #PUB,WPP.
   const more = el('a', {href: '#panel-guidance', className: 'c-more'}, 'See guidance tracker');
   more.addEventListener('click', (ev) => {
     ev.preventDefault();
@@ -301,98 +333,264 @@ function renderChanges(ctx, data) {
   bodyOf(panel).replaceChildren(groups, el('p', {className: 'c-more-line'}, more));
 }
 
-// ---------- Panel A: scan strip ----------
+// ---------- Scorecards: compare chips and one card per company ----------
 
-function renderScan(ctx, data) {
-  const panel = 'panel-scan';
-  if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
-  const series = data.prices?.series && typeof data.prices.series === 'object' ? data.prices.series : null;
-  const mcaps = data.prices?.market_cap_usd_m || {};
-  const guidance = currentGuidance(data.guidance);
-  const events = upcomingEvents(data.events, ctx.today, null);
-  const body = bodyOf(panel);
-  body.replaceChildren();
+const STATUS_GLYPH = {raised: '▲', cut: '▼', held: '=', new: '+', withdrawn: '×'};
+const MOVE_TITLE = 'close before results day to close after it';
+// [label, metric, fallback metric, prefix naming the fallback]
+const CARD_GUIDANCE = [['Top line', 'organic_growth', 'revenue', 'Revenue'],
+  ['Profit', 'operating_margin', 'eps', 'EPS']];
 
-  for (const c of ctx.list) {
-    const tile = el('article', {className: 'tile'});
-    const color = safeColor(c.color);
-    if (color) {
-      tile.style.borderTopColor = color;
-      tile.style.setProperty('--company', color);
-    }
-    const fullName = String(c.name ?? c.code);
-    // The name is a toggle that highlights this company on the chart.
-    const nameBtn = el('button', {type: 'button', className: 'tile-name', 'aria-pressed': 'false',
-      'data-code': c.code, title: 'Highlight on chart',
-      'aria-label': `Highlight ${fullName} on chart`}, el('span', {className: 'clamp'}, fullName));
-    nameBtn.addEventListener('click',
-      () => setFocusedCompany(ctx, focusedCode === c.code ? null : c.code));
-    tile.appendChild(nameBtn);
-    tile.appendChild(el('div', {className: 'tile-ticker'}, String(c.ticker ?? '')));
+// [end quarter index, quarters covered] for "Q3 2026", "H1 2026" or "FY 2026"; null otherwise.
+function periodSpan(period) {
+  const m = /^(Q[1-4]|H[12]|FY) ?(20\d{2})$/.exec(String(period ?? ''));
+  if (!m) return null;
+  const base = Number(m[2]) * 4;
+  if (m[1][0] === 'Q') return [base + Number(m[1][1]) - 1, 1];
+  if (m[1] === 'H1') return [base + 1, 2];
+  if (m[1] === 'H2') return [base + 3, 2];
+  return [base + 3, 4];
+}
 
-    const s = series ? series[c.ticker] : null;
-    const pts = nonNullPoints(s);
-    if (pts.length) {
-      const [lastDate, last] = pts[pts.length - 1];
-      tile.appendChild(el('div', {className: 'tile-close'}, fmt2.format(last) + ' ',
-        el('span', {className: 'ccy'}, String(s.currency ?? ''))));
-      const row = el('div', {className: 'tile-row'});
-      if (pts.length > 1) {
-        const d1 = pct(last, pts[pts.length - 2][1]);
-        const cls = d1 > 0 ? 'up' : d1 < 0 ? 'down' : 'flat';
-        const glyph = d1 > 0 ? '▲ ' : d1 < 0 ? '▼ ' : '';
-        row.appendChild(el('span', {className: cls}, glyph + signedPct(d1) + ' 1D'));
-      }
-      const year = lastDate.slice(0, 4);
-      const prior = pts.filter(([d]) => d.slice(0, 4) < year);
-      if (prior.length) {
-        const ytd = pct(last, prior[prior.length - 1][1]);
-        row.appendChild(el('span', {className: 'muted'}, signedPct(ytd) + ' YTD'));
-      }
-      tile.appendChild(row);
-      if (Number.isInteger(s.stale_days) && s.stale_days >= 2) {
-        tile.appendChild(el('div', {className: 'stale'},
-          `stale: last close ${fmtDate(lastDate)} (${s.stale_days} days)`));
-      }
+// The row with the newest period that has a number in `field`; on a tie the shorter period
+// wins (Q2 over H1, Q4 over FY).
+function latestRow(rows, field) {
+  const dated = rows.map((r) => [r, periodSpan(r.period)]).filter(([r, s]) => s && isNum(r[field]));
+  dated.sort((a, b) => b[1][0] - a[1][0] || a[1][1] - b[1][1]);
+  return dated.length ? dated[0][0] : null;
+}
+
+// "Q2 2026" -> "Q2 26".
+function shortPeriod(period) {
+  return String(period ?? '').replace(/ 20(\d{2})$/, ' $1');
+}
+
+// The reporting period an event title names ("Q3 2026 revenue" -> "Q3"), or null.
+function titlePeriod(title) {
+  const t = String(title ?? '');
+  const m = /\b(Q[1-4]|H[12]|FY)/.exec(t);
+  if (m) return m[1];
+  return /\binterim\b|\bhalf[- ]year/i.test(t) ? 'H1' : null;
+}
+
+function cardRow(kind, kicker, ...content) {
+  return el('div', {className: 'card-row card-' + kind}, el('div', {className: 'kicker'}, kicker),
+    ...content);
+}
+
+function growthRow(rows) {
+  const r = latestRow(rows, 'organic_growth_pct');
+  if (!r) return cardRow('growth', 'Organic growth', el('div', {className: 'card-fig muted'}, '–'));
+  const [end, len] = periodSpan(r.period);
+  const why = len === 1 ? null
+    : (len === 2 ? 'Half-year' : 'Full-year') + ' figure; no quarter before to compare';
+  let delta = el('div', {className: 'card-delta muted', title: why}, '–');
+  if (len === 1) {
+    const d = quarterDelta(quarterRows(rows), end);
+    const prev = end - 1;
+    if (d === null) {
+      delta.title = `No ${quarterLabel(prev)} figure to compare`;
     } else {
-      tile.appendChild(el('div', {className: 'tile-close muted'}, 'no price data'));
+      const vs = Math.floor(prev / 4) === Math.floor(end / 4) ? `Q${(prev % 4) + 1}`
+        : shortPeriod(quarterLabel(prev));
+      delta = el('div', {className: 'card-delta ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'flat')},
+        `${d > 0 ? '▲ +' : d < 0 ? '▼ ' : ''}${d.toFixed(1)} pp vs ${vs}`);
     }
-
-    const mc = mcaps[c.code];
-    tile.appendChild(el('div', {className: 'tile-mcap'},
-      typeof mc === 'number' ? '$' + (mc / 1000).toFixed(1) + 'B ' : 'n/a ',
-      el('span', {className: 'muted'}, 'mkt cap, approx.')));
-
-    const mine = guidance.filter((g) => g.company === c.code && isIsoDate(g.set_date))
-      .sort((a, b) => b.set_date.localeCompare(a.set_date));
-    let badge = el('span', {className: 'badge status-none'}, 'no guidance yet');
-    if (mine.length) {
-      const g = mine[0];
-      const s = typeof g.status === 'string' ? g.status : 'unknown';
-      badge = statusBadge(s, el('span', {className: 'long'}, 'Guidance ' + s),
-        el('span', {className: 'short'}, capitalize(s)), ' · ' + fmtDay(g.set_date));
-    }
-    tile.appendChild(el('div', {className: 'tile-guidance'}, badge));
-
-    // Results today win over any other event on the same day, so tile and strip agree.
-    const next = events.find((e) => e.company === c.code && e.type === 'results'
-      && e.date.slice(0, 10) === ctx.today) || events.find((e) => e.company === c.code);
-    let eventText = 'no event scheduled';
-    let today = null;
-    if (next) {
-      const n = daysBetween(ctx.today, next.date);
-      const type = `${capitalize(String(next.type ?? '').replace(/_/g, ' '))} ${fmtDay(next.date)}`;
-      if (n === 0 && next.type === 'results') {
-        eventText = type + ' ';
-        today = el('span', {className: 'badge badge-today'}, 'Reports today');
-      } else {
-        eventText = type + ' ' + (n === 0 ? '(today)' : `(${n}d)`);
-      }
-    }
-    tile.appendChild(el('div', {className: 'tile-event muted'}, eventText, today));
-
-    body.appendChild(tile);
   }
+  return cardRow('growth', 'Organic growth · ' + shortPeriod(r.period),
+    el('div', {className: 'card-fig'}, kpiText(r.organic_growth_pct)), delta);
+}
+
+function marginRow(rows) {
+  const r = latestRow(rows, 'margin_pct');
+  if (!r) return cardRow('margin', 'Margin', el('div', {className: 'card-fig muted'}, '–'));
+  const basis = typeof r.margin_metric === 'string' && r.margin_metric ? r.margin_metric : null;
+  return cardRow('margin', ['Margin', shortPeriod(r.period), basis].filter(Boolean).join(' · '),
+    el('div', {className: 'card-fig'}, String(r.margin_pct) + '%'));
+}
+
+// One guidance line: label, value (with a prefix naming a fallback metric or a period that is
+// not this year's FY), then status glyph and word and the set date linked to the source.
+function guidanceLine(label, r, prefix, year) {
+  const line = el('div', {className: 'cg-line'}, el('div', {className: 'cg-label'}, label));
+  if (!r) {
+    line.appendChild(el('div', {className: 'cg-value muted'}, '–'));
+    return line;
+  }
+  const value = String(r.value ?? '');
+  const period = String(r.period ?? '').replace(/_/g, ' ');
+  const pre = [prefix, period && period !== 'FY ' + year ? period + ':' : null]
+    .filter(Boolean).join(' ');
+  const s = typeof r.status === 'string' ? r.status : 'unknown';
+  const date = link(r.source_url,
+    isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : 'source');
+  if (date.nodeType === Node.ELEMENT_NODE) {
+    date.append(' ', el('span', {'aria-hidden': 'true'}, '↗'));
+  }
+  line.append(
+    el('div', {className: 'cg-value', title: pre ? pre + ' ' + value : value},
+      pre ? el('span', {className: 'muted'}, pre + ' ') : null, value),
+    el('div', {className: 'cg-meta'},
+      statusBadge(s, (STATUS_GLYPH[s] ? STATUS_GLYPH[s] + ' ' : '') + capitalize(s)), ' · ', date));
+  return line;
+}
+
+function guidanceRow(records, year) {
+  if (!records.length) {
+    return cardRow('guidance', 'Guidance',
+      el('div', {className: 'cg-line'}, el('div', {className: 'cg-label'}, 'Top line'),
+        el('div', {className: 'cg-value muted'}, 'No guidance on file')),
+      guidanceLine('Profit', null, null, year));
+  }
+  return cardRow('guidance', 'Guidance', ...CARD_GUIDANCE.map(([label, metric, fallback, name]) => {
+    const main = headlineRecord(records.filter((r) => r.metric === metric), year);
+    const alt = main ? null : headlineRecord(records.filter((r) => r.metric === fallback), year);
+    return guidanceLine(label, main || alt, alt ? name : null, year);
+  }));
+}
+
+// YTD (the chart's own rebased numbers) and the move from the close before the latest results
+// day to the close after it, from the company's real closes only.
+function sharesRow(ctx, c, ytd, series, results) {
+  const out = [];
+  out.push(isNum(ytd) ? el('div', {className: 'card-ytd'}, signedPct(ytd) + ' YTD')
+    : el('div', {className: 'card-ytd muted'}, 'YTD: –'));
+  const ev = results.filter((e) => e.company === c.code)
+    .sort((a, b) => b.date.localeCompare(a.date))[0];
+  if (!ev) {
+    out.push(el('div', {className: 'card-move muted'}, 'No results on file'));
+  } else {
+    const day = ev.date.slice(0, 10);
+    const p = titlePeriod(ev.title);
+    const label = `Share move on ${p ? p + ' ' : ''}results`;
+    const pts = nonNullPoints(series);
+    const before = pts.filter(([d]) => d < day).pop();
+    const after = pts.find(([d]) => d > day);
+    const move = before && after ? pct(after[1], before[1]) : null;
+    if (isNum(move)) {
+      out.push(el('div', {className: 'card-move', title: MOVE_TITLE},
+        label + ' ', el('span', {className: 'nowrap'}, signedPct(move))));
+    } else if (before && after) {
+      out.push(el('div', {className: 'card-move muted', title: MOVE_TITLE}, label + ': –'));
+    } else {
+      out.push(el('div', {className: 'card-move muted', title: MOVE_TITLE},
+        label + (before ? ': pending' : ': –')));
+    }
+  }
+  return cardRow('shares', 'Shares', ...out);
+}
+
+function nextRow(ctx, c, upcoming) {
+  const e = upcoming.find((x) => x.company === c.code && x.type === 'results');
+  if (!e) return cardRow('next', 'Next', el('div', {className: 'muted'}, 'No date yet'));
+  const p = titlePeriod(e.title);
+  const text = fmtDayIn(e.date, ctx.today.slice(0, 4)) + (e.confirmed === true ? '' : ' (est.)');
+  return cardRow('next', 'Next' + (p ? ' · ' + p : ''),
+    el('div', {className: 'card-date'}, link(e.source_url, text),
+      e.date.slice(0, 10) === ctx.today
+        ? el('span', {className: 'badge badge-today'}, 'Reports today') : null));
+}
+
+// YTD per company code, from the same aligned and rebased lines as the chart's YTD window.
+function ytdByCode(ctx, prices) {
+  const out = {};
+  if (!prices || typeof prices.series !== 'object' || prices.series === null) return out;
+  const aligned = buildAligned(ctx, prices);
+  if (!aligned.union.length) return out;
+  const start = windowStart('YTD', aligned.union);
+  let b = aligned.union.findIndex((d) => d >= start);
+  if (b < 0) b = 0;
+  for (const s of aligned.series) {
+    const end = rebased(s.filled.slice(b)).findLast((v) => v !== null);
+    if (isNum(end)) out[s.company.code] = end - 100;
+  }
+  return out;
+}
+
+function renderCards(ctx, data) {
+  const panel = 'panel-cards';
+  const chipRow = document.querySelector('#' + panel + ' .compare');
+  const note = document.querySelector('#' + panel + ' .compare-note');
+  showSelection = null;
+  if (!ctx.list.length) {
+    chipRow.replaceChildren();
+    chipRow.hidden = true;
+    note.hidden = true;
+    return empty(panel, 'Company list unavailable.');
+  }
+
+  const year = Number(ctx.today.slice(0, 4));
+  const kpiRows = (Array.isArray(data.kpis?.rows) ? data.kpis.rows : [])
+    .filter((r) => r && typeof r.company === 'string');
+  const guidance = currentGuidance(data.guidance);
+  const items = Array.isArray(data.events?.items) ? data.events.items : [];
+  const results = items.filter((e) => e && e.type === 'results' && isIsoDate(e.date)
+    && e.date.slice(0, 10) <= ctx.today);
+  const upcoming = upcomingEvents(data.events, ctx.today, null);
+  const series = data.prices?.series && typeof data.prices.series === 'object'
+    ? data.prices.series : {};
+  const ytd = ytdByCode(ctx, data.prices);
+
+  // K4: every card has the same six rows, so a row of cards lines up on the subgrid.
+  const cards = new Map();
+  for (const c of ctx.list) {
+    const card = el('article', {className: 'card', 'data-code': c.code});
+    const color = safeColor(c.color);
+    if (color) card.style.setProperty('--company', color);
+    card.append(
+      el('header', {className: 'card-head'},
+        el('h3', {className: 'card-name'}, String(c.name ?? c.code)),
+        el('span', {className: 'card-code'}, String(c.code))),
+      growthRow(kpiRows.filter((r) => r.company === c.code)),
+      marginRow(kpiRows.filter((r) => r.company === c.code)),
+      guidanceRow(guidance.filter((r) => r.company === c.code), year),
+      sharesRow(ctx, c, ytd[c.code], series[c.ticker], results),
+      nextRow(ctx, c, upcoming));
+    cards.set(c.code, card);
+  }
+  const body = bodyOf(panel);
+  body.replaceChildren(...cards.values());
+
+  // K2: "All", then one tick chip per company; built after the cards, so a card that fails
+  // to render never leaves live chips behind.
+  const tick = () => el('span', {className: 'tick', 'aria-hidden': 'true'}, '✓');
+  const allChip = el('button', {type: 'button', className: 'compare-chip compare-all',
+    'aria-pressed': 'true'}, tick(), 'All');
+  allChip.addEventListener('click', () => setSelection(ctx, allCodes(ctx)));
+  const chips = new Map();
+  for (const c of ctx.list) {
+    const chip = el('button', {type: 'button', className: 'compare-chip', 'aria-pressed': 'true',
+      'data-code': c.code, title: companyName(ctx, c.code)}, tick(), String(c.code));
+    const color = safeColor(c.color);
+    if (color) chip.style.borderLeftColor = color;
+    chip.addEventListener('click', () => toggleCompany(ctx, c.code));
+    chips.set(c.code, chip);
+  }
+  chipRow.replaceChildren(allChip, ...chips.values());
+  chipRow.hidden = false;
+
+  // K5: the swipe row is a tab stop only on narrow screens, where it scrolls.
+  const setTabStop = () => (NARROW.matches ? body.setAttribute('tabindex', '0')
+    : body.removeAttribute('tabindex'));
+  setTabStop();
+  NARROW.addEventListener('change', setTabStop);
+
+  // Unselected cards are hidden on screen only (CSS), so print shows all six (K7).
+  showSelection = () => {
+    const n = selected.size;
+    const total = ctx.list.length;
+    allChip.setAttribute('aria-pressed', String(n === total));
+    for (const [code, chip] of chips) chip.setAttribute('aria-pressed', String(selected.has(code)));
+    for (const [code, card] of cards) {
+      const off = !selected.has(code);
+      // Never leave keyboard focus inside a card that is about to be hidden.
+      if (off && card.contains(document.activeElement)) chips.get(code).focus();
+      card.classList.toggle('is-off', off);
+    }
+    note.textContent = n < total ? `Showing ${n} of ${total}` : '';
+    note.hidden = n === total;
+  };
+  showSelection();
 }
 
 // ---------- Panel B: relative performance ----------
@@ -449,7 +647,7 @@ const NARROW = window.matchMedia('(max-width: 720px)');
 const END_LABEL_GAP_PX = 12;
 
 let traceKeys = []; // per trace in the last draw: {kind: 'company'|'bench'|'events', code}
-let endLabels = []; // per company line in the last draw: {code, color, x, y, dim}
+let endLabels = []; // per shown company line in the last draw: {code, color, x, y}
 let endAnnotations = []; // the last placed end labels, reused so a redraw never drops them
 
 // Company-code annotations at the right end of each line, pushed at least 12px apart.
@@ -463,7 +661,7 @@ function endLabelAnnotations(ymin, ymax, h) {
   return sorted.map((l, i) => ({
     x: l.x, y: ys[i], xref: 'x', yref: 'y', text: escapeHtml(l.code),
     showarrow: false, xanchor: 'left', yanchor: 'middle', xshift: 4,
-    font: {color: l.color, size: 12}, opacity: l.dim ? 0.25 : 1,
+    font: {color: l.color, size: 12},
   }));
 }
 
@@ -486,10 +684,10 @@ function drawChart(ctx, data, aligned, win) {
   let b = union.findIndex((d) => d >= start);
   if (b < 0) b = 0;
   const x = union.slice(b);
-  const dimmed = (code) => focusedCode !== null && code !== focusedCode;
 
+  // K6: unselected companies stay in the legend as 'legendonly', so a click brings them back.
   const companyTraces = [];
-  const companyKeys = [];
+  traceKeys = [];
   endLabels = [];
   for (const s of series) {
     const code = s.company.code;
@@ -497,6 +695,7 @@ function drawChart(ctx, data, aligned, win) {
     const color = safeColor(s.company.color);
     const fullName = escapeHtml(s.company.name ?? code);
     const y = rebased(s.filled.slice(b));
+    const on = selected.has(code);
     companyTraces.push({
       type: 'scatter',
       mode: 'lines',
@@ -504,23 +703,19 @@ function drawChart(ctx, data, aligned, win) {
       name: NARROW.matches ? escapeHtml(code) : fullName,
       meta: fullName,
       legendrank: rank + 1,
+      visible: on ? true : 'legendonly',
       x,
       y,
-      opacity: dimmed(code) ? 0.25 : 1,
-      line: {width: code === focusedCode ? 3.5 : 2.5, color: color || undefined},
+      line: {width: 2.5, color: color || undefined},
       hovertemplate: '%{meta}: %{y:.1f}<extra></extra>',
     });
-    companyKeys.push({kind: 'company', code});
+    traceKeys.push({kind: 'company', code});
     const lastIdx = y.findLastIndex((v) => v !== null);
-    if (lastIdx >= 0) {
-      endLabels.push({code, color: color || '#1f2328', x: x[lastIdx], y: y[lastIdx],
-        dim: dimmed(code)});
+    if (on && lastIdx >= 0) {
+      endLabels.push({code, color: color || '#1f2328', x: x[lastIdx], y: y[lastIdx]});
     }
   }
-  // The focused line is drawn last, so it sits on top; legendrank keeps the legend order.
-  const f = companyKeys.findIndex((k) => k.code === focusedCode);
-  const traces = companyTraces.filter((_, i) => i !== f);
-  traceKeys = companyKeys.filter((_, i) => i !== f);
+  const traces = [...companyTraces];
 
   let benchY = [];
   if (bench) {
@@ -547,7 +742,8 @@ function drawChart(ctx, data, aligned, win) {
   const items = Array.isArray(data.events?.items) ? data.events.items : [];
   const marks = items.filter((e) => e && isIsoDate(e.date) && MARKER_TYPES.includes(e.type)
     && e.date.slice(0, 10) >= first && e.date.slice(0, 10) <= last
-    && (focusedCode === null || e.company === focusedCode));
+    // Markers only for a subset, and only the shown companies' events (K6).
+    && selected.size < ctx.list.length && selected.has(e.company));
   // Events on one date share one line and one marker; the hover lists each (P1).
   const byDate = new Map();
   for (const e of marks) {
@@ -600,26 +796,27 @@ function drawChart(ctx, data, aligned, win) {
     });
     traceKeys.push({kind: 'events'});
   }
-  if (f >= 0) {
-    traces.push(companyTraces[f]);
-    traceKeys.push(companyKeys[f]);
-  }
 
-  // The headline reads the same rebased lines, for every company whatever the focus.
+  // The headline reads the same rebased lines, for the shown companies only.
   const lastOf = (ys) => ys.findLast((v) => v !== null);
   // Codes on narrow screens, like the legend; raw strings, never the escaped Plotly names.
-  const ends = series.map((s, i) => ({name: NARROW.matches ? String(s.company.code)
-    : String(s.company.name ?? s.company.code),
-    v: lastOf(companyTraces[i].y)})).filter((e) => isNum(e.v));
+  const ends = series.map((s, i) => ({code: s.company.code,
+    name: NARROW.matches ? String(s.company.code) : String(s.company.name ?? s.company.code),
+    v: lastOf(companyTraces[i].y)})).filter((e) => selected.has(e.code) && isNum(e.v));
   const headline = document.getElementById('chart-headline');
   if (headline && ends.length) {
-    const lead = ends.reduce((a, e) => (e.v > a.v ? e : a));
-    const trail = ends.reduce((a, e) => (e.v < a.v ? e : a));
-    let text = `${win}: ${lead.name} leads ${signedPct(lead.v - 100)}`;
-    if (ends.length > 1) text += `, ${trail.name} trails ${signedPct(trail.v - 100)}`;
+    let text;
+    if (ends.length === 1) {
+      text = `${win}: ${ends[0].name}${NBSP}${signedPct(ends[0].v - 100)}`;
+    } else {
+      const lead = ends.reduce((a, e) => (e.v > a.v ? e : a));
+      const trail = ends.reduce((a, e) => (e.v < a.v ? e : a));
+      text = `${win}: ${lead.name} leads${NBSP}${signedPct(lead.v - 100)}, `
+        + `${trail.name} trails${NBSP}${signedPct(trail.v - 100)}`;
+    }
     const benchEnd = lastOf(benchY);
-    if (bench && isNum(benchEnd)) text += ` · ${bench.name} ${signedPct(benchEnd - 100)}`;
-    // Set only on change, so a focus redraw does not re-announce it.
+    if (bench && isNum(benchEnd)) text += ` · ${bench.name}${NBSP}${signedPct(benchEnd - 100)}`;
+    // Set only on change, so a redraw with the same numbers does not re-announce it.
     if (headline.textContent !== text) headline.textContent = text;
     headline.hidden = false;
   } else if (headline) {
@@ -630,8 +827,8 @@ function drawChart(ctx, data, aligned, win) {
 
   // Place the end labels before drawing with an estimated range (5% padding, the last plot
   // height), so they never disappear; placeEndLabels corrects them once the plot exists.
-  const shown = [100, ...companyTraces.flatMap((t) => t.y), ...(benchVisible ? benchY : [])]
-    .filter(isNum);
+  const shown = [100, ...companyTraces.filter((t) => t.visible === true).flatMap((t) => t.y),
+    ...(benchVisible ? benchY : [])].filter(isNum);
   const lo = Math.min(...shown);
   const hi = Math.max(...shown);
   const pad = (hi - lo) * 0.05;
@@ -648,11 +845,12 @@ function drawChart(ctx, data, aligned, win) {
     // Fewer x ticks on narrow screens keep the dates horizontal, so the plot keeps its height.
     xaxis: {type: 'date', range: [first, last], showgrid: false, ticks: 'outside', ticklen: 4,
       tickformat: '%b %Y', automargin: true, nticks: NARROW.matches ? 3 : undefined},
-    yaxis: {gridcolor: '#eef0f2', zeroline: false, ticksuffix: ' ', automargin: true},
+    yaxis: {gridcolor: '#eef0f2', zeroline: false, ticksuffix: ' ', automargin: true, nticks: 8},
     yaxis2: {overlaying: 'y', range: [0, 1.04], visible: false, fixedrange: true},
     shapes,
     annotations: endAnnotations,
-    transition: {duration: 0},
+    // No layout.transition: with one, Plotly.react pins the y range to [-1, 4] when several
+    // lines turn visible at once (seen in step 17). Without one, redraws are instant anyway.
     paper_bgcolor: '#ffffff',
     plot_bgcolor: '#ffffff',
     font: {family: getComputedStyle(document.body).fontFamily, size: 12},
@@ -691,7 +889,7 @@ function renderChart(ctx, data) {
 
   const gd = document.getElementById('chart');
   let win = 'YTD';
-  // Every redraw reads the current window, focused company and benchmark/events visibility.
+  // Every redraw reads the current window, the selection and benchmark/events visibility.
   const draw = () => drawChart(ctx, data, aligned, win).then(placeEndLabels)
     .catch((err) => console.warn('[holdco] chart draw failed:', err));
 
@@ -717,11 +915,11 @@ function renderChart(ctx, data) {
   window.addEventListener('afterprint', () => Plotly.Plots.resize(gd));
 
   select('YTD');
-  // Legend clicks route through the same setters as the buttons (R1); Plotly's own
+  // Legend clicks route through the same setters as the chips and buttons (K6); Plotly's own
   // hide/show and double-click isolate are turned off.
   gd.on('plotly_legendclick', (ev) => {
     const key = traceKeys[ev.curveNumber];
-    if (key?.kind === 'company') setFocusedCompany(ctx, focusedCode === key.code ? null : key.code);
+    if (key?.kind === 'company') toggleCompany(ctx, key.code);
     else if (key?.kind === 'bench') setBenchmarkVisible(!benchVisible);
     else if (key?.kind === 'events') {
       eventsVisible = !eventsVisible;
@@ -759,6 +957,24 @@ function periodQuarters(period) {
 
 function quarterLabel(i) {
   return `Q${(i % 4) + 1} ${Math.floor(i / 4)}`;
+}
+
+// Quarter index -> the first row for that single quarter (half-years and FY left out).
+function quarterRows(rows) {
+  const byQuarter = new Map();
+  for (const r of rows) {
+    const qs = periodQuarters(r.period);
+    if (qs.length === 1 && !byQuarter.has(qs[0])) byQuarter.set(qs[0], r);
+  }
+  return byQuarter;
+}
+
+// 12g's rule, shared by the grid and the cards: quarter q's organic growth vs the quarter
+// directly before, both quarterly figures (a half-year never counts); null unless both exist.
+function quarterDelta(byQuarter, q) {
+  const a = byQuarter.get(q)?.organic_growth_pct;
+  const b = byQuarter.get(q - 1)?.organic_growth_pct;
+  return isNum(a) && isNum(b) ? Math.round((a - b) * 10) / 10 : null;
 }
 
 function isNum(v) {
@@ -854,11 +1070,11 @@ function renderKpis(ctx, data) {
 
   const tbody = el('tbody');
   for (const c of ctx.list) {
-    const byQuarter = new Map();
+    const own = mine.filter((x) => x.company === c.code);
+    const byQuarter = quarterRows(own);
     const halves = new Map();
-    for (const r of mine.filter((x) => x.company === c.code)) {
+    for (const r of own) {
       const qs = periodQuarters(r.period);
-      if (qs.length === 1 && !byQuarter.has(qs[0])) byQuarter.set(qs[0], r);
       if (qs.length === 2 && !halves.has(qs[0])) halves.set(qs[0], r);
     }
     const name = el('th', {scope: 'row', className: 'kpi-company'},
@@ -869,11 +1085,9 @@ function renderKpis(ctx, data) {
     // Δ q/q: this company's newest quarter vs the quarter directly before, both quarterly
     // figures (a half-year never counts). Glyph and sign carry the direction, not color.
     const newest = byQuarter.size ? Math.max(...byQuarter.keys()) : null;
-    const a = newest === null ? null : byQuarter.get(newest)?.organic_growth_pct;
-    const b = newest === null ? null : byQuarter.get(newest - 1)?.organic_growth_pct;
+    const d = newest === null ? null : quarterDelta(byQuarter, newest);
     let delta = el('td', {className: 'kpi-delta kpi-none', 'aria-label': 'not available'}, '–');
-    if (isNum(a) && isNum(b)) {
-      const d = Math.round((a - b) * 10) / 10;
+    if (d !== null) {
       const prev = newest - 1;
       const span = Math.floor(newest / 4) === Math.floor(prev / 4)
         ? `Q${(newest % 4) + 1} vs ${quarterLabel(prev)}`
@@ -992,7 +1206,6 @@ function guidanceCell(r, label, year) {
 
 function renderGuidance(ctx, data) {
   const panel = 'panel-guidance';
-  filterGuidance = null;
   const records = currentGuidance(data.guidance);
   if (!records.length) return empty(panel, 'No guidance records yet.');
 
@@ -1011,21 +1224,6 @@ function renderGuidance(ctx, data) {
   const missing = ctx.list.filter((c) => !records.some((r) => companyOf(r) === c.code));
   const missingLine = missing.length ? el('p', {className: 'g-missing muted'},
     'No guidance on file: ' + missing.map((c) => c.code).join(', ')) : null;
-
-  // G4: chips share the one focused company with the tiles and the chart.
-  const chips = el('div', {className: 'g-chips', role: 'group',
-    'aria-label': 'Filter guidance by company'});
-  const allChip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'true'}, 'All');
-  allChip.addEventListener('click', () => setFocusedCompany(ctx, null));
-  chips.appendChild(allChip);
-  for (const c of ctx.list) {
-    const chip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'false',
-      'data-code': c.code, title: companyName(ctx, c.code)}, String(c.code));
-    const color = safeColor(c.color);
-    if (color) chip.style.borderLeftColor = color;
-    chip.addEventListener('click', () => setFocusedCompany(ctx, c.code));
-    chips.appendChild(chip);
-  }
 
   // G2: one row per company in companies.json order; unknown codes follow so no record is lost.
   const known = ctx.list.map((c) => c.code);
@@ -1096,7 +1294,7 @@ function renderGuidance(ctx, data) {
   }
   const table = el('table', {className: 'g-matrix'}, el('thead', {}, head), tbody);
 
-  // G6: every detail row prints open; the filter is screen-only CSS, so all companies print.
+  // G6: every detail row prints open.
   const details = [...entries.values()].map((e) => e.detail).filter(Boolean);
   let closedForPrint = [];
   window.addEventListener('beforeprint', () => {
@@ -1108,55 +1306,7 @@ function renderGuidance(ctx, data) {
     closedForPrint = [];
   });
 
-  bodyOf(panel).replaceChildren(...[summary, missingLine, chips, table].filter(Boolean));
-
-  // Called by setFocusedCompany: show only the focused company's row. Details stay as the
-  // reader left them; "+n more" opens them.
-  filterGuidance = () => {
-    for (const chip of chips.querySelectorAll('.g-chip')) {
-      chip.setAttribute('aria-pressed', String((chip.dataset.code ?? null) === focusedCode));
-    }
-    table.classList.toggle('is-filtering', focusedCode !== null);
-    for (const [code, e] of entries) {
-      e.row.classList.toggle('is-focus', code === focusedCode);
-      e.detail?.classList.toggle('is-focus', code === focusedCode);
-    }
-    const target = focusedCode === null ? null : entries.get(focusedCode) || null;
-    // Focus left in a row the filter just hid moves to the shown company's button, or "All".
-    const active = document.activeElement;
-    if (active && table.contains(active) && !active.getClientRects().length) {
-      (target?.more || allChip).focus();
-    }
-  };
-  filterGuidance();
-}
-
-// ---------- Panel D: events ----------
-
-function renderEvents(ctx, data) {
-  const panel = 'panel-events';
-  const items = upcomingEvents(data.events, ctx.today, 90);
-  if (!items.length) return empty(panel, 'No events in the next 90 days.');
-  const body = bodyOf(panel);
-  body.replaceChildren();
-  let month = null;
-  let list = null;
-  for (const e of items) {
-    const m = monthHeading(e.date);
-    if (m !== month) {
-      month = m;
-      body.appendChild(el('h3', {className: 'month'}, m));
-      list = el('ul', {className: 'events'});
-      body.appendChild(list);
-    }
-    list.appendChild(el('li', {},
-      companyChip(ctx, e.company),
-      el('span', {className: 'nowrap date'},
-        fmtDate(e.date) + (e.confirmed === true ? '' : ' (est.)')),
-      el('span', {className: 'etype'}, String(e.type ?? '').replace(/_/g, ' ')),
-      e.source_url && safeUrl(e.source_url) ? link(e.source_url, String(e.title ?? ''))
-        : el('span', {}, String(e.title ?? ''))));
-  }
+  bodyOf(panel).replaceChildren(...[summary, missingLine, table].filter(Boolean));
 }
 
 // ---------- Panel E: press releases ----------
@@ -1182,7 +1332,7 @@ function renderPress(ctx, data) {
       el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))))];
   }));
 
-  // Its own company filter: never reads or writes focusedCode, the hash or the guidance chips.
+  // Its own company filter until step 19: never reads or writes the selection or the hash.
   const chips = el('div', {className: 'g-chips p-chips', role: 'group',
     'aria-label': 'Filter press releases by company'});
   const allChip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'true'}, 'All');
@@ -1334,28 +1484,36 @@ async function main() {
     benchName.textContent = String(ctx.benchmark.name ?? ctx.benchmark.symbol);
   }
 
+  // A #PUB,WPP link (or 12f's #PUB) sets the selection before anything draws.
+  const linked = selectionFromHash(ctx);
+  selected = new Set(linked.length ? linked : allCodes(ctx));
+
   runPanel('panel-changes', renderChanges, ctx, data);
-  runPanel('panel-scan', renderScan, ctx, data);
+  runPanel('panel-cards', renderCards, ctx, data);
   runPanel('panel-chart', renderChart, ctx, data);
   runPanel('panel-kpis', renderKpis, ctx, data);
   runPanel('panel-guidance', renderGuidance, ctx, data);
-  runPanel('panel-events', renderEvents, ctx, data);
   runPanel('panel-press', renderPress, ctx, data);
   runPanel('panel-health', renderHealth, ctx, data);
 
-  // The one Esc handler: clears the focused company, unpins a KPI cell (R6), resets press.
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    // Press first, so "Highlight cleared" is the last word in #announce when both reset.
-    if (resetPress) resetPress();
-    if (focusedCode !== null) setFocusedCompany(ctx, null);
-    if (unpinKpi) unpinKpi();
+  // Normalize a selection hash once (case, order, unknown codes), without an announcement.
+  if (linked.length) writeHash(ctx);
+  // A new link pasted into an open tab; replaceState never fires this. Other anchors pass.
+  window.addEventListener('hashchange', () => {
+    const codes = selectionFromHash(ctx);
+    if (!codes.length) return;
+    setSelection(ctx, codes);
+    writeHash(ctx);
   });
 
-  // A #CODE link focuses that company; only codes from companies.json count, in any case.
-  const wanted = location.hash.slice(1).toUpperCase();
-  const linked = ctx.list.find((c) => String(c.code).toUpperCase() === wanted);
-  if (wanted && linked) setFocusedCompany(ctx, linked.code);
+  // The one Esc handler: shows all companies, unpins a KPI cell (R6), resets press.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    // Press first, so the selection is the last word in #announce when both reset.
+    if (resetPress) resetPress();
+    if (selected.size < ctx.list.length) setSelection(ctx, allCodes(ctx));
+    if (unpinKpi) unpinKpi();
+  });
 }
 
 main();

@@ -390,7 +390,7 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   not settle every detail. Acceptance: every Must item for 17 and 18 names a file and a
   check. Commit: `step 16: v2.0 design brief`.
 
-- [ ] **17 Compare chips, scorecards and chart.** Site only. (1) Compare chips: one
+- [x] **17 Compare chips, scorecards and chart.** Site only. (1) Compare chips: one
   page-wide company selection, default all six, carried in the URL hash (`#PUB,WPP`;
   12f's `#PUB` still works; unknown codes ignored); "All" and Esc reset it. It replaces
   the tile focus and the guidance chips (the guidance matrix shows all six until 18

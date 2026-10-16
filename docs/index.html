@@ -30,14 +30,16 @@
       <div class="body"></div>
     </section>
 
-    <section id="panel-scan" class="panel" aria-labelledby="h-scan">
-      <h2 id="h-scan" class="visually-hidden">Scan strip</h2>
-      <div class="body tiles"></div>
+    <section id="panel-cards" class="panel" aria-labelledby="h-cards">
+      <h2 id="h-cards" class="visually-hidden">Scorecards</h2>
+      <div class="compare" role="group" aria-label="Companies"></div>
+      <p class="compare-note muted" hidden></p>
+      <div class="body cards" role="region" aria-label="Scorecards"></div>
     </section>
 
     <section id="panel-chart" class="panel" aria-labelledby="h-chart">
       <div class="panel-head">
-        <h2 id="h-chart">Relative performance</h2>
+        <h2 id="h-chart" class="kicker">Share price, rebased to 100</h2>
         <div class="chart-controls">
           <div class="windows" role="group" aria-label="Chart window">
             <button type="button" data-window="1M">1M</button>
@@ -59,17 +61,10 @@
       <div class="body"></div>
     </section>
 
-    <div class="two-col">
-      <section id="panel-guidance" class="panel" aria-labelledby="h-guidance">
-        <h2 id="h-guidance">Guidance tracker</h2>
-        <div class="body"></div>
-      </section>
-
-      <section id="panel-events" class="panel" aria-labelledby="h-events">
-        <h2 id="h-events">Events, next 90 days</h2>
-        <div class="body"></div>
-      </section>
-    </div>
+    <section id="panel-guidance" class="panel" aria-labelledby="h-guidance">
+      <h2 id="h-guidance">Guidance tracker</h2>
+      <div class="body"></div>
+    </section>
 
     <section id="panel-press" class="panel" aria-labelledby="h-press">
       <h2 id="h-press">Press releases, last 30 days</h2>

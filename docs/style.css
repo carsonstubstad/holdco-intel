@@ -1,7 +1,8 @@
 :root {
-  --bg: #f6f7f9;
+  --bg: #ffffff;
   --panel: #ffffff;
   --text: #1f2328;
+  --rule: #1f2328;
   --muted: #656d76;
   --faint: #8c959f;
   --border: #d8dee4;
@@ -32,6 +33,10 @@
   --radius: 8px;
   --radius-chip: 3px;
   --radius-pill: 999px;
+
+  --serif: "Iowan Old Style", Charter, Georgia, "Times New Roman", serif;
+  --measure: 68ch;
+  --tap: 32px;
 }
 
 * { box-sizing: border-box; }
@@ -53,7 +58,12 @@ a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 h1, h2, h3 { margin: 0; }
-h2 { font-size: var(--fs-md); font-weight: var(--fw-strong); margin-bottom: var(--sp-3); }
+h2 { font-size: var(--fs-lg); font-weight: var(--fw-strong); margin-bottom: var(--sp-3); }
+
+.kicker {
+  font-size: var(--fs-xs); font-weight: var(--fw-strong); text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted);
+}
 
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
@@ -82,17 +92,11 @@ h2 { font-size: var(--fs-md); font-weight: var(--fw-strong); margin-bottom: var(
 
 main { display: grid; gap: var(--sp-4); }
 
+/* K1: no panel boxes; each section opens with a black rule on the white page. */
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--sp-3) var(--sp-4);
+  border-top: 2px solid var(--rule);
+  padding: var(--sp-3) 0 0;
   min-width: 0;
-}
-
-.two-col {
-  display: grid; grid-template-columns: 2fr 1fr; gap: var(--sp-4);
-  align-items: start; min-width: 0;
 }
 
 .empty { color: var(--faint); margin: var(--sp-1) 0; }
@@ -103,56 +107,71 @@ main { display: grid; gap: var(--sp-4); }
 .flat { color: var(--muted); }
 .warn { color: var(--warn); }
 
-/* Panel A: tiles */
-#panel-scan { background: transparent; border: 0; padding: 0; }
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: var(--sp-3);
+/* Scorecards: tick chips (K2) and ledger cards (K3, K4) */
+.compare { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.compare[hidden] { display: none; }
+.compare-chip {
+  font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-strong);
+  min-height: var(--tap); padding: 0 var(--sp-3);
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  background: var(--panel); color: var(--text); cursor: pointer;
+  border: 1px solid var(--border); border-left: 3px solid var(--faint);
+  border-radius: var(--radius-chip);
 }
-.tile {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-top: 4px solid var(--faint);
-  border-radius: var(--radius);
-  padding: var(--sp-2) var(--sp-3);
-  display: flex; flex-direction: column; gap: 2px;
-  min-width: 0;
-  container-type: inline-size;
+.compare-all { border-left-color: var(--text); }
+.compare-chip .tick { display: none; }
+/* Ticked: dark fill and a check mark; the company-colored left edge stays. */
+.compare-chip[aria-pressed="true"] {
+  background: var(--text); color: #ffffff;
+  border-top-color: var(--text); border-right-color: var(--text); border-bottom-color: var(--text);
 }
-/* The name is a plain-text toggle button with a fixed two-line track, so every row below
-   it starts at the same height. */
-.tile-name {
-  font: inherit; font-weight: var(--fw-strong); color: inherit; text-align: left;
-  background: none; border: 0; padding: 0; cursor: pointer;
-  min-height: 2.9em; align-self: stretch; display: flex; align-items: flex-start;
+.compare-chip[aria-pressed="true"] .tick { display: inline; }
+.compare-note { margin: var(--sp-1) 0 0; font-size: var(--fs-xs); }
+
+.cards {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--sp-4); row-gap: 0; margin-top: var(--sp-2);
 }
-.tile-name .clamp {
-  overflow-wrap: anywhere;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+/* Six rows per card on a subgrid, so each row lines up across a row of cards. A square box,
+   so the company-color top rule stays straight. */
+.card {
+  grid-row: span 6; display: grid; grid-template-rows: subgrid; row-gap: 0;
+  border: 1px solid var(--border); border-top: 3px solid var(--company, var(--faint));
+  border-radius: 0; padding: 0 var(--sp-3);
+  margin-bottom: var(--sp-4); min-width: 0;
 }
-.tile-name:hover .clamp {
-  text-decoration: underline; text-decoration-color: var(--company, var(--text));
-  text-decoration-thickness: 2px; text-underline-offset: 2px;
+@media screen {
+  .card.is-off { display: none; }
 }
-.tile.is-focused { outline: 2px solid var(--company, var(--text)); outline-offset: 1px; }
-.tile-ticker { color: var(--faint); font-size: var(--fs-xs); }
-.tile-close { font-size: var(--fs-lg); font-weight: var(--fw-strong); font-variant-numeric: tabular-nums; }
-.tile-close .ccy { font-size: var(--fs-xs); font-weight: 500; color: var(--muted); }
-.tile-row {
-  display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3);
-  font-variant-numeric: tabular-nums;
+.card-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2);
+  padding: 6px 0;
 }
-.tile-mcap { font-variant-numeric: tabular-nums; }
-/* Badge and event sit at the tile bottom, so they line up across a row of tiles. */
-.tile-guidance { margin-top: auto; padding-top: var(--sp-1); }
-.tile-event { font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
-.stale { color: var(--warn); font-size: var(--fs-xs); }
-.tile-guidance .short { display: none; }
-@container (max-width: 170px) {
-  .tile-guidance .long { display: none; }
-  .tile-guidance .short { display: inline; }
+.card-name { font-size: var(--fs-md); font-weight: var(--fw-strong); }
+.card-code { color: var(--muted); font-size: var(--fs-xs); font-weight: var(--fw-strong); }
+.card-row {
+  border-top: 1px solid var(--border); padding: 6px 0;
+  min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums;
 }
+.card-row .kicker { margin-bottom: 0; }
+.card-fig { font-size: var(--fs-xl); font-weight: var(--fw-strong); line-height: 1.2; }
+.card-delta { font-size: var(--fs-sm); font-weight: var(--fw-strong); }
+/* The delta sits beside the figure, and Next puts its date on the kicker's line, so the
+   first row of cards fits a 1440x900 window. */
+.card-growth, .card-next {
+  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--sp-2);
+}
+.card-growth .kicker { flex-basis: 100%; }
+/* Guidance: label | value (up to three lines) over status and date. */
+.cg-line { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); column-gap: var(--sp-2); }
+.cg-line + .cg-line { margin-top: var(--sp-1); }
+.cg-label { grid-row: span 2; color: var(--muted); font-size: var(--fs-sm); }
+.cg-value {
+  grid-column: 2; font-weight: var(--fw-strong);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.cg-value .muted { font-weight: var(--fw-regular); }
+.cg-meta { grid-column: 2; margin-top: 2px; color: var(--muted); font-size: var(--fs-xs); }
 
 /* Badges and chips */
 .badge, .chip {
@@ -183,15 +202,17 @@ main { display: grid; gap: var(--sp-4); }
 .panel-head h2 { margin-bottom: 0; }
 .chart-controls[hidden] { display: none; }
 .chart-controls { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
-.windows { display: flex; gap: var(--sp-1); }
+.windows { display: flex; gap: var(--sp-2); }
+/* Window buttons and the benchmark toggle are underlined text, so they never look like the
+   company chips (K6). */
 .windows button, .bench-toggle {
-  font: inherit; font-size: var(--fs-xs);
-  padding: 3px 10px;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: var(--panel); color: var(--text);
-  cursor: pointer;
+  font: inherit; font-size: var(--fs-sm); color: var(--muted);
+  min-height: var(--tap); padding: 0 4px; background: none; cursor: pointer;
+  border: 0; border-bottom: 2px solid transparent; border-radius: 0;
 }
-.windows button[aria-pressed="true"] { background: var(--text); color: #ffffff; border-color: var(--text); }
+.windows button[aria-pressed="true"], .bench-toggle[aria-pressed="true"] {
+  color: var(--text); font-weight: var(--fw-strong); border-bottom-color: var(--rule);
+}
 /* The benchmark toggle carries a dashed swatch that matches its chart line. */
 .bench-toggle::before {
   content: ""; display: inline-block; width: 14px; margin-right: 6px; vertical-align: middle;
@@ -203,7 +224,7 @@ main { display: grid; gap: var(--sp-4); }
 #chart { width: 100%; height: 300px; }
 .footnote { margin: var(--sp-2) 0 0; color: var(--muted); font-size: var(--fs-xs); }
 .chart-headline {
-  margin: 0 0 var(--sp-1); font-size: var(--fs-sm); font-weight: var(--fw-strong);
+  margin: 0 0 var(--sp-1); font-size: var(--fs-lg); font-weight: var(--fw-strong);
   font-variant-numeric: tabular-nums;
 }
 
@@ -278,10 +299,6 @@ ul.g-records .g-meta { margin-top: 0; white-space: nowrap; }
   grid-column: 2 / -1; color: var(--muted); font-size: var(--fs-xs);
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
 }
-/* The filter is screen-only, so print always shows every company. */
-@media screen {
-  table.g-matrix.is-filtering tbody tr:not(.is-focus) { display: none; }
-}
 
 /* Panel G: organic growth grid */
 table.kpis { font-variant-numeric: tabular-nums; }
@@ -328,16 +345,16 @@ details.kpi-defs { margin-top: var(--sp-2); color: var(--muted); font-size: var(
 details.kpi-defs summary { cursor: pointer; }
 ul.kpi-defs { list-style: none; margin: var(--sp-1) 0 0; padding: 0; }
 
-/* Panels D and E: lists */
+/* Lists: press, What changed, health */
 .month { font-size: var(--fs-sm); color: var(--muted); margin: var(--sp-3) 0 var(--sp-1); }
 .month:first-child { margin-top: 0; }
-ul.events, ul.press, ul.failing, ul.facts, ul.c-list { list-style: none; margin: 0; padding: 0; }
-ul.events li, ul.press li, ul.c-list li {
+ul.press, ul.failing, ul.facts, ul.c-list { list-style: none; margin: 0; padding: 0; }
+ul.press li, ul.c-list li {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3);
   padding: 6px 0; border-bottom: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
-ul.events li:last-child, ul.press li:last-child, ul.c-list li:last-child { border-bottom: 0; }
+ul.press li:last-child, ul.c-list li:last-child { border-bottom: 0; }
 .date { color: var(--muted); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
 .etype { color: var(--muted); font-size: var(--fs-xs); text-transform: capitalize; }
 ul.press li.unflagged, ul.press li.unflagged a { color: var(--faint); }
@@ -362,14 +379,30 @@ details.err-full pre {
 }
 .disclaimer { margin: var(--sp-3) 0 0; color: var(--faint); font-size: var(--fs-xs); }
 
+@media (max-width: 960px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 720px) {
   .site-header, main { padding: 0 var(--sp-3); }
   .site-header { padding-top: var(--sp-4); }
-  main, .two-col { gap: var(--sp-3); }
-  .panel { padding: var(--sp-3); }
+  main { gap: var(--sp-4); }
+  /* No side padding, so the card row's bleed reaches the screen edge (K5). */
+  .panel { padding: var(--sp-3) 0 0; }
   .health { width: calc(100% - 2 * var(--sp-3)); }
-  .two-col { grid-template-columns: 1fr; }
-  .tiles { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--sp-2); }
+  /* K5: one swipe row; only the row scrolls sideways, never the page. */
+  .cards {
+    display: flex; gap: var(--sp-4); overflow-x: auto;
+    scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    margin-inline: calc(-1 * var(--sp-3)); padding: 4px var(--sp-3);
+    scroll-padding-inline: var(--sp-3);
+  }
+  .card {
+    flex: 0 0 calc(100vw - 48px); scroll-snap-align: start;
+    display: block; margin-bottom: 0;
+  }
+  .cg-line { grid-template-columns: 3.75rem minmax(0, 1fr); }
+  .chart-headline { font-size: var(--fs-md); }
   #chart { height: 420px; }
   /* Each company stacks: chip, then label/value pairs, then More. */
   .g-matrix thead {
@@ -403,9 +436,18 @@ details.err-full pre {
 @media print {
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .chart-controls, .modebar { display: none !important; }
-  .panel { break-inside: avoid; }
-  .two-col { grid-template-columns: 1fr; }
+  /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
+  .card, ul.press li, ul.c-list li, ul.g-records li, tr, #chart { break-inside: avoid; }
+  h2 { break-after: avoid; }
+  /* All six cards in three columns whatever the selection; overrides the phone row, since an
+     A4 page is narrower than 720px. */
+  .compare, .compare-note { display: none !important; }
+  .cards {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--sp-4);
+    overflow: visible; margin-inline: 0; padding: 0;
+  }
+  .card { display: grid; flex: none; margin-bottom: var(--sp-4); }
   .g-chips, .g-more, .show-more, .c-more-line { display: none !important; }
   details.err-full { display: none; }
-  .g-value, .g-quote { display: block; -webkit-line-clamp: none; overflow: visible; }
+  .g-value, .g-quote, .cg-value { display: block; -webkit-line-clamp: none; overflow: visible; }
 }
