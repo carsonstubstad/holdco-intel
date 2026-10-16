@@ -543,3 +543,6 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-15 (step 17, for 21): a card's YTD silently uses the last close when a
   company's prices are two or more days stale (the old tile said "stale"); the step 21
   freshness note should cover it.
+- 2026-10-15 (step 17, for 20): with the Events panel gone, upcoming capital markets days,
+  deals and AGMs show nowhere while all six companies are shown (chart markers appear
+  only for a subset). Decide whether Coming up lists them.
