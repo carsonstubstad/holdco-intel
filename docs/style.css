@@ -205,12 +205,13 @@ main { display: grid; gap: var(--sp-4); }
 .windows { display: flex; gap: var(--sp-2); }
 /* Window buttons and the benchmark toggle are underlined text, so they never look like the
    company chips (K6). */
-.windows button, .bench-toggle {
+.windows button, .bench-toggle, .q-themes button {
   font: inherit; font-size: var(--fs-sm); color: var(--muted);
   min-height: var(--tap); padding: 0 4px; background: none; cursor: pointer;
   border: 0; border-bottom: 2px solid transparent; border-radius: 0;
 }
-.windows button[aria-pressed="true"], .bench-toggle[aria-pressed="true"] {
+.windows button[aria-pressed="true"], .bench-toggle[aria-pressed="true"],
+.q-themes button[aria-pressed="true"] {
   color: var(--text); font-weight: var(--fw-strong); border-bottom-color: var(--rule);
 }
 /* The benchmark toggle carries a dashed swatch that matches its chart line. */
@@ -262,28 +263,20 @@ th { color: var(--muted); font-weight: var(--fw-strong); font-size: var(--fs-xs)
   background: var(--text); color: #ffffff;
   border-top-color: var(--text); border-right-color: var(--text); border-bottom-color: var(--text);
 }
-table.g-matrix { table-layout: fixed; }
-.g-matrix thead th:nth-child(1) { width: 20%; }
-.g-matrix thead th:nth-child(2), .g-matrix thead th:nth-child(3) { width: 28%; }
-.g-matrix thead th:nth-child(4) { width: 24%; }
-.g-matrix th.g-company {
-  color: var(--text); font-size: var(--fs-sm); font-weight: var(--fw-regular);
-}
-.g-value {
-  font-weight: var(--fw-strong); font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
-}
 .g-meta { margin-top: 2px; font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
-.g-more, .show-more {
+.show-more {
   font: inherit; font-size: var(--fs-xs); color: var(--link); text-align: left;
   display: inline-flex; flex-wrap: nowrap; white-space: nowrap; align-items: center;
   gap: var(--sp-1);
   padding: 2px 8px; background: var(--panel); cursor: pointer;
   border: 1px solid var(--border); border-radius: 6px;
 }
-.g-more[aria-expanded="true"], .show-more[aria-expanded="true"] { background: var(--grid); }
-.g-matrix [hidden] { display: none !important; }
-tr.g-detail > td { background: #fafbfc; }
+.show-more[aria-expanded="true"] { background: var(--grid); }
+.g-group + .g-group { margin-top: var(--sp-3); }
+.g-group-head {
+  font-size: var(--fs-sm); font-weight: var(--fw-strong);
+  padding-bottom: var(--sp-1); border-bottom: 1px solid var(--border);
+}
 ul.g-records { list-style: none; margin: 0; padding: 0; }
 /* One record per row: label (metric over period) | value | status and source. */
 ul.g-records li {
@@ -295,10 +288,50 @@ ul.g-records li:last-child { border-bottom: 0; }
 .g-label .date { display: block; }
 .g-rec-value { font-variant-numeric: tabular-nums; }
 ul.g-records .g-meta { margin-top: 0; white-space: nowrap; }
-.g-quote {
-  grid-column: 2 / -1; color: var(--muted); font-size: var(--fs-xs);
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+/* Management's words are never cut short (principle 3). */
+.g-quote { grid-column: 2 / -1; color: var(--muted); font-size: var(--fs-xs); }
+
+/* Folded sections under the cards (Q6). min-width: 0, because main is a grid and the open
+   growth grid must scroll inside the fold, not widen the page. */
+details.fold { min-width: 0; border-top: 1px solid var(--border); }
+details.fold > summary {
+  display: flex; align-items: center; gap: var(--sp-2); min-height: var(--tap);
+  font-size: var(--fs-md); font-weight: var(--fw-strong); cursor: pointer;
 }
+details.fold > summary::before { content: "▸"; color: var(--text); font-size: inherit; }
+details.fold[open] > summary::before { content: "▾"; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary { list-style: none; }
+details.fold > summary:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* What is inside, in plain muted text. */
+.fold-count, .fold-note { color: var(--muted); font-weight: var(--fw-regular); }
+details.fold > .body { padding-bottom: var(--sp-3); }
+
+/* In their words (Q1, Q2): theme buttons, under the subline, share the window buttons'
+   underlined style. */
+#panel-quotes h2 { margin-bottom: 0; }
+.q-sub { margin: 2px 0 0; font-size: var(--fs-sm); }
+.q-themes { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-1) 0 var(--sp-1); }
+.q-themes[hidden] { display: none; }
+.q-print-theme { display: none; }
+ul.quotes { list-style: none; margin: 0; padding: 0; }
+ul.quotes[hidden], .q-missing[hidden] { display: none; }
+.q-row {
+  display: grid; grid-template-columns: 7rem minmax(0, var(--measure)) minmax(0, 1fr);
+  column-gap: var(--sp-4); align-items: baseline;
+  padding: var(--sp-3) 0; border-bottom: 1px solid var(--border);
+}
+.q-row:last-child { border-bottom: 0; }
+.q-quote {
+  margin: 0; font-family: var(--serif); font-size: var(--fs-md); line-height: 1.5;
+  font-style: normal; overflow-wrap: break-word;
+}
+.q-attr { margin: 0; color: var(--muted); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.q-attr a { white-space: nowrap; }
+.q-age { display: block; margin-top: 2px; color: var(--muted); font-size: var(--fs-xs); }
+.q-none, .q-missing { margin: 0; color: var(--muted); }
+.q-none { grid-column: 2 / -1; }
+.q-missing { padding-top: var(--sp-2); }
 
 /* Panel G: organic growth grid */
 table.kpis { font-variant-numeric: tabular-nums; }
@@ -381,6 +414,9 @@ details.err-full pre {
 
 @media (max-width: 960px) {
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Two columns: the attribution moves under the quote instead of being squeezed beside it. */
+  .q-row { grid-template-columns: 7rem minmax(0, 1fr); row-gap: var(--sp-1); }
+  .q-attr { grid-column: 2; }
 }
 
 @media (max-width: 720px) {
@@ -404,18 +440,15 @@ details.err-full pre {
   .cg-line { grid-template-columns: 3.75rem minmax(0, 1fr); }
   .chart-headline { font-size: var(--fs-md); }
   #chart { height: 420px; }
-  /* Each company stacks: chip, then label/value pairs, then More. */
-  .g-matrix thead {
-    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
+  /* Each quote stacks: chip, quote at full width, attribution. */
+  .q-row { display: block; }
+  /* The age sits beside the chip when it fits, else under it. */
+  .q-label {
+    display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--sp-2);
+    margin-bottom: var(--sp-1);
   }
-  .g-matrix, .g-matrix tbody, .g-matrix tr, .g-matrix th, .g-matrix td { display: block; }
-  .g-matrix tr.g-row { padding: var(--sp-2) 0; border-bottom: 1px solid var(--border); }
-  .g-matrix tr.g-row > * { border-bottom: 0; padding: 2px 0; }
-  .g-matrix td[data-label]::before {
-    content: attr(data-label); display: block; color: var(--muted); font-size: var(--fs-xs);
-  }
-  .g-matrix .g-more-cell { padding-top: var(--sp-1); }
-  .g-matrix tr.g-detail > td { padding: var(--sp-1) var(--sp-2); }
+  .q-age { margin-top: 0; }
+  .q-attr { margin-top: var(--sp-1); }
   /* Dense flow puts status and date beside the label, above the full-width value. */
   ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
   .g-rec-value, .g-quote { grid-column: 1 / -1; }
@@ -437,7 +470,7 @@ details.err-full pre {
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .chart-controls, .modebar { display: none !important; }
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
-  .card, ul.press li, ul.c-list li, ul.g-records li, tr, #chart { break-inside: avoid; }
+  .card, ul.press li, ul.c-list li, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
   h2 { break-after: avoid; }
   /* All six cards in three columns whatever the selection; overrides the phone row, since an
      A4 page is narrower than 720px. */
@@ -447,7 +480,11 @@ details.err-full pre {
     overflow: visible; margin-inline: 0; padding: 0;
   }
   .card { display: grid; flex: none; margin-bottom: var(--sp-4); }
-  .g-chips, .g-more, .show-more, .c-more-line { display: none !important; }
+  .g-chips, .show-more, .c-more-line { display: none !important; }
   details.err-full { display: none; }
-  .g-value, .g-quote, .cg-value { display: block; -webkit-line-clamp: none; overflow: visible; }
+  .cg-value { display: block; -webkit-line-clamp: none; overflow: visible; }
+  /* Q7: the pressed theme for all six companies, its name kept on paper. */
+  .q-themes { display: none !important; }
+  .q-print-theme { display: block; margin: 0 0 var(--sp-1); }
+  details.fold > summary::before { content: none; }
 }

@@ -205,11 +205,13 @@ const STATUS_RANK = {raised: 0, cut: 0, new: 0, withdrawn: 0, held: 1};
 
 // ---------- shared view state: one company selection, chart toggles ----------
 
-let selected = new Set(); // codes of the companies the cards and chart show; set in main()
+let selected = new Set(); // codes the cards, guidance, quotes and chart show; set in main()
 let benchVisible = true;
 let eventsVisible = true;
 let redrawChart = null; // set by renderChart once the chart exists
 let showSelection = null; // set by renderCards
+let redrawQuotes = null; // set by renderQuotes after its first draw
+let redrawGuidanceFold = null; // set by renderGuidanceFold after its first draw
 let unpinKpi = null; // set by renderKpis
 let resetPress = null; // set by renderPress; the press filter is its own until step 19
 
@@ -245,12 +247,26 @@ function setSelection(ctx, codes, announce = true) {
   if (!next.length) next = allCodes(ctx);
   if (next.length === selected.size && next.every((c) => selected.has(c))) return;
   selected = new Set(next);
-  if (showSelection) showSelection();
-  if (redrawChart) redrawChart();
+  safeRedraw('panel-cards', showSelection, () => { showSelection = null; });
+  safeRedraw('panel-chart', redrawChart, () => { redrawChart = null; });
+  safeRedraw('fold-guidance', redrawGuidanceFold, () => { redrawGuidanceFold = null; });
+  safeRedraw('panel-quotes', redrawQuotes, () => { redrawQuotes = null; });
   writeHash(ctx);
   if (announce) {
     document.getElementById('announce').textContent = next.length === ctx.list.length
       ? 'Showing all companies' : 'Showing ' + next.map((c) => companyName(ctx, c)).join(', ');
+  }
+}
+
+// A redraw that fails leaves its panel's grey sentence, so the setter always finishes.
+function safeRedraw(panelId, fn, clear) {
+  if (!fn) return;
+  try {
+    fn();
+  } catch (err) {
+    console.warn('[holdco] ' + panelId + ' failed to redraw:', err);
+    clear();
+    failPanel(panelId);
   }
 }
 
@@ -320,15 +336,14 @@ function renderChanges(ctx, data) {
   }
 
   // An in-page jump: link() opens a new tab, and the URL keeps the selection's #PUB,WPP.
-  const more = el('a', {href: '#panel-guidance', className: 'c-more'}, 'See guidance tracker');
+  const more = el('a', {href: '#fold-guidance', className: 'c-more'}, 'See all guidance');
   more.addEventListener('click', (ev) => {
     ev.preventDefault();
-    document.getElementById('panel-guidance')?.scrollIntoView();
-    const heading = document.getElementById('h-guidance');
-    if (heading) {
-      heading.setAttribute('tabindex', '-1');
-      heading.focus({preventScroll: true});
-    }
+    const fold = document.getElementById('fold-guidance');
+    if (!fold) return;
+    fold.open = true;
+    fold.scrollIntoView();
+    fold.querySelector('summary')?.focus({preventScroll: true});
   });
   bodyOf(panel).replaceChildren(groups, el('p', {className: 'c-more-line'}, more));
 }
@@ -591,6 +606,150 @@ function renderCards(ctx, data) {
     note.hidden = n === total;
   };
   showSelection();
+}
+
+// ---------- In their words: management quotes by theme ----------
+
+// [theme, label] in Q4's order; the first four are the theme buttons.
+const QUOTE_THEMES = [['strategy', 'Strategy'], ['ai_and_data', 'AI & data'],
+  ['clients_and_new_business', 'Clients'], ['outlook', 'Outlook'],
+  ['performance', 'Performance'], ['capital_allocation', 'Capital allocation']];
+const QUOTE_TABS = QUOTE_THEMES.slice(0, 4);
+const SOURCE_LABEL = {
+  results_release: 'Results release', call_transcript: 'Call transcript',
+  results_slides: 'Results slides', annual_report: 'Annual report', investor_day: 'Investor day',
+  strategy_plan: 'Strategy plan', announcement: 'Announcement',
+};
+const STRATEGY_TYPES = ['investor_day', 'annual_report', 'strategy_plan'];
+const STRATEGY_MAX_DAYS = 365;
+
+// The named speaker, or null; an empty or blank name counts as none.
+function speakerOf(r) {
+  const s = typeof r.speaker === 'string' ? r.speaker.trim() : '';
+  return s || null;
+}
+
+// A missing source_type is a results release (the schema's rule).
+function sourceLabel(type) {
+  if (type === undefined || type === null) return SOURCE_LABEL.results_release;
+  return Object.hasOwn(SOURCE_LABEL, type) ? SOURCE_LABEL[type] : 'Company document';
+}
+
+// Q3: Strategy prefers strategy material up to a year old; otherwise the newest quote. Ties go
+// to a named speaker, then a call transcript, then the lower id.
+function pickQuote(records, theme, today) {
+  const mine = records.filter((r) => r.theme === theme);
+  const recent = (r) => daysBetween(r.release_date, today) <= STRATEGY_MAX_DAYS;
+  const strategic = theme !== 'strategy' ? []
+    : mine.filter((r) => STRATEGY_TYPES.includes(r.source_type) && recent(r));
+  const named = (r) => Number(speakerOf(r) !== null);
+  const call = (r) => Number(r.source_type === 'call_transcript');
+  return [...(strategic.length ? strategic : mine)].sort((a, b) =>
+    b.release_date.slice(0, 10).localeCompare(a.release_date.slice(0, 10))
+    || named(b) - named(a) || call(b) - call(a)
+    || String(a.id).localeCompare(String(b.id)))[0] || null;
+}
+
+// "today", "3 days ago", "5 months ago", "over a year ago" (whole months of 30 days).
+function ageText(iso, today) {
+  const d = daysBetween(iso, today);
+  if (d <= 0) return 'today';
+  if (d < 30) return d === 1 ? '1 day ago' : `${d} days ago`;
+  if (d >= 365) return 'over a year ago';
+  const m = Math.floor(d / 30);
+  return m === 1 ? '1 month ago' : `${m} months ago`;
+}
+
+// Q2: label and age | the quote in the serif | speaker · source · dated link. Never cut short.
+function quoteRow(label, r, today) {
+  const row = el('li', {className: 'q-row'}, el('div', {className: 'q-label'}, label,
+    r ? el('span', {className: 'q-age'}, ageText(r.release_date, today)) : null));
+  if (!r) {
+    row.appendChild(el('p', {className: 'q-none'}, 'No quote on this theme yet.'));
+    return row;
+  }
+  const date = link(r.source_url, fmtDate(r.release_date));
+  if (date.nodeType === Node.ELEMENT_NODE) {
+    date.append(' ', el('span', {'aria-hidden': 'true'}, '↗'));
+  }
+  const speaker = speakerOf(r);
+  row.append(
+    el('blockquote', {className: 'q-quote'}, '“' + r.quote.trim() + '”'),
+    el('p', {className: 'q-attr'}, speaker ? speaker + ' · ' : null,
+      sourceLabel(r.source_type), ' · ', date));
+  return row;
+}
+
+// Quotes only: the curator's headlines in commentary.json are never shown on the site.
+function renderQuotes(ctx, data) {
+  const panel = 'panel-quotes';
+  const themes = document.querySelector('#' + panel + ' .q-themes');
+  const printTheme = document.querySelector('#' + panel + ' .q-print-theme');
+  redrawQuotes = null;
+  themes.hidden = true;
+  if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
+  const known = new Set(QUOTE_THEMES.map(([t]) => t));
+  const all = Array.isArray(data.commentary?.records) ? data.commentary.records : [];
+  const records = all.filter((r) => r && typeof r.quote === 'string' && r.quote.trim()
+    && typeof r.company === 'string' && known.has(r.theme) && isIsoDate(r.release_date));
+  if (!records.length) return empty(panel, 'No management quotes on file yet.');
+
+  let theme = QUOTE_TABS[0][0];
+  const buttons = QUOTE_TABS.map(([t, label]) => {
+    const btn = el('button', {type: 'button', 'aria-pressed': String(t === theme)}, label);
+    btn.addEventListener('click', () => {
+      theme = t;
+      for (const b of buttons) b.setAttribute('aria-pressed', String(b === btn));
+      safeRedraw(panel, redrawQuotes, () => { redrawQuotes = null; });
+    });
+    return btn;
+  });
+  themes.replaceChildren(...buttons);
+
+  const list = el('ul', {className: 'quotes'});
+  const gapLine = el('p', {className: 'q-missing'});
+  const ofCompany = (code) => records.filter((r) => r.company === code);
+
+  // Several companies: one row each on the pressed theme. One company (Q4): one row per theme
+  // with a quote, and the themes without one folded into a single line.
+  function draw(codes) {
+    const hadFocus = list.contains(document.activeElement);
+    const shown = allCodes(ctx).filter((c) => codes.includes(c));
+    const single = shown.length === 1;
+    const rows = [];
+    const gaps = [];
+    if (single) {
+      const mine = ofCompany(shown[0]);
+      for (const [t, label] of QUOTE_THEMES) {
+        const r = pickQuote(mine, t, ctx.today);
+        if (r) rows.push(quoteRow(el('span', {className: 'kicker'}, label), r, ctx.today));
+        else gaps.push(label);
+      }
+    } else {
+      for (const code of shown) {
+        rows.push(quoteRow(companyChip(ctx, code), pickQuote(ofCompany(code), theme, ctx.today),
+          ctx.today));
+      }
+    }
+    list.replaceChildren(...rows);
+    list.hidden = !rows.length;
+    gapLine.textContent = gaps.length ? 'No quote yet on: ' + gaps.join(', ') : '';
+    gapLine.hidden = !gaps.length;
+    themes.hidden = single;
+    printTheme.textContent = QUOTE_TABS.find(([t]) => t === theme)[1];
+    // Never leave keyboard focus on a link that was just replaced.
+    if (hadFocus) {
+      (single ? document.getElementById('h-quotes')
+        : buttons.find((b) => b.getAttribute('aria-pressed') === 'true'))?.focus();
+    }
+  }
+
+  bodyOf(panel).replaceChildren(list, gapLine);
+  draw([...selected]);
+  redrawQuotes = () => draw([...selected]);
+  // Q7: paper shows the pressed theme for all six companies, with the theme name above it.
+  window.addEventListener('beforeprint', () => { if (redrawQuotes) draw(allCodes(ctx)); });
+  window.addEventListener('afterprint', () => { if (redrawQuotes) redrawQuotes(); });
 }
 
 // ---------- Panel B: relative performance ----------
@@ -1004,7 +1163,7 @@ function kpiFill(v) {
 }
 
 function renderKpis(ctx, data) {
-  const panel = 'panel-kpis';
+  const panel = 'fold-history';
   const all = Array.isArray(data.kpis?.rows) ? data.kpis.rows : [];
   const rows = all.filter((r) => r && typeof r.company === 'string' && typeof r.period === 'string');
   if (!rows.length) return empty(panel, 'No KPI data yet.');
@@ -1128,12 +1287,7 @@ function renderKpis(ctx, data) {
   let defBox = null;
   if (defList.childElementCount) {
     defBox = el('details', {className: 'kpi-defs'}, el('summary', {}, 'Definitions'), defList);
-    let wasOpen = false;
-    window.addEventListener('beforeprint', () => {
-      wasOpen = defBox.open;
-      defBox.open = true;
-    });
-    window.addEventListener('afterprint', () => { defBox.open = wasOpen; });
+    openForPrint(defBox);
   }
 
   const wrap = el('div', {className: 'table-wrap'}, table);
@@ -1145,16 +1299,32 @@ function renderKpis(ctx, data) {
       + 'no quarterly figure is published. Colors saturate at ±' + KPI_CLAMP + '%.'),
     defBox,
   ].filter(Boolean));
-  // Newest quarter first on narrow screens: start the grid scrolled to its right end.
-  wrap.scrollLeft = wrap.scrollWidth;
+  // Newest quarter first on narrow screens. A closed <details> has no width to scroll, so the
+  // grid scrolls to its right end each time Quarterly history opens (Q6).
+  const fold = document.getElementById(panel);
+  fold.addEventListener('toggle', () => {
+    if (fold.open) wrap.scrollLeft = wrap.scrollWidth;
+  });
 }
 
-// ---------- Panel C: guidance tracker ----------
+// Opens a <details> for printing and puts it back as it was afterwards; a second beforeprint
+// before afterprint keeps the first saved state.
+function openForPrint(details) {
+  let wasOpen = null;
+  window.addEventListener('beforeprint', () => {
+    if (wasOpen === null) wasOpen = details.open;
+    details.open = true;
+  });
+  window.addEventListener('afterprint', () => {
+    if (wasOpen !== null) details.open = wasOpen;
+    wasOpen = null;
+  });
+}
+
+// ---------- All guidance (folded under the cards) ----------
 
 const PERIOD_RANK = {FY: 0, H1: 1, H2: 2, Q1: 3, Q2: 4, Q3: 5, Q4: 6};
 const SUMMARY_STATUSES = ['raised', 'cut', 'new', 'held', 'withdrawn'];
-const CHANGE_STATUSES = ['raised', 'cut', 'new', 'withdrawn'];
-const MATRIX_METRICS = [['organic_growth', 'Organic growth'], ['operating_margin', 'Margin']];
 
 // [year, rank] for "FY 2026", "H2 2026" or "Q3 2026"; null for anything else (e.g. medium_term).
 function periodKey(period) {
@@ -1162,8 +1332,8 @@ function periodKey(period) {
   return m ? [Number(m[2]), PERIOD_RANK[m[1]]] : null;
 }
 
-// The record a matrix cell shows: a current-calendar-year period if any, else the earliest
-// period; ties go to the newest set_date.
+// The headline record for a card's guidance line: a current-calendar-year period if any, else
+// the earliest period; ties go to the newest set_date.
 function headlineRecord(records, year) {
   const key = (r) => periodKey(r.period) || [Infinity, 0];
   const setDate = (r) => (isIsoDate(r.set_date) ? r.set_date.slice(0, 10) : '');
@@ -1183,130 +1353,84 @@ function metricLabel(metric) {
   return capitalize(String(metric ?? '').replace(/_/g, ' ').replace(/\beps\b/gi, 'EPS'));
 }
 
-function guidanceCell(r, label, year) {
-  const td = el('td', {className: 'g-cell', 'data-label': label});
-  if (!r) {
-    td.appendChild(el('span', {className: 'muted'}, '–'));
-    return td;
-  }
-  const value = String(r.value ?? '');
-  const quote = String(r.quote ?? '');
-  const period = String(r.period ?? '').replace(/_/g, ' ');
-  const s = typeof r.status === 'string' ? r.status : 'unknown';
-  td.append(
-    // The headline's quote is not in the detail row, so it rides in the value's tooltip.
-    el('div', {className: 'g-value', title: quote ? value + ' — ' + quote : value}, value),
-    // The set date links to the source; without a valid date the link reads "source".
-    el('div', {className: 'g-meta muted'},
-      period && period !== 'FY ' + year ? el('span', {className: 'g-period'}, period + ': ') : null,
-      statusBadge(s, capitalize(s)), ' · ',
-      link(r.source_url, isIsoDate(r.set_date) ? fmtDay(r.set_date) : 'source')));
-  return td;
-}
-
-function renderGuidance(ctx, data) {
-  const panel = 'panel-guidance';
-  const records = currentGuidance(data.guidance);
-  if (!records.length) return empty(panel, 'No guidance records yet.');
-
-  const year = Number(ctx.today.slice(0, 4));
-  // Status changes first, then held, then anything else; newest set_date first within each.
+// G3's record lines: status changes first, then held, then anything else; newest set_date first
+// within each. A quote that only repeats the value or the quote just above it is left out.
+function guidanceRecordLines(records) {
   const rank = (r) => (Object.hasOwn(STATUS_RANK, r.status) ? STATUS_RANK[r.status] : 2);
   const setDate = (r) => (isIsoDate(r.set_date) ? r.set_date.slice(0, 10) : '');
   const byStatus = (a, b) => rank(a) - rank(b) || setDate(b).localeCompare(setDate(a))
     || String(a.metric).localeCompare(String(b.metric));
+  let lastQuote = null;
+  return [...records].sort(byStatus).map((r) => {
+    const s = typeof r.status === 'string' ? r.status : 'unknown';
+    const value = String(r.value ?? '');
+    const quote = String(r.quote ?? '');
+    const showQuote = quote && quote !== lastQuote
+      && !(value && quote.toLowerCase().includes(value.toLowerCase()));
+    if (showQuote) lastQuote = quote;
+    return el('li', {},
+      el('span', {className: 'g-label'}, metricLabel(r.metric),
+        el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' '))),
+      el('strong', {className: 'g-rec-value'}, value),
+      // The set date links to the source; without a valid date the link reads "source".
+      el('span', {className: 'g-meta muted'}, statusBadge(s, capitalize(s)), ' · ',
+        link(r.source_url, isIsoDate(r.set_date) ? fmtDay(r.set_date) : 'source')),
+      showQuote ? el('span', {className: 'g-quote'}, quote) : null);
+  });
+}
+
+// Q6: G1's summary line, then every current record per company, following the selection.
+function renderGuidanceFold(ctx, data) {
+  const panel = 'fold-guidance';
+  const fold = document.getElementById(panel);
+  const count = fold.querySelector('.fold-count');
+  redrawGuidanceFold = null;
+  count.textContent = '';
+  if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
+  const records = currentGuidance(data.guidance);
+  if (!records.length) {
+    count.textContent = '(0)';
+    return empty(panel, 'No guidance records yet.');
+  }
+
   const companyOf = (r) => String(r.company ?? '');
   const badges = (pairs) => pairs.flatMap(([s, n], i) => [i ? ' · ' : null, statusBadge(s, `${n} ${s}`)]);
-
-  // G1: counts first, then the companies with nothing on file.
-  const summary = el('p', {className: 'g-summary'},
-    ...badges(statusCounts(records, SUMMARY_STATUSES, ['raised', 'cut'])));
-  const missing = ctx.list.filter((c) => !records.some((r) => companyOf(r) === c.code));
-  const missingLine = missing.length ? el('p', {className: 'g-missing muted'},
-    'No guidance on file: ' + missing.map((c) => c.code).join(', ')) : null;
-
-  // G2: one row per company in companies.json order; unknown codes follow so no record is lost.
-  const known = ctx.list.map((c) => c.code);
+  const known = allCodes(ctx);
+  // Codes not in companies.json follow the known ones while all are shown, so no record is lost.
   const extra = [...new Set(records.map(companyOf))].filter((c) => !Object.hasOwn(ctx.byCode, c));
-  const entries = new Map(); // code -> {row, detail, more}
+  const body = bodyOf(panel);
 
-  function setOpen(entry, open) {
-    // Never leave keyboard focus inside a row that is about to be hidden.
-    if (!open && entry.detail.contains(document.activeElement)) entry.more.focus();
-    entry.detail.hidden = !open;
-    entry.more.setAttribute('aria-expanded', String(open));
+  function draw(codes) {
+    const hadFocus = body.contains(document.activeElement);
+    const want = new Set(codes);
+    const shown = [...known.filter((c) => want.has(c)),
+      ...(known.every((c) => want.has(c)) ? extra : [])];
+    const mine = records.filter((r) => shown.includes(companyOf(r)));
+    // G1: counts first, then the shown companies with nothing on file.
+    const summary = mine.length ? el('p', {className: 'g-summary'},
+      ...badges(statusCounts(mine, SUMMARY_STATUSES, ['raised', 'cut']))) : null;
+    const missing = shown.filter((c) => !mine.some((r) => companyOf(r) === c));
+    const missingLine = missing.length ? el('p', {className: 'g-missing muted'},
+      'No guidance on file: ' + missing.join(', ')) : null;
+    const groups = shown.filter((c) => !missing.includes(c)).map((code) => el('div',
+      {className: 'g-group'},
+      el('h3', {className: 'g-group-head'}, ...(Object.hasOwn(ctx.byCode, code)
+        ? [companyChip(ctx, code), ' ', companyName(ctx, code)] : [code])),
+      el('ul', {className: 'g-records'},
+        ...guidanceRecordLines(mine.filter((r) => companyOf(r) === code)))));
+    // The summary says what is inside: the count, then each non-zero status.
+    count.textContent = [`(${mine.length})`, ...statusCounts(mine, SUMMARY_STATUSES, [])
+      .map(([s, n]) => `${n} ${s}`)].join(' · ');
+    body.replaceChildren(...[summary, missingLine, ...groups].filter(Boolean));
+    // Never leave keyboard focus on a link that was just replaced.
+    if (hadFocus) fold.querySelector('summary')?.focus();
   }
 
-  const head = el('tr', {}, ...['Company', 'Organic growth', 'Margin', 'More']
-    .map((h) => el('th', {scope: 'col'}, h)));
-  const tbody = el('tbody');
-  for (const code of [...known, ...extra]) {
-    const mine = records.filter((r) => companyOf(r) === code);
-    const isKnown = Object.hasOwn(ctx.byCode, code);
-    const row = el('tr', {className: 'g-row'}, el('th', {scope: 'row', className: 'g-company',
-      title: companyName(ctx, code)},
-      isKnown ? companyChip(ctx, code) : code,
-      // The chip shows the code; the full name stays for screen readers and the title.
-      isKnown ? el('span', {className: 'visually-hidden'}, companyName(ctx, code)) : null));
-    const entry = {row, detail: null, more: null};
-    entries.set(code, entry);
-    tbody.appendChild(row);
-    if (!mine.length) {
-      row.appendChild(el('td', {colspan: 3, className: 'muted g-none'}, 'No guidance on file'));
-      continue;
-    }
-
-    const heads = MATRIX_METRICS.map(([m]) => headlineRecord(mine.filter((r) => r.metric === m), year));
-    MATRIX_METRICS.forEach(([, label], i) => row.appendChild(guidanceCell(heads[i], label, year)));
-
-    // G3: the hidden records open in a detail row; changed statuses among them show on the
-    // button. With nothing hidden, "Quotes" lists the headline records instead.
-    const rest = mine.filter((r) => !heads.includes(r));
-    const changed = statusCounts(rest, CHANGE_STATUSES, []);
-    const label = rest.length ? `+${rest.length} more` : 'Quotes';
-    const ariaLabel = [label, ...changed.map(([s, n]) => `${n} ${s}`),
-      companyName(ctx, code) + ' guidance'].join(', ');
-    entry.more = el('button', {type: 'button', className: 'g-more', 'aria-expanded': 'false',
-      'aria-label': ariaLabel}, label, ...changed.map(([s, n]) => statusBadge(s, `${n} ${s}`)));
-    row.appendChild(el('td', {className: 'g-more-cell'}, entry.more));
-
-    const list = el('ul', {className: 'g-records'});
-    let lastQuote = null;
-    for (const r of (rest.length ? rest : heads.filter(Boolean)).sort(byStatus)) {
-      const s = typeof r.status === 'string' ? r.status : 'unknown';
-      const value = String(r.value ?? '');
-      const quote = String(r.quote ?? '');
-      // Skip a quote that only repeats the value or the quote just above it.
-      const showQuote = quote && quote !== lastQuote
-        && !(value && quote.toLowerCase().includes(value.toLowerCase()));
-      if (showQuote) lastQuote = quote;
-      list.appendChild(el('li', {},
-        el('span', {className: 'g-label'}, metricLabel(r.metric),
-          el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' '))),
-        el('strong', {className: 'g-rec-value'}, value),
-        el('span', {className: 'g-meta muted'}, statusBadge(s, capitalize(s)), ' · ',
-          link(r.source_url, isIsoDate(r.set_date) ? fmtDay(r.set_date) : 'source')),
-        showQuote ? el('span', {className: 'g-quote', title: quote}, quote) : null));
-    }
-    entry.detail = el('tr', {className: 'g-detail', hidden: ''}, el('td', {colspan: 4}, list));
-    tbody.appendChild(entry.detail);
-    entry.more.addEventListener('click', () => setOpen(entry, entry.detail.hidden));
-  }
-  const table = el('table', {className: 'g-matrix'}, el('thead', {}, head), tbody);
-
-  // G6: every detail row prints open.
-  const details = [...entries.values()].map((e) => e.detail).filter(Boolean);
-  let closedForPrint = [];
-  window.addEventListener('beforeprint', () => {
-    closedForPrint = details.filter((d) => d.hidden);
-    for (const d of closedForPrint) d.hidden = false;
-  });
-  window.addEventListener('afterprint', () => {
-    for (const d of closedForPrint) d.hidden = true;
-    closedForPrint = [];
-  });
-
-  bodyOf(panel).replaceChildren(...[summary, missingLine, table].filter(Boolean));
+  draw([...selected]);
+  redrawGuidanceFold = () => draw([...selected]);
+  // Paper shows every company's guidance, like the cards (K7).
+  window.addEventListener('beforeprint', () => { if (redrawGuidanceFold) draw(known); });
+  window.addEventListener('afterprint', () => { if (redrawGuidanceFold) redrawGuidanceFold(); });
 }
 
 // ---------- Panel E: press releases ----------
@@ -1451,21 +1575,34 @@ function renderHealth(ctx, data) {
 
 // ---------- main ----------
 
+// A panel that failed: its controls hide and its body shows one grey sentence.
+function failPanel(panelId) {
+  if (panelId === 'panel-chart') hideChartControls();
+  if (panelId === 'panel-quotes') {
+    const themes = document.querySelector('#panel-quotes .q-themes');
+    if (themes) themes.hidden = true;
+  }
+  if (panelId === 'fold-guidance') {
+    const count = document.querySelector('#fold-guidance .fold-count');
+    if (count) count.textContent = '';
+  }
+  empty(panelId, 'This panel could not be rendered.');
+}
+
 function runPanel(panelId, fn, ctx, data) {
   try {
     fn(ctx, data);
   } catch (err) {
     console.warn('[holdco] ' + panelId + ' failed to render:', err);
-    if (panelId === 'panel-chart') hideChartControls();
-    empty(panelId, 'This panel could not be rendered.');
+    failPanel(panelId);
   }
 }
 
 async function main() {
-  const [companies, prices, guidance, events, press, status, kpis] = await Promise.all([
+  const [companies, prices, guidance, events, press, status, kpis, commentary] = await Promise.all([
     loadJSON('companies.json'), loadJSON('prices.json'), loadJSON('guidance.json'),
     loadJSON('events.json'), loadJSON('press_releases.json'), loadJSON('status.json'),
-    loadJSON('kpis.json'),
+    loadJSON('kpis.json'), loadJSON('commentary.json'),
   ]);
   const bench = companies?.benchmark;
   const ctx = {
@@ -1473,7 +1610,7 @@ async function main() {
     benchmark: bench && typeof bench.symbol === 'string' ? bench : null,
     today: todayIso(),
   };
-  const data = {prices, guidance, events, press, status, kpis};
+  const data = {prices, guidance, events, press, status, kpis, commentary};
 
   document.getElementById('as-of').textContent = status?.run_at
     ? 'as of ' + fmtTimestamp(status.run_at) : 'as of unknown';
@@ -1490,10 +1627,19 @@ async function main() {
 
   runPanel('panel-changes', renderChanges, ctx, data);
   runPanel('panel-cards', renderCards, ctx, data);
+  runPanel('fold-guidance', renderGuidanceFold, ctx, data);
+  runPanel('fold-history', renderKpis, ctx, data);
+  runPanel('panel-quotes', renderQuotes, ctx, data);
   runPanel('panel-chart', renderChart, ctx, data);
-  runPanel('panel-kpis', renderKpis, ctx, data);
-  runPanel('panel-guidance', renderGuidance, ctx, data);
   runPanel('panel-press', renderPress, ctx, data);
+  // Both folded sections print open (Q7). A link to a fold (#fold-guidance, e.g. What changed's
+  // link opened in a new tab) opens it.
+  const openLinkedFold = () => {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target?.matches('details.fold')) target.open = true;
+  };
+  for (const fold of document.querySelectorAll('details.fold')) openForPrint(fold);
+  openLinkedFold();
   runPanel('panel-health', renderHealth, ctx, data);
 
   // Normalize a selection hash once (case, order, unknown codes), without an announcement.
@@ -1501,7 +1647,7 @@ async function main() {
   // A new link pasted into an open tab; replaceState never fires this. Other anchors pass.
   window.addEventListener('hashchange', () => {
     const codes = selectionFromHash(ctx);
-    if (!codes.length) return;
+    if (!codes.length) return openLinkedFold();
     setSelection(ctx, codes);
     writeHash(ctx);
   });

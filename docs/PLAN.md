@@ -415,7 +415,7 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   If it runs long, the chart part (4) becomes 17b in a fresh session.
   Commit: `step 17: compare chips, scorecards and chart`.
 
-- [ ] **18 In their words and folded sections.** Site only, plus ARCHITECTURE.md
+- [x] **18 In their words and folded sections.** Site only, plus ARCHITECTURE.md
   sections 2 and 7. (1) "In their words" between the cards and the chart, from
   commentary.json: tabs Strategy, AI & data, Clients and Outlook; one row per selected
   company with its newest quote on the theme (Strategy prefers strategy material up to a

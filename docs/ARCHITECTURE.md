@@ -63,7 +63,7 @@ Havas (HAVAS.AS), Dentsu (4324.T), Stagwell (STGW).
     │   ├── data/                     written only by the pipeline
     │   │   ├── prices.json  news.json  press_releases.json  events.json
     │   │   ├── guidance.json  kpis.json  status.json  companies.json
-    │   │   └── runs.jsonl            one line per run, for step 13 stats (not schema-validated)
+    │   │   └── runs.jsonl            one line per run, for step 21 stats (not schema-validated)
     │   ├── ARCHITECTURE.md  PLAN.md  FAILURES.md
     ├── schemas/                      JSON Schema for every file in docs/data and data/
     │   ├── prices.schema.json  news.schema.json  press_releases.schema.json
@@ -254,12 +254,23 @@ updates the open "Curate needed" Issue rather than opening a second one.
 
 ## 7. Site (docs/)
 
-One page, six panels in v1: scan strip, relative performance chart (base 100, window
-selector, event markers), guidance tracker, events (next 90 days), press releases (flagged
-first), data health footer. v1.5 (step 12) adds the organic growth grid. v2 adds the news
-panel (the collector already runs from step 04) and the deal tracker. Chart library: Plotly via CDN (range selector and hover come free). No build step.
-Base-100 rebasing happens client-side per selected window. All returns are local currency;
-the chart footnote says so. Market cap is USD and labelled approximate.
+One page, in this order since v2.0: What changed (results in the next 14 days from
+events.json, guidance changes in the last 30 days from guidance.json); company chips and one
+scorecard per company (kpis, guidance, events, prices); two folded sections, All guidance
+(every current guidance record) and Quarterly history (the organic growth grid from
+kpis.json); In their words (verbatim quotes from commentary.json records by theme; the
+curator's headlines are never shown); the share price chart (prices, results and deal event
+markers, the benchmark); press releases from the last 30 days (its own company filter until
+step 19); data health footer (status.json). Names, colors and the benchmark come from
+companies.json. One compare selection (chips, a chart legend click, or the URL hash
+`#PUB,WPP`; Esc and "All" reset it) drives the cards, All guidance, the quotes and the chart;
+it is shared by link only, never stored in the browser. Computed in the browser: base-100
+rebasing per window, YTD and the two-day results move, the quarter-on-quarter growth delta,
+each card's headline guidance record and the status counts, and which quote shows (Strategy
+prefers investor day, annual report or strategy plan material up to 365 days old; otherwise
+the newest). All returns are local currency; the chart footnote says so. Print is a handout:
+all six cards, both folded sections open, the pressed quotes theme for all six companies.
+Chart library: Plotly via CDN, version-pinned with SRI. No build step.
 
 ## 8. MCP server (mcp_server/)
 
