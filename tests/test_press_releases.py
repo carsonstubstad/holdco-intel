@@ -11,7 +11,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 from core import press_releases
 from core.adapters import _rss, dentsu, havas, omnicom, publicis, stagwell, wpp
-from core.config import get_company
+from core.config import get_company, load_watchlist
 from core.util import classify
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -28,6 +28,8 @@ ITEM_KEYS = {"title", "url", "published", "summary", "channel"}
         ("HAVAS", "Havas to host Capital Markets Day in Paris", "capital_markets"),
         ("DENTSU", "Dentsu appoints new CFO", "leadership"),
         ("WPP", "VML appointed by Coca-Cola as global agency of record", "client"),
+        ("STGW", "Stagwell (STGW) Closes the AI-Marketing Execution Gap with ServiceNow",
+         "ai_and_products"),
         ("OMC", "Omnicom Declares Quarterly Dividend", "other"),
         ("STGW", "Board Declares Dividend", "other"),
     ],
@@ -43,38 +45,62 @@ def test_classify_company_results_pattern_only_applies_to_that_company():
     assert classify(title, get_company("WPP")) == ("other", False)
 
 
+@pytest.mark.parametrize(
+    ("code", "title", "category"),
+    [
+        # Word-bound "ai": "Campaign" and "Awards" contain no AI word.
+        ("PUB", ("Carat - Difference Engineered - Explored in Campaign Exclusive Interview with "
+                 "Chrissie Hanson"), "other"),
+        ("DENTSU", "Dentsu Wins Six Awards at the 2026 APAC Effie Awards", "other"),
+        # Past tense stays out: a study launched is not a product launch.
+        ("DENTSU", "Dentsu Launched Our New Consumer Vision Study: Mothers of Reinvention", "other"),
+        # ai_and_products matches last, so an AI appointment stays leadership.
+        ("WPP", "WPP appoints a Chief AI Officer", "leadership"),
+    ],
+)
+def test_classify_ai_and_products_stays_out(code, title, category):
+    assert classify(title, get_company(code)) == (category, False)
+
+
+def test_classification_categories_are_in_the_schema_enum():
+    rules = load_watchlist()["classification"]
+    schema = json.loads((ROOT / "schemas" / "press_releases.schema.json").read_text())
+    enum = schema["properties"]["items"]["items"]["properties"]["category"]["enum"]
+    assert set(enum) == {*rules["categories"], rules["default_category"]}
+
+
 # Every title in every fixture with the category a human would give it.
 FIXTURE_TITLES = [
     ("WPP", "Jon Cook to leave WPP and transition VML CEO role to long-time partner Eric Campbell", "leadership"),
     ("WPP", "Directorate Change – Chief Financial Officer Succession", "leadership"),
-    ("WPP", "WPP launches flagship production hub in East London", "other"),
+    ("WPP", "WPP launches flagship production hub in East London", "ai_and_products"),
     ("WPP", "WPP appointed by Nestlé to lead end-to-end content operating model across Greater China", "client"),
     ("WPP", "2026 Interim Results", "results"),
-    ("WPP", "WPP announces expansion plans for WPP Enterprise Solutions, its global business unit for AI-driven transformation", "other"),
+    ("WPP", "WPP announces expansion plans for WPP Enterprise Solutions, its global business unit for AI-driven transformation", "ai_and_products"),
     ("WPP", "WPP agencies triumph at Cannes Lions 2026, with Ogilvy and VML claiming the top two creative network honours", "other"),
-    ("WPP", "Empowering the next creative frontier with AI research", "other"),
-    ("WPP", "WPP named first launch partner to pilot Meta’s newest creative solution, integrated within WPP Open", "other"),
-    ("WPP", "WPP Enterprise Solutions signs strategic collaboration agreement with AWS to operationalise agentic AI for leading brands", "other"),
+    ("WPP", "Empowering the next creative frontier with AI research", "ai_and_products"),
+    ("WPP", "WPP named first launch partner to pilot Meta’s newest creative solution, integrated within WPP Open", "ai_and_products"),
+    ("WPP", "WPP Enterprise Solutions signs strategic collaboration agreement with AWS to operationalise agentic AI for leading brands", "ai_and_products"),
     ("WPP", "WPP appoints Baiju Shah as group Chief Strategy Officer", "leadership"),
-    ("WPP", "WPP launches HEX, creating a new kind of talent pipeline designed for the AI era", "other"),
+    ("WPP", "WPP launches HEX, creating a new kind of talent pipeline designed for the AI era", "ai_and_products"),
     ("OMC", "Omnicom Recognized As a Leader in Two 2026 Gartner Reports for Global Digital Marketing Agencies", "other"),
     ("OMC", "Omnicom Advertising Announces Leadership Transition", "leadership"),
     ("OMC", "OMNICOM TO PRESENT AT THE GOLDMAN SACHS COMMUNACOPIA + TECHNOLOGY CONFERENCE", "other"),
     ("OMC", "Omnicom Reports Second Quarter 2026 Results", "results"),
     ("OMC", "Omnicom Declares Dividend", "other"),
     ("OMC", "Omnicom Schedules Second Quarter 2026 Earnings Release and Conference Call", "results"),
-    ("OMC", "Omnicom Launches Acxiom Fan Graph to Give Brands a More Complete View of Sports Fandom", "other"),
+    ("OMC", "Omnicom Launches Acxiom Fan Graph to Give Brands a More Complete View of Sports Fandom", "ai_and_products"),
     ("OMC", "Omnicom Named World's Most Effective Holding Group in 2025 Effie Index", "other"),
     ("OMC", "OMNICOM TO PRESENT AT THE J.P. MORGAN GLOBAL TECHNOLOGY, MEDIA AND COMMUNICATIONS CONFERENCE", "other"),
     ("OMC", "Omnicom Elevates Christine Gambino to CEO of Omni Platform", "leadership"),
     ("OMC", "Omnicom Reports First Quarter 2026 Results", "results"),
     ("STGW", "September Harvard Caps / Harris Poll: Democrats Hold A 2-Point Lead Among Likely Voters in Midterms Horserace, With Trump Approval Hitting a Low Of 42%", "other"),
-    ("STGW", "Stagwell Launches Intreego.ai to Transform the Hospitality Ecosystem into Dynamic Business and Engagement Tools", "other"),
+    ("STGW", "Stagwell Launches Intreego.ai to Transform the Hospitality Ecosystem into Dynamic Business and Engagement Tools", "ai_and_products"),
     ("STGW", "Code and Theory Honored by Fast Company’s Innovation by Design for Four Consecutive Years", "other"),
     ("STGW", "Stagwell Strengthens Assembly Leadership with Two Key CEO Appointments", "leadership"),
     ("STGW", "August Harvard CAPS / Harris Poll: Trump Approval Sees Slight Improvement at 44%", "other"),
-    ("STGW", "The People Platform Unveils New Identity as Numetrix", "other"),
-    ("STGW", "Stagwell Expands Strategic Partnership with Adobe to Build the Future of Enterprise Marketing Together", "other"),
+    ("STGW", "The People Platform Unveils New Identity as Numetrix", "ai_and_products"),
+    ("STGW", "Stagwell Expands Strategic Partnership with Adobe to Build the Future of Enterprise Marketing Together", "ai_and_products"),
     ("STGW", "Stagwell (STGW) Appoints Beth J. Kaplan to Board of Directors", "leadership"),
     ("STGW", "STAGWELL INC. (NASDAQ: STGW) REPORTS RESULTS FOR THE THREE AND SIX MONTHS ENDED JUNE 30, 2026", "results"),
     ("STGW", "Stagwell to Acquire QStrauss Consulting to Expand Code and Theory’s Implementation of Adobe’s Suite of Solutions", "m_and_a"),
@@ -84,14 +110,14 @@ FIXTURE_TITLES = [
     ("PUB", "Half-Year 2026 Financial Report available", "results"),
     ("PUB", "Publicis Groupe: First Half 2026 Results", "results"),
     ("PUB", "Publicis Groupe - Invitation - First Half 2026 Results", "results"),
-    ("PUB", "Publicis takes to the Croisette to make the case for real business value in the age of artificial intelligence", "other"),
+    ("PUB", "Publicis takes to the Croisette to make the case for real business value in the age of artificial intelligence", "ai_and_products"),
     ("PUB", "Javier Campopiano Joins Leo Constellation as Chief Creative Officer for the Americas & Iberia", "leadership"),
     ("PUB", "Publicis Groupe S.A. General Shareholders’ Meeting of may 27, 2026", "other"),
     ("PUB", "Publicis Groupe Proposes Appointment of Jaime Teevan to its Board of Directors", "leadership"),
     ("PUB", "Publicis to acquire LiveRamp to accelerate data co-creation for smarter agents", "m_and_a"),
     ("PUB", "Availability of 2025 Universal Registration Document and Procedure for Consulting Preparatory Documents for General Shareholders’ Meeting", "other"),
     ("PUB", "Publicis Groupe: First Quarter 2026 Revenue", "results"),
-    ("PUB", "Microsoft and Publicis Groupe expand their strategic partnership to power the future of agentic marketing for businesses worldwide", "other"),
+    ("PUB", "Microsoft and Publicis Groupe expand their strategic partnership to power the future of agentic marketing for businesses worldwide", "ai_and_products"),
     ("PUB", "Publicis Groupe - Invitation - Third Quarter 2024 Revenue", "results"),
     ("HAVAS", "Havas’ near-term science-based emissions reduction targets validated by the Science Based Targets initiative", "other"),
     ("HAVAS", "Havas liquidity program documents", "other"),
@@ -102,7 +128,7 @@ FIXTURE_TITLES = [
     ("HAVAS", "Havas strengthens experiential marketing arm, Havas Play, across Benelux with acquisition of Dutch agency SportVibes", "m_and_a"),
     ("HAVAS", "Havas strengthens its experiential marketing offering with acquisition of Spanish agency MUT", "m_and_a"),
     ("HAVAS", "Havas creates Chief Strategy Officer role and appoints Raphaël de Andréis", "leadership"),
-    ("HAVAS", "Havas unveils new proprietary research ‘The Science of Desire’, redefining growth in the age of AI", "other"),
+    ("HAVAS", "Havas unveils new proprietary research ‘The Science of Desire’, redefining growth in the age of AI", "ai_and_products"),
     ("DENTSU", "Dentsu Wins 12 Awards at the D&AD Awards 2026 Including “Design Agency of the Year” for Dentsu Inc.", "other"),
     ("DENTSU", "Dentsu Signs First Virtual PPAs in Japan for Japan’s Advertising Industry", "other"),
     ("DENTSU", "TBS and dentsu Jointly Establish Pro Pickleball Team “THE DOTS TOKYO” to Compete in Asia’s Premier League MLP Asia 2026", "other"),
@@ -110,10 +136,10 @@ FIXTURE_TITLES = [
     ("DENTSU", "Dentsu Group to Make Dentsu Soken a Joint Venture with ITOCHU Group", "m_and_a"),
     ("DENTSU", "Regarding Certain Media Reports", "other"),
     ("DENTSU", "Notice of Announcement of Second Quarter FY2026 Consolidated Financial Results and Mid-Term Management Plan Update", "results"),
-    ("DENTSU", "Dentsu Conducts Pilot Study of Interactive AI Plush Toy “Nande-chan”", "other"),
+    ("DENTSU", "Dentsu Conducts Pilot Study of Interactive AI Plush Toy “Nande-chan”", "ai_and_products"),
     ("DENTSU", "Dentsu Produces Egg Hunt 2026: The Grand Eggspress, a Major Roblox Adventure RPG", "other"),
     ("DENTSU", "Dentsu Publishes Climate-related Disclosures 2026 and Non-financial Databook 2026", "other"),
-    ("DENTSU", "Dentsu to Pilot AI Avatar Platform Enabling Students at Yoichi Ochiai Summer School 2026 to Co-Create with AI Models", "other"),
+    ("DENTSU", "Dentsu to Pilot AI Avatar Platform Enabling Students at Yoichi Ochiai Summer School 2026 to Co-Create with AI Models", "ai_and_products"),
     ("DENTSU", "Dentsu Wins “In-house: Innovation in People & Skills” Award at the FT Innovative Lawyers Asia-Pacific 2026 Awards", "other"),
     ("DENTSU", "Dentsu Supports NIKKA WHISKY’s Pop-up Bar at Cannes Lions", "other"),
     ("DENTSU", "Dentsu Selected for the FTSE JPX Blossom Japan Index and the FTSE JPX Blossom Japan Sector Relative Index", "other"),

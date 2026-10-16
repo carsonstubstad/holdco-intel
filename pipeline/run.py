@@ -19,7 +19,7 @@ from core.kpis import get_kpi_definitions, get_kpis
 from core.press_releases import get_press_releases
 from core.prices import append_latest, fetch_latest_closes
 from core.status import get_status, record
-from core.util import now_iso
+from core.util import classify, now_iso
 from pipeline.backfill import write_json_atomic
 
 RETENTION_DAYS = 180
@@ -84,6 +84,16 @@ def merge_press_releases(
     kept = [item for item in by_id.values() if item["published"] >= cutoff]
     kept.sort(key=lambda i: (i["published"], i["id"]), reverse=True)
     return kept
+
+
+def reclassify(items: list[dict], companies: list[dict]) -> list[dict]:
+    """Set category and flagged from today's patterns on known companies' items; others stay."""
+    by_code = {c["code"]: c for c in companies}
+    for item in items:
+        company = by_code.get(item.get("company"))
+        if company:
+            item["category"], item["flagged"] = classify(item["title"], company)
+    return items
 
 
 def new_since(items: list[dict], last_curate_at: str | None, today: datetime.date) -> list[str]:
@@ -152,7 +162,7 @@ def main(root: Path = Path(".")) -> int:
     try:
         last_curate_at = _read_json(data / "curate_state.json").get("last_curate_at")
         previous = _read_json(out / "press_releases.json").get("items") or []
-        merged = merge_press_releases(previous, fresh, today)
+        merged = reclassify(merge_press_releases(previous, fresh, today), companies)
         flagged_new = new_since(merged, last_curate_at, today)
         press_count = len(merged)
         scan_items = merged

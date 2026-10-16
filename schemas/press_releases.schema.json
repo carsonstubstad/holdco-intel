@@ -24,7 +24,7 @@
           "url": {"type": "string", "format": "uri"},
           "published": {"type": "string", "format": "date"},
           "summary": {"type": ["string", "null"]},
-          "category": {"type": "string", "enum": ["results", "guidance", "m_and_a", "capital_markets", "leadership", "client", "other"]},
+          "category": {"type": "string", "enum": ["results", "guidance", "m_and_a", "capital_markets", "leadership", "client", "ai_and_products", "other"]},
           "flagged": {"type": "boolean"},
           "source": {"type": "string", "description": "Adapter name plus channel, e.g. wpp:html, omnicom:rss."},
           "fetched_at": {"type": "string", "format": "date-time"}

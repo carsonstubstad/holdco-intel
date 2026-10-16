@@ -30,6 +30,8 @@ classification:
     capital_markets: ["capital markets day", "investor day", "investor presentation", "strategy update"]
     client:          ["appointed by", "agency of record", "\\baor\\b", "wins .*(account|business|pitch|mandate)", "selected by"]
     leadership:      ["appoint", "names .* as", "chief executive", "chief financial officer", "chief [a-z]+ officer", "\\bceo\\b", "\\bcfo\\b", "\\bchair", "to the board", "joins .* board", "board of directors.*appoint", "steps down", "to leave", "succession", "leadership transition", "directorate change"]
+    # Last, so an appointment ("Chief AI Officer") stays leadership. Not flagged.
+    ai_and_products: ["\\bai\\b", "\\bagentic\\b", "artificial intelligence", "\\bgen ?ai\\b", "\\bgenerative\\b", "\\blaunch(es)?\\b", "\\bunveils?\\b", "\\bintroduces?\\b", "\\bdebuts?\\b", "\\bpartnership", "\\bpartners? with\\b", "\\bcollaboration\\b", "\\bplatform\\b"]
   default_category: other
 
 companies:

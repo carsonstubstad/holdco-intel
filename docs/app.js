@@ -213,7 +213,8 @@ let showSelection = null; // set by renderCards
 let redrawQuotes = null; // set by renderQuotes after its first draw
 let redrawGuidanceFold = null; // set by renderGuidanceFold after its first draw
 let unpinKpi = null; // set by renderKpis
-let resetPress = null; // set by renderPress; the press filter is its own until step 19
+let redrawPress = null; // set by renderPress after its first draw
+let resetPress = null; // set by renderPress: collapses an expanded press list (Esc)
 
 function allCodes(ctx) {
   return ctx.list.map((c) => c.code);
@@ -251,6 +252,7 @@ function setSelection(ctx, codes, announce = true) {
   safeRedraw('panel-chart', redrawChart, () => { redrawChart = null; });
   safeRedraw('fold-guidance', redrawGuidanceFold, () => { redrawGuidanceFold = null; });
   safeRedraw('panel-quotes', redrawQuotes, () => { redrawQuotes = null; });
+  safeRedraw('panel-press', redrawPress, () => { redrawPress = null; resetPress = null; });
   writeHash(ctx);
   if (announce) {
     document.getElementById('announce').textContent = next.length === ctx.list.length
@@ -1435,102 +1437,124 @@ function renderGuidanceFold(ctx, data) {
 
 // ---------- Panel E: press releases ----------
 
-const PRESS_LIMIT = 10;
+// Key categories in schema order, with the badge word each shows (text, never color alone).
+const PRESS_KEY = {
+  results: 'Results', guidance: 'Guidance', m_and_a: 'Deal', capital_markets: 'Capital markets',
+  leadership: 'People', client: 'Client', ai_and_products: 'AI & products',
+};
+
+function isKeyPress(p) {
+  return Object.hasOwn(PRESS_KEY, p.category);
+}
 
 function renderPress(ctx, data) {
   const panel = 'panel-press';
   const all = Array.isArray(data.press?.items) ? data.press.items : [];
   const since = addDays(ctx.today, -30);
+  // Newest first, the higher id breaking a tie; key items are pulled ahead in draw().
   const items = all.filter((p) => p && isIsoDate(p.published) && p.published.slice(0, 10) >= since)
-    .sort((a, b) => (Number(b.flagged === true) - Number(a.flagged === true))
-      || b.published.localeCompare(a.published));
+    .sort((a, b) => b.published.localeCompare(a.published)
+      || String(b.id ?? '').localeCompare(String(a.id ?? '')));
+  redrawPress = null;
   resetPress = null;
   if (!items.length) return empty(panel, 'No press releases in the last 30 days.');
-  const rows = new Map(items.map((p) => {
-    const flagged = p.flagged === true;
-    return [p, el('li', {className: flagged ? 'flagged' : 'unflagged'},
+  const rows = new Map(items.map((p) => [p,
+    el('li', {className: isKeyPress(p) ? 'key' : 'rest'},
       companyChip(ctx, p.company),
       el('span', {className: 'nowrap date'}, fmtDate(p.published)),
-      flagged ? el('span', {className: 'chip category'},
-        String(p.category ?? '').replace(/_/g, ' ')) : null,
-      el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))))];
-  }));
+      isKeyPress(p) ? el('span', {className: 'chip category'}, PRESS_KEY[p.category]) : null,
+      el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))))]));
+  const releases = (n) => `${n} ${n === 1 ? 'release' : 'releases'}`;
 
-  // Its own company filter until step 19: never reads or writes the selection or the hash.
-  const chips = el('div', {className: 'g-chips p-chips', role: 'group',
-    'aria-label': 'Filter press releases by company'});
-  const allChip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'true'}, 'All');
-  allChip.addEventListener('click', () => setFilter(null));
-  chips.appendChild(allChip);
-  for (const c of ctx.list) {
-    const chip = el('button', {type: 'button', className: 'g-chip', 'aria-pressed': 'false',
-      'data-code': c.code, title: companyName(ctx, c.code)}, String(c.code));
-    const color = safeColor(c.color);
-    if (color) chip.style.borderLeftColor = color;
-    chip.addEventListener('click', () => setFilter(c.code));
-    chips.appendChild(chip);
-  }
-
+  const scope = el('p', {className: 'press-scope'});
   const list = el('ul', {className: 'press', id: 'press-list'});
+  const sub = el('li', {className: 'press-sub'}, 'Other releases');
   const none = el('p', {className: 'empty'});
-  // C1: the first PRESS_LIMIT items show; the button reveals the rest. Print shows the
-  // whole filtered list.
+  // Key items show; the button reveals the rest under "Other releases". A selection with no
+  // key item shows every item and no button. Print shows every item for all six companies.
   const more = el('button', {type: 'button', className: 'show-more', 'aria-expanded': 'false',
     'aria-controls': 'press-list'});
-  let code = null;
-  let shown = [];
   let extra = [];
+  let scopeText = () => '';
+  const isOpen = () => more.getAttribute('aria-expanded') === 'true';
   const setOpen = (open) => {
     for (const li of extra) li.hidden = !open;
+    sub.hidden = !open || !extra.length;
     more.setAttribute('aria-expanded', String(open));
-    more.textContent = open ? 'Show fewer' : `Show all (${shown.length})`;
+    more.textContent = open ? 'Show fewer'
+      : `Show ${extra.length} other ${extra.length === 1 ? 'release' : 'releases'}`;
+    scope.textContent = scopeText(open);
+  };
+  // replaceChildren blurs a focused row even when it stays, so focus goes back to it, else to
+  // the button, else to the first shown link.
+  const keepFocus = (change) => {
+    const had = document.activeElement;
+    const inside = had && (list.contains(had) || had === more);
+    change();
+    if (!inside) return;
+    if (had.isConnected && !had.closest('[hidden]')) had.focus();
+    else if (!more.hidden) more.focus();
+    else list.querySelector('li:not([hidden]) a')?.focus();
   };
 
-  // Shows one company's releases (code) or every release (null), collapsed to PRESS_LIMIT.
-  function setFilter(next, announce = true) {
-    // Never leave keyboard focus on a row or button that is about to go away.
-    const lostFocus = list.contains(document.activeElement) || more === document.activeElement;
-    code = next;
-    shown = items.filter((p) => code === null || p.company === code).map((p) => rows.get(p));
-    extra = shown.slice(PRESS_LIMIT);
-    for (const li of shown) li.hidden = false;
-    list.replaceChildren(...shown);
-    list.hidden = !shown.length;
-    none.hidden = shown.length > 0;
-    none.textContent = code === null ? '' : `No press releases from ${companyName(ctx, code)}`
-      + ' in the last 30 days.';
-    more.hidden = !extra.length;
-    setOpen(false);
-    for (const chip of chips.querySelectorAll('.g-chip')) {
-      chip.setAttribute('aria-pressed', String((chip.dataset.code ?? null) === code));
-    }
-    if (lostFocus) chips.querySelector('[aria-pressed="true"]')?.focus();
-    if (announce) {
-      document.getElementById('announce').textContent = code === null
-        ? `Press releases: all companies, ${shown.length}`
-        : `Press releases: ${shown.length} from ${companyName(ctx, code)}`;
-    }
+  // Shows the given companies' releases, key items first; open shows the rest too.
+  function draw(codes, open) {
+    keepFocus(() => {
+      const want = new Set(codes);
+      // Every company (or no companies.json) shows every release, as the old "All" did.
+      const everyone = allCodes(ctx).every((c) => want.has(c));
+      const mine = everyone ? items : items.filter((p) => want.has(p.company));
+      const key = mine.filter(isKeyPress);
+      const rest = key.length ? mine.filter((p) => !isKeyPress(p)) : [];
+      extra = rest.map((p) => rows.get(p));
+      const shownRows = (key.length ? key : mine).map((p) => rows.get(p));
+      for (const li of shownRows) li.hidden = false;
+      list.replaceChildren(...shownRows, ...(extra.length ? [sub, ...extra] : []));
+      list.hidden = !mine.length;
+      scope.hidden = !mine.length;
+      none.hidden = mine.length > 0;
+      none.textContent = mine.length ? '' : 'No press releases from '
+        + (want.size === 1 ? companyName(ctx, [...want][0]) : 'the selected companies')
+        + ' in the last 30 days.';
+      const label = everyone ? 'All six companies' : allCodes(ctx).filter((c) => want.has(c))
+        .join(', ');
+      scopeText = (expanded) => label + ' · ' + (!key.length
+        ? `${releases(mine.length)}, none key`
+        : expanded ? `all ${mine.length}, key releases first`
+          : `${key.length} key ${key.length === 1 ? 'release' : 'releases'} of ${mine.length}`);
+      more.hidden = !extra.length;
+      setOpen(open);
+    });
   }
 
+  // Closing shrinks the list; bring the button back so the reader isn't left further down.
+  // Esc scrolls only when the button has gone above the viewport, so the page never jumps.
+  const collapse = (fromEsc) => {
+    keepFocus(() => setOpen(false));
+    if (!fromEsc || more.getBoundingClientRect().top < 0) more.scrollIntoView({block: 'nearest'});
+  };
   more.addEventListener('click', () => {
-    const open = more.getAttribute('aria-expanded') !== 'true';
-    setOpen(open);
-    // Closing shrinks the list; bring the button back so the reader isn't left further down.
-    if (!open) more.scrollIntoView({block: 'nearest'});
+    if (isOpen()) collapse(false);
+    else setOpen(true);
   });
-  let closedForPrint = false;
+  // Same guard as openForPrint: a second beforeprint before afterprint keeps the first state.
+  let wasOpen = null;
   window.addEventListener('beforeprint', () => {
-    closedForPrint = more.getAttribute('aria-expanded') !== 'true';
-    for (const li of extra) li.hidden = false;
+    if (!redrawPress) return;
+    if (wasOpen === null) wasOpen = isOpen();
+    draw(allCodes(ctx), true);
   });
   window.addEventListener('afterprint', () => {
-    if (closedForPrint) for (const li of extra) li.hidden = true;
+    if (!redrawPress) return;
+    draw([...selected], wasOpen === true);
+    wasOpen = null;
   });
-  setFilter(null, false);
+  bodyOf(panel).replaceChildren(scope, list, none, more);
+  draw([...selected], false);
+  redrawPress = () => draw([...selected], false);
   resetPress = () => {
-    if (code !== null) setFilter(null);
+    if (isOpen()) collapse(true);
   };
-  bodyOf(panel).replaceChildren(chips, list, none, more);
 }
 
 // ---------- Panel F: data health ----------
@@ -1652,10 +1676,9 @@ async function main() {
     writeHash(ctx);
   });
 
-  // The one Esc handler: shows all companies, unpins a KPI cell (R6), resets press.
+  // The one Esc handler (R6): shows all companies, unpins a KPI cell, collapses press.
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    // Press first, so the selection is the last word in #announce when both reset.
     if (resetPress) resetPress();
     if (selected.size < ctx.list.length) setSelection(ctx, allCodes(ctx));
     if (unpinKpi) unpinKpi();

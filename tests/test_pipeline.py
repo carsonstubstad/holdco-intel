@@ -61,7 +61,8 @@ def _item(id_: str, company: str, days_ago: int, flagged: bool) -> dict:
     return {
         "id": id_,
         "company": company,
-        "title": f"{company} item {id_}",
+        # Titles match their category: the pipeline reclassifies every stored item.
+        "title": f"{company} results {id_}" if flagged else f"{company} item {id_}",
         "url": f"https://example.com/{id_}",
         "published": _ago(days_ago),
         "summary": None,
@@ -182,6 +183,20 @@ def test_pipeline_tolerates_failure_and_writes_everything(repo, capsys):
     printed = capsys.readouterr().out
     assert "[pipeline] press_releases:OMC FAIL 0 items" in printed
     assert "[pipeline] press_releases:HAVAS skip (no adapter)" in printed
+
+
+def test_stored_items_are_reclassified(repo):
+    out = repo / "docs" / "data" / "press_releases.json"
+    previous = json.loads(out.read_text())
+    moved = {**_item("stgw-ai", "STGW", 20, False),
+             "title": "Stagwell Launches Intreego.ai to Transform the Hospitality Ecosystem"}
+    unknown = {**_item("xyz-old", "XYZ", 20, False), "title": "XYZ launches a platform"}
+    previous["items"] += [moved, unknown]
+    out.write_text(json.dumps(previous))
+    run.main(repo)
+    by_id = {i["id"]: i for i in _load(repo, "press_releases")["items"]}
+    assert (by_id["stgw-ai"]["category"], by_id["stgw-ai"]["flagged"]) == ("ai_and_products", False)
+    assert by_id["xyz-old"]["category"] == "other"  # unknown company code: left as stored
 
 
 def test_never_curated_uses_30_day_window(repo):

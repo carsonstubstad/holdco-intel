@@ -204,6 +204,7 @@ dashboard:
 classification:          # global title patterns; see config/watchlist.yaml for the full list
   flagged_categories: [results, guidance, m_and_a, capital_markets]
   categories: {results: [regex, ...], guidance: [...], ...}   # first match wins, in order
+                          # ai_and_products comes last (after leadership) and is not flagged
   default_category: other
 companies:
   - code: PUB             # short, uppercase, unique; used as key everywhere
@@ -260,16 +261,17 @@ scorecard per company (kpis, guidance, events, prices); two folded sections, All
 (every current guidance record) and Quarterly history (the organic growth grid from
 kpis.json); In their words (verbatim quotes from commentary.json records by theme; the
 curator's headlines are never shown); the share price chart (prices, results and deal event
-markers, the benchmark); press releases from the last 30 days (its own company filter until
-step 19); data health footer (status.json). Names, colors and the benchmark come from
-companies.json. One compare selection (chips, a chart legend click, or the URL hash
-`#PUB,WPP`; Esc and "All" reset it) drives the cards, All guidance, the quotes and the chart;
-it is shared by link only, never stored in the browser. Computed in the browser: base-100
-rebasing per window, YTD and the two-day results move, the quarter-on-quarter growth delta,
-each card's headline guidance record and the status counts, and which quote shows (Strategy
-prefers investor day, annual report or strategy plan material up to 365 days old; otherwise
-the newest). All returns are local currency; the chart footnote says so. Print is a handout:
-all six cards, both folded sections open, the pressed quotes theme for all six companies.
+markers, the benchmark); press releases from the last 30 days (key categories by default,
+"Show all" for the rest); data health footer (status.json). Names, colors and the benchmark
+come from companies.json. One compare selection (chips, a chart legend click, or the URL
+hash `#PUB,WPP`; Esc and "All" reset it) drives the cards, All guidance, the quotes, the
+chart and press; it is shared by link only, never stored in the browser. Computed in the
+browser: base-100 rebasing per window, YTD and the two-day results move, the
+quarter-on-quarter growth delta, each card's headline guidance record and the status
+counts, and which quote shows (Strategy prefers investor day, annual report or strategy plan
+material up to 365 days old; otherwise the newest). All returns are local currency; the
+chart footnote says so. Print is a handout: all six cards, both folded sections open, the
+pressed quotes theme for all six companies and every press item for all six companies.
 Chart library: Plotly via CDN, version-pinned with SRI. No build step.
 
 ## 8. MCP server (mcp_server/)

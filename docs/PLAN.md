@@ -437,7 +437,7 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   If it runs long, Part 1 commits as `step 18: partial, in their words` and Parts 2 to 4
   become 18b. Commit: `step 18: in their words and folded sections`.
 
-- [ ] **19 Press: AI & products and key items.** (1) A new `ai_and_products` press
+- [x] **19 Press: AI & products and key items.** (1) A new `ai_and_products` press
   category after `client` (config/watchlist.yaml classification,
   schemas/press_releases.schema.json enum, classifier tests, ARCHITECTURE.md section 5):
   not flagged, for product, platform, partnership and AI launches, word-bounded so
