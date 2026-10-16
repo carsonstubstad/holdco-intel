@@ -125,7 +125,14 @@ No extra fetches. Results releases and the CEO/CFO statements in them only.
   quote is a verbatim sentence or two, at most 50 words and 400 characters (at least 20),
   picked because it states performance drivers, strategy, AI and data, clients and new
   business, outlook, or capital allocation. Skip boilerplate, forward-looking disclaimers
-  and pure numbers already in KPIs or guidance.
+  and pure numbers already in KPIs or guidance. Each quote stands alone: it starts at the
+  start of a sentence, and its first words do not point back at text the reader cannot see
+  (no opening connector such as "At the same time,", "However,", "In addition," or
+  "As a result,", and no opening "This", "These" or "That" that refers to the previous
+  sentence). If the best sentence opens that way, include the sentence before it when both
+  fit the limits, or pick another sentence; never drop the opening words, since the quote
+  would then start mid-sentence. Slide bullets, headings and fragments of figures are not
+  quotes.
 - Record fields (schema wins on conflict):
   - `id`: lowercase `<code>-<theme>-<release_date>-<n>`, e.g. `wpp-strategy-2026-08-07-1`;
     `n` counts from 1 per company, theme and release date, after any existing ids.
