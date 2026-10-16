@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-15T03:00:06Z",
+ "as_of": "2026-10-16T00:35:22Z",
  "headlines": [
   {
    "company": "PUB",
@@ -104,6 +104,45 @@
    "verified": true
   },
   {
+   "id": "omc-ai_and_data-2026-03-12-1",
+   "company": "OMC",
+   "theme": "ai_and_data",
+   "quote": "AI is not, at the moment, creating the kind of environment that you could say, gee, buy these four tools, that these are the people selling them and, as a result, you can cut your marketing budget by X.",
+   "speaker": "John Wren, Chairman and CEO",
+   "release_date": "2026-03-12",
+   "period": "2026",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:26:37Z",
+   "verified": true
+  },
+  {
+   "id": "omc-capital_allocation-2026-03-12-1",
+   "company": "OMC",
+   "theme": "capital_allocation",
+   "quote": "As we discussed on our February 18 earnings call, our board of directors approved a $5 billion share repurchase program. We plan to repurchase $3 billion to $3.5 billion of shares during 2026.",
+   "speaker": "Philip Angelastro, CFO",
+   "release_date": "2026-03-12",
+   "period": "2026",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:26:37Z",
+   "verified": true
+  },
+  {
+   "id": "omc-clients_and_new_business-2026-03-12-1",
+   "company": "OMC",
+   "theme": "clients_and_new_business",
+   "quote": "And since closing the acquisition, we have already won, retained and expanded substantial scopes of business, some of them you will have read about in the last two or three days.",
+   "speaker": "Daryl Simm, President and COO",
+   "release_date": "2026-03-12",
+   "period": "2026",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:26:37Z",
+   "verified": true
+  },
+  {
    "id": "omc-clients_and_new_business-2026-07-28-1",
    "company": "OMC",
    "theme": "clients_and_new_business",
@@ -113,6 +152,32 @@
    "period": "Q2 2026",
    "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "omc-outlook-2026-03-12-1",
+   "company": "OMC",
+   "theme": "outlook",
+   "quote": "On a combined basis, net of planned dispositions, our adjusted 2025 revenue base is $23.1 billion. In 2026, we expect this revenue base to grow approximately 4% on a constant currency basis.",
+   "speaker": "Philip Angelastro, CFO",
+   "release_date": "2026-03-12",
+   "period": "2026",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:26:37Z",
+   "verified": true
+  },
+  {
+   "id": "omc-outlook-2026-03-12-2",
+   "company": "OMC",
+   "theme": "outlook",
+   "quote": "Our synergy expectation is to achieve $1.5 billion in cost reductions by mid-2028, including $900 million in 2026 and $1.3 billion in 2027.",
+   "speaker": "Philip Angelastro, CFO",
+   "release_date": "2026-03-12",
+   "period": "2026",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:26:37Z",
    "verified": true
   },
   {
@@ -128,6 +193,19 @@
    "verified": true
   },
   {
+   "id": "omc-strategy-2026-03-12-1",
+   "company": "OMC",
+   "theme": "strategy",
+   "quote": "Our portfolio realignment was a significant first step and will result in 55% of our revenue coming from our faster-growing interconnected businesses, including media, data, CRM, consulting, and commerce.",
+   "speaker": "Philip Angelastro, CFO",
+   "release_date": "2026-03-12",
+   "period": "2026",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:26:37Z",
+   "verified": true
+  },
+  {
    "id": "omc-strategy-2026-07-28-1",
    "company": "OMC",
    "theme": "strategy",
@@ -137,6 +215,19 @@
    "period": "Q2 2026",
    "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-ai_and_data-2026-02-26-1",
+   "company": "WPP",
+   "theme": "ai_and_data",
+   "quote": "For marketing agencies that can pivot, adapt, put AI to work and offer the full breadth of integrated services, I believe there\u2019s a once-in-a-generation growth opportunity and the new WPP is built to seize this opportunity.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-02-26",
+   "period": "FY 2025",
+   "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:09:13Z",
    "verified": true
   },
   {
@@ -152,6 +243,32 @@
    "verified": true
   },
   {
+   "id": "wpp-ai_and_data-2026-08-06-2",
+   "company": "WPP",
+   "theme": "ai_and_data",
+   "quote": "In an environment where AI is rapidly transforming our industry and trust is scarce, I believe our commitment to client data ownership and control will become increasingly important.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-08-06",
+   "period": "H1 2026",
+   "source_url": "https://cdn.wpp.com/image/upload/v1786096257/Interim-Results-2026-Webcast-and-Conference-Call-Transcript.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:16:51Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-capital_allocation-2026-02-26-1",
+   "company": "WPP",
+   "theme": "capital_allocation",
+   "quote": "We do, however, expect average net debt to remain broadly stable and note that any proceeds from asset disposals during the year will be used to strengthen our balance sheet, providing a greater degree of financial flexibility.",
+   "speaker": "Joanne Wilson, CFO",
+   "release_date": "2026-02-26",
+   "period": "FY 2025",
+   "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:09:13Z",
+   "verified": true
+  },
+  {
    "id": "wpp-capital_allocation-2026-08-06-1",
    "company": "WPP",
    "theme": "capital_allocation",
@@ -161,6 +278,32 @@
    "period": "H1 2026",
    "source_url": "https://www.wpp.com/en/news/2026-interim-results",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-capital_allocation-2026-08-06-2",
+   "company": "WPP",
+   "theme": "capital_allocation",
+   "quote": "We continue to make progress on asset disposals and will provide updates as appropriate. Proceeds will be used to improve financial flexibility; strengthen our balance sheet and create further capacity to invest in growth.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-08-06",
+   "period": "H1 2026",
+   "source_url": "https://cdn.wpp.com/image/upload/v1786096257/Interim-Results-2026-Webcast-and-Conference-Call-Transcript.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:16:51Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-clients_and_new_business-2026-02-26-1",
+   "company": "WPP",
+   "theme": "clients_and_new_business",
+   "quote": "In fact, the impact from new business wins in 2026 already exceeds the impact of new business wins for all of 2025 combined and its only February!",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-02-26",
+   "period": "FY 2025",
+   "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:09:13Z",
    "verified": true
   },
   {
@@ -176,6 +319,58 @@
    "verified": true
   },
   {
+   "id": "wpp-clients_and_new_business-2026-08-06-2",
+   "company": "WPP",
+   "theme": "clients_and_new_business",
+   "quote": "Again, these wins demonstrate that when we show up as one WPP \u2013 media-led, data and tech-enabled, structurally integrated, with creativity at our heart \u2013 we are the growth partner of choice for the world's leading brands.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-08-06",
+   "period": "H1 2026",
+   "source_url": "https://cdn.wpp.com/image/upload/v1786096257/Interim-Results-2026-Webcast-and-Conference-Call-Transcript.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:16:51Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-outlook-2026-02-26-1",
+   "company": "WPP",
+   "theme": "outlook",
+   "quote": "The next phase is about building on these foundations and returning the company to growth sometime during 2027 and the third phase will be about accelerating our growth so we can capture our fair share of the market from 2028 and beyond.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-02-26",
+   "period": "FY 2025",
+   "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:09:13Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-outlook-2026-08-06-1",
+   "company": "WPP",
+   "theme": "outlook",
+   "quote": "Reflecting this, while we are pleased with the first-half margin performance, as expected and in line with our planning, we nevertheless expect second-half margins to be down by as much as 200 basis points year-on-year as continued investment in growth drivers and the rebuild of incentives ramps up.",
+   "speaker": "Joanne Wilson, CFO",
+   "release_date": "2026-08-06",
+   "period": "H1 2026",
+   "source_url": "https://cdn.wpp.com/image/upload/v1786096257/Interim-Results-2026-Webcast-and-Conference-Call-Transcript.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:16:51Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-performance-2026-02-26-1",
+   "company": "WPP",
+   "theme": "performance",
+   "quote": "When we consider what is WPP-specific, the major negative impact to call out both for the full year and for the fourth quarter is the impact of gross client losses which deteriorated through the year.",
+   "speaker": "Joanne Wilson, CFO",
+   "release_date": "2026-02-26",
+   "period": "FY 2025",
+   "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:09:13Z",
+   "verified": true
+  },
+  {
    "id": "wpp-performance-2026-08-06-1",
    "company": "WPP",
    "theme": "performance",
@@ -188,6 +383,32 @@
    "verified": true
   },
   {
+   "id": "wpp-performance-2026-08-06-2",
+   "company": "WPP",
+   "theme": "performance",
+   "quote": "The headline is that we\u2019re on track with where we said we would be, stabilising the business and delivering on our ambitions with clear evidence of progress across all leading indicators.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-08-06",
+   "period": "H1 2026",
+   "source_url": "https://cdn.wpp.com/image/upload/v1786096257/Interim-Results-2026-Webcast-and-Conference-Call-Transcript.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:16:51Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-strategy-2026-02-26-1",
+   "company": "WPP",
+   "theme": "strategy",
+   "quote": "We have a bold plan to make WPP a simpler more integrated company, one that\u2019s fit for the future and relentlessly focused on growth and brilliant execution.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-02-26",
+   "period": "FY 2025",
+   "source_url": "https://cdn.wpp.com/raw/upload/v1778673493/wpp/project/wpp/files/investors/2026/strategy-update-and-2025-preliminary-results---transcript-final.pdf",
+   "source_type": "investor_day",
+   "curated_at": "2026-10-15T23:09:13Z",
+   "verified": true
+  },
+  {
    "id": "wpp-strategy-2026-08-06-1",
    "company": "WPP",
    "theme": "strategy",
@@ -197,6 +418,19 @@
    "period": "H1 2026",
    "source_url": "https://www.wpp.com/en/news/2026-interim-results",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "wpp-strategy-2026-08-06-2",
+   "company": "WPP",
+   "theme": "strategy",
+   "quote": "Commerce is no longer just a channel; it is the ultimate organising principle for modern marketing, with global commerce ad spend now surpassing total TV advertising.",
+   "speaker": "Cindy Rose, CEO",
+   "release_date": "2026-08-06",
+   "period": "H1 2026",
+   "source_url": "https://cdn.wpp.com/image/upload/v1786096257/Interim-Results-2026-Webcast-and-Conference-Call-Transcript.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:16:51Z",
    "verified": true
   },
   {
@@ -260,6 +494,19 @@
    "verified": true
   },
   {
+   "id": "dentsu-ai_and_data-2026-08-31-1",
+   "company": "DENTSU",
+   "theme": "ai_and_data",
+   "quote": "As AI continues to evolve at a rapid pace, the ability to solve short-term challenges will become increasingly sophisticated and efficient. Access to information will become more uniform, and many services are likely to become commoditized.",
+   "speaker": "Takeshi Sano, President & Global CEO",
+   "release_date": "2026-08-31",
+   "period": "FY 2025",
+   "source_url": "https://www.group.dentsu.com/en/sustainability/common/pdf/integrated-report2026_01.pdf",
+   "source_type": "annual_report",
+   "curated_at": "2026-10-15T23:40:07Z",
+   "verified": true
+  },
+  {
    "id": "stgw-ai_and_data-2026-07-30-1",
    "company": "STGW",
    "theme": "ai_and_data",
@@ -269,6 +516,19 @@
    "period": "Q2 2026",
    "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "stgw-ai_and_data-2026-07-30-2",
+   "company": "STGW",
+   "theme": "ai_and_data",
+   "quote": "that work is getting far more efficient, because about 75% of the coding now is done agentically.",
+   "speaker": "Mark Penn, Chairman and CEO",
+   "release_date": "2026-07-30",
+   "period": "Q2 2026",
+   "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:49:58Z",
    "verified": true
   },
   {
@@ -284,6 +544,19 @@
    "verified": true
   },
   {
+   "id": "stgw-capital_allocation-2026-07-30-2",
+   "company": "STGW",
+   "theme": "capital_allocation",
+   "quote": "With industry-leading growth, expanding margins, and growing free cash flow, we do not believe that our current trading multiples are appropriate. To that end, we\u2019ll continue leveraging our buyback authorization to shrink our share count further to have a positive compounding impact on our adjusted EPS growth.",
+   "speaker": "Mark Penn, Chairman and CEO",
+   "release_date": "2026-07-30",
+   "period": "Q2 2026",
+   "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:49:58Z",
+   "verified": true
+  },
+  {
    "id": "stgw-clients_and_new_business-2026-07-30-1",
    "company": "STGW",
    "theme": "clients_and_new_business",
@@ -293,6 +566,19 @@
    "period": "Q2 2026",
    "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "stgw-clients_and_new_business-2026-07-30-2",
+   "company": "STGW",
+   "theme": "clients_and_new_business",
+   "quote": "Our pipeline has never been stronger. We expect cumulative year-end pipeline to be about 30% higher than last year.",
+   "speaker": "Mark Penn, Chairman and CEO",
+   "release_date": "2026-07-30",
+   "period": "Q2 2026",
+   "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:49:58Z",
    "verified": true
   },
   {
@@ -308,6 +594,19 @@
    "verified": true
   },
   {
+   "id": "stgw-outlook-2026-07-30-2",
+   "company": "STGW",
+   "theme": "outlook",
+   "quote": "We are also carefully managing our costs throughout the business as we grow and expect our margins to continue expanding. This should mean solid growth and adjusted EBITDA in 2027 and then excellent growth in 2028 with the political season as well.",
+   "speaker": "Mark Penn, Chairman and CEO",
+   "release_date": "2026-07-30",
+   "period": "Q2 2026",
+   "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:49:58Z",
+   "verified": true
+  },
+  {
    "id": "stgw-performance-2026-07-30-1",
    "company": "STGW",
    "theme": "performance",
@@ -317,6 +616,32 @@
    "period": "Q2 2026",
    "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2026/",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "stgw-performance-2026-07-30-2",
+   "company": "STGW",
+   "theme": "performance",
+   "quote": "Since launching our cost reduction program in April of 2025, we have actioned approximately $70 million of annualized savings and remain on track to achieve our year-end target of $80 million to $100 million.",
+   "speaker": "Ryan Greene, CFO",
+   "release_date": "2026-07-30",
+   "period": "Q2 2026",
+   "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:49:58Z",
+   "verified": true
+  },
+  {
+   "id": "stgw-strategy-2026-07-30-1",
+   "company": "STGW",
+   "theme": "strategy",
+   "quote": "The market is increasingly moving away from commoditized IT services with thousands of low-cost engineers towards higher value work that combines business strategy, technology, creativity and AI transformation.",
+   "speaker": "Mark Penn, Chairman and CEO",
+   "release_date": "2026-07-30",
+   "period": "Q2 2026",
+   "source_url": "https://www.stagwellglobal.com/wp-content/uploads/2026/04/Stagwell-Q2-2026-Earnings-Call-30.07.2026.pdf",
+   "source_type": "call_transcript",
+   "curated_at": "2026-10-15T23:49:58Z",
    "verified": true
   }
  ]
