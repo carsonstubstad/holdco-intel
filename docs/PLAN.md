@@ -533,3 +533,13 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   way to show one company only (for the one-company quotes view), if 17 shows it is missed.
 - 2026-10-15 (step 16, for 20): the printed chart shows the on-screen selection; decide
   whether print redraws it with all six, like the cards.
+- 2026-10-15 (step 17 review, for 20): on phones the header and What changed take about
+  560px, so the cards start below the first screen.
+- 2026-10-15 (step 17 review, for 20): the seven dark company chips are the heaviest thing
+  on the first screen; lighten them.
+- 2026-10-15 (step 17, for 20): figures lose trailing zeros ("11%" for 11.0, "+5%" for
+  5.0) because JSON drops them; showing "11.0%" needs the value as reported, a schema
+  question.
+- 2026-10-15 (step 17, for 21): a card's YTD silently uses the last close when a
+  company's prices are two or more days stale (the old tile said "stale"); the step 21
+  freshness note should cover it.

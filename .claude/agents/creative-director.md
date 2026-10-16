@@ -15,7 +15,7 @@ Context. Holdco Intel is a public one-page dashboard on six ad holding companies
 corporate strategy executives in a 60-second scan, often forwarded, printed for meetings,
 or opened cold on a phone. Read docs/DESIGN.md first: its principles and tokens are the
 baseline, and you propose changes to them, not around them. Then read docs/index.html,
-docs/style.css, docs/app.js (renderScan, drawChart), docs/data/companies.json, the
+docs/style.css, docs/app.js (renderCards, drawChart), docs/data/companies.json, the
 newest screenshots under prompts/design/ (read each PNG you use), and the docs/PLAN.md
 Backlog and docs/DESIGN.md (the v2.0 direction, "Broadsheet ledger").
 
