@@ -5,6 +5,13 @@
 # Drafted 2026-10-06 from each company's own IR pages; past entries feed the chart markers.
 items:
   # Publicis: investors events page ("SAVE THE DATE"); no FY 2026 or 2027 dates published yet
+  # estimate: FY 2025 results (2026-02-03) + 364 days
+  - company: PUB
+    date: 2027-02-02
+    type: results
+    title: "FY 2026 results"
+    confirmed: false
+    source_url: https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-2025-full-year-results
   - company: PUB
     date: 2026-10-13
     type: results
@@ -31,6 +38,13 @@ items:
     source_url: https://www.publicisgroupe.com/en/investors/investors-analysts/events
 
   # Omnicom: Q3 2026 date not announced yet (last year's scheduling release came ~8 Oct)
+  # estimate: Q3 2025 results (2025-10-21) + 364 days
+  - company: OMC
+    date: 2026-10-20
+    type: results
+    title: "Q3 2026 results"
+    confirmed: false
+    source_url: https://investor.omc.com/events-and-presentations/default.aspx
   - company: OMC
     date: 2026-07-28
     type: results
@@ -63,6 +77,13 @@ items:
     source_url: https://investor.omc.com/events-and-presentations/default.aspx
 
   # WPP: calendar page lists nothing upcoming yet (Q3 trading update was 30 Oct last year)
+  # estimate: Q3 2025 trading update (2025-10-30) + 364 days
+  - company: WPP
+    date: 2026-10-29
+    type: results
+    title: "Q3 2026 trading update"
+    confirmed: false
+    source_url: https://www.wpp.com/en/investors/calendar-and-events/previous-events
   - company: WPP
     date: 2026-08-06
     type: results
@@ -95,6 +116,13 @@ items:
     source_url: https://www.wpp.com/en/investors/calendar-and-events/previous-events
 
   # Havas: calendar page says 14 Oct 18:00 CET; the 23 Jul H1 release said 13 Oct (page is newer)
+  # estimate: FY 2025 results (2026-02-17) + 364 days
+  - company: HAVAS
+    date: 2027-02-16
+    type: results
+    title: "FY 2026 results"
+    confirmed: false
+    source_url: https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/
   - company: HAVAS
     date: 2026-10-14
     type: results
@@ -133,6 +161,13 @@ items:
     source_url: https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/
 
   # Dentsu: IR calendar shows Q3 in "Nov" (month only); exact date usually posted late Oct
+  # estimate: Q3 FY2025 results (2025-11-14) + 364 days
+  - company: DENTSU
+    date: 2026-11-13
+    type: results
+    title: "Q3 FY2026 results"
+    confirmed: false
+    source_url: https://www.group.dentsu.com/en/ir/calendar/
   - company: DENTSU
     date: 2026-08-14
     type: results
@@ -165,6 +200,13 @@ items:
     source_url: https://www.group.dentsu.com/en/ir/calendar/
 
   # Stagwell: "Upcoming Events" is empty; the Q3 date may only appear on results day
+  # estimate: Q3 2025 results (2025-11-06) + 364 days
+  - company: STGW
+    date: 2026-11-05
+    type: results
+    title: "Q3 2026 results"
+    confirmed: false
+    source_url: https://www.stagwellglobal.com/investors/events-and-presentations/
   - company: STGW
     date: 2026-07-30
     type: results

@@ -362,7 +362,7 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   found date equal to an estimate becoming a candidate; the 23 existing commentary
   records still validate. Commit: `step 15a: commentary documents and long PDFs`.
 
-- [ ] **15b Strategy documents: run.** The maintainer, in a fresh session (commands load
+- [x] **15b Strategy documents: run.** The maintainer, in a fresh session (commands load
   when a session starts). `/curate --commentary` on at most two documents per company,
   listed in the step prompt: strategy material and the latest quarter first (OMC's Investor
   Day transcript now; its Q3 transcript with the Q3 run). Then an estimated next results
