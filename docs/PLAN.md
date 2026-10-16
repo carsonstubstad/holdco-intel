@@ -520,3 +520,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   `core/util.fetch()`.
 - 2026-10-15 (15a review): each `--from` chunk downloads and parses the whole document
   again, so a very long PDF is slow to read in 15b. Note how slow in 15b before deciding.
+- 2026-10-15 (15b verify, for 21): `get_commentary`'s as_of and status.json's
+  last_curate_at come from `data/curate_state.json`, which document mode leaves unchanged
+  on purpose (so new releases stay in the Curate-needed queue). After a document run they
+  understate freshness. Option: commentary as_of = newest `curated_at` in commentary.json;
+  step 21's "curated as of" note uses the newer of the two.
