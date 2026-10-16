@@ -15,11 +15,13 @@ shorter (K5). Step 20 runs a quality pass with the frontend-design and dataviz s
 Revision 2026-10-15 (step 18 polish, maintainer): theme buttons on the left (Q1); an age
 line under each quote's label, no period in the attribution (Q2); the lower id breaks a
 tie (Q3); fold summaries say what is inside and look clickable (Q6).
+Revision 2026-10-15 (step 19, as built): press follows the selection with key releases
+first, a scope line, an "Other releases" label and badges in words (P1 to P3).
 Earlier revisions (2026-10-11 and 2026-10-12) are in git history.
 
 ## 1. Principles
 - Answer, per company: who is growing and is it speeding up, what margin it makes, what it guides to, how the market took its last results, and when it reports next. Share price is context and sits below the quotes.
-- One selection. The chips decide which companies every panel shows. Cards, quotes, chart and (from 19) press always agree.
+- One selection. The chips decide which companies every panel shows. Cards, All guidance, quotes, chart and press always agree.
 - Two voices. Everything we compute or copy as a number is set in the sans; management's verbatim words are set in the serif. Quotes are never cut short on screen.
 - Numbers lead. Tabular figures, a sign on every change, each figure as reported, and every figure carries its period, basis or date.
 - Color means company identity (a card's top rule, a chip's edge, a chart line) or direction (growth change, guidance status), never both at once, and never color alone. Share figures are plain text with a sign.
@@ -43,7 +45,7 @@ Kicker: a class, not a token. `.kicker { font-size: var(--fs-xs); font-weight: v
 Status glyphs, always with the word: ▲ Raised, ▼ Cut, = Held, + New, × Withdrawn. Direction: a sign plus ▲ or ▼ ("▲ +0.2 pp").
 
 ## 3. Must / Should for v2.0
-Each item names its files and a check a reader can do in a browser. Step 17 items are K, step 18 items are Q.
+Each item names its files and a check a reader can do in a browser. Step 17 items are K, step 18 items are Q, step 19 items are P.
 
 ### Step 17: chips, cards, chart
 
@@ -84,13 +86,22 @@ Each item names its files and a check a reader can do in a browser. Step 17 item
 - **Q7 Print and phone, step 18** (style.css, app.js). Must. Print: both `<details>` open (the `beforeprint`/`afterprint` pattern), In their words prints the pressed theme for all six companies with the theme name kept visible, `break-inside: avoid` on each quote row and guidance record line, not on the panels.
   - Check: print preview shows no quote split across pages and both folded sections open.
 
+### Step 19: press
+
+- **P1 Key releases first** (app.js, style.css). Must. Press follows the K2 selection (its own chip row is gone). Key categories are results, guidance, m_and_a, capital_markets, leadership, client and ai_and_products; key releases show first, newest first (higher id breaks a tie), then a "Show 14 other releases" button (singular for one) that becomes "Show fewer". When expanded, a muted `--fs-xs` "Other releases" label row sits before the rest, newest first. A selection with no key release shows all its releases and no button. Key rows are normal links; the rest are `--muted`.
+  - Check: with all six, 14 key rows and "Show 14 other releases" (15 Oct data); `/#DENTSU` shows all six Dentsu rows and no button.
+- **P2 Scope line and badges** (app.js, style.css). Must. A muted `--fs-xs` line above the list says what is shown: "All six companies · 14 key releases of 28", "PUB · 2 key releases of 3", "DENTSU · 6 releases, none key", or "… · all 28, key releases first" when expanded; it prints. Every key row carries its category in words: Results, Guidance, Deal, Capital markets, People, Client, AI & products.
+  - Check: untick to PUB only and the line reads "PUB · 2 key releases of 3".
+- **P3 Esc and print** (app.js). Must. R6's Esc collapses an expanded list and scrolls only when the button has gone above the top of the screen. Print shows every release for all six companies, expanded, and puts the screen state back afterwards.
+  - Check: expand, scroll up to the cards, press Esc: the page does not jump; print preview lists all 28.
+
 ## 4. Kept from v1 (still in force)
 - **M5 Focus ring.** `:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px }`. Check: Tab through chips, theme buttons, window buttons and links; no ring is clipped (K5).
 - **M6 Print.** Hide `.windows` and `.modebar`; `print-color-adjust: exact`; `@page { margin: 12mm }`; on `beforeprint`, `Plotly.Plots.resize`. Amended by K7: `break-inside: avoid` sits on items, not panels.
 - **M7 Chart legibility.** At 720px and below the legend shows company codes and wraps to at most 4 rows, the x-axis uses at most 3 ticks, `#chart` is 420px tall (300px above 720px).
 - **M8 Colorblind safety.** Brand hex values unchanged; end-of-line codes carry identity; line width 2.5. Check: in a grayscale screenshot every line can be identified.
 - **R2 End labels do not overlap**, now over shown lines only (K6).
-- **R6 One Esc handler** on `document`: ticks all six companies through the K2 setter and unpins a pinned KPI cell; from step 19 it also collapses an expanded press list. It never changes the theme or the chart window.
+- **R6 One Esc handler** on `document`: ticks all six companies through the K2 setter and unpins a pinned KPI cell; it also collapses an expanded press list (P3). It never changes the theme or the chart window.
 - **S2** Hide `.windows` when the chart shows its empty state.
 - **G1 summary line and G3 record lines** survive only inside Q6's "All guidance".
 
@@ -122,14 +133,15 @@ Event hover text: "Publicis Groupe · Deal · {title}"; events on one date share
 | Benchmark toggle | "S&P 500" button next to `.windows` | Enter/Space; `aria-pressed` | no change |
 | Theme buttons (Q1) | click | Tab, then Enter/Space; `aria-pressed` | no change |
 | Folded sections (Q6) | click the summary | Enter/Space (native `<details>`) | no change |
+| Press other releases (P1) | "Show N other releases" / "Show fewer" | Enter/Space; `aria-expanded` | collapses (P3) |
 | KPI cell pin | click or focus | Tab | unpins and restores the hint |
 | Motion | none added; `prefers-reduced-motion` respected | | |
 
 ## 7. Scope split (v2.0)
 - **17 (about 90 min):** K1 (10), K2 (20), K3 and K4 (35), K5 (10), K6 (15), K7 (5). If it runs long, K6 becomes 17b in a fresh session.
 - **18 (about 90 min):** Q1 and Q2 (25), Q3 to Q5 (20), Q6 (25), Q7 (10), ARCHITECTURE.md (10). If it runs long, Q1 to Q5 commit as a partial and Q6 to Q7 become 18b.
-- **19:** press follows the K2 selection (its own chips go), key categories by default with "Show all (n)", badges in words, R6 collapses the list; rows use K1's section head and hairlines.
-- **20 (final design pass):** judged on the built page. Candidates already noted: a shorter What changed (held records folded into one "Reaffirmed: PUB, HAVAS" line), a quick way to show one company only, the print chart following the selection or showing all six.
+- **19 (built):** P1 to P3. Press follows the K2 selection (its own chips went), key releases first with "Show N other releases", a scope line, badges in words, R6 collapses the list; rows use K1's section head and hairlines.
+- **20 (final design pass):** judged on the built page. First, the maintainer's pick after 19: one clear company filter for the whole page (Backlog 2026-10-15, step 19 build check). Other candidates already noted: a shorter What changed (held records folded into one "Reaffirmed: PUB, HAVAS" line), a quick way to show one company only, the print chart following the selection or showing all six.
 - **21:** the intro line replaces `.tagline`; the freshness note (prices as of, curated as of) goes in `.header-meta`; **S3** dates read "9 Oct 2026, 01:51 UTC".
 - **Deferred:** C2 (roving tabindex in the KPI grid) to a later tweak.
 

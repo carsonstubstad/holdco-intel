@@ -14,7 +14,7 @@ Context. Holdco Intel is a public, static, one-page dashboard on six ad holding 
 per company, two folded sections (All guidance, Quarterly history with the organic growth
 grid), "In their words" management quotes by theme, a base-100 share price chart (Plotly
 2.35.2) with a window selector, event markers and a grey dashed S&P 500 benchmark, press
-releases, and a data health footer.
+releases (key releases first, following the chips), and a data health footer.
 Primary readers are corporate strategy executives who want a 60-second snapshot. They
 need three questions answered above the fold, in this order: (1) who is growing fastest,
 and who is accelerating or slowing; (2) who changed guidance, and in which direction;

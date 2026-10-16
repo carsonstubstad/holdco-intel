@@ -453,6 +453,9 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   matches a hand count from press_releases.json; Esc collapses the list; no sideways
   scroll at 375px; zero console errors. Commit: `step 19: press AI & products and key
   items`.
+  Built 2026-10-15 with a maintainer-approved polish round: a scope line, an "Other
+  releases" label, newest first, and `pipeline/run.py` reclassifies stored press items on
+  every run (DESIGN.md P1 to P3).
 
 - [ ] **20 Final design pass.** On the finished v2.0 page, after 19, so the look is
   judged on what was built (e.g. the scorecard simplified once it is seen with real
@@ -557,3 +560,23 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-15 (step 18 review): /curate quotes must stand alone; leave out openers such
   as "At the same time," (PUB Clients, 13 Oct). A rule in `.claude/commands/curate.md`;
   sort before the next /curate run (OMC Q3, about 20 Oct).
+- 2026-10-15 (step 19 build check, maintainer's first pick for 20): the company filter
+  is unclear. The chip row has no label, sits on the cards and scrolls away, so the chart
+  legend looks like the filter that drives press, and What changed ignores it. Keep one
+  selection and make it look like one: a labelled, lighter filter bar under the page
+  title ("Showing 4 of 6 · Reset"), pinned to the top while scrolling (one compact row on
+  phones); the chart legend no longer filters; decide whether What changed follows it
+  (borderline "no new feature"). Folds in the step 17 lines on chip weight and a quick
+  way to show one company. No separate press toggle (two filters that disagree).
+- 2026-10-15 (step 19 review): a Financing press label (bond issues, buybacks,
+  dividends, liquidity agreements) as a key, unflagged category. Today "Publicis prices
+  EUR 500 million of bond issue" and "Havas share buyback documents" sit in Other.
+  Config, schema, tests and a badge word, like step 19 Part 1.
+- 2026-10-15 (step 19 review): `\blaunch(es)?\b` would label a title such as "Havas
+  launches share buyback" AI & products; AI-themed research and talks (Havas "The
+  Science of Desire", Publicis at the Croisette) also land there. Decide with the
+  Financing line.
+- 2026-10-15 (step 19 review): a press filter by label (e.g. only Deals across all six).
+  A feature, so not step 20.
+- 2026-10-15 (step 19 review, for 20): on phones 14 key rows is a long scroll; decide
+  whether to cap the collapsed list.
