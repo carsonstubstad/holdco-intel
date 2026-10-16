@@ -51,7 +51,7 @@ window selector state, linking panels such as tile to chart line, keyboard order
 ring, aria, reduced motion); print (a print stylesheet so the page prints cleanly on
 A4/Letter for a meeting: hide controls, avoid panels splitting across pages, keep company
 colors); first-time visitor clarity (where the one-line intro and freshness note from
-step 13 should sit, and where a future "What changed" strip from the backlog would go).
+step 21 should sit, and where a future "What changed" strip from the backlog would go).
 
 Output: a brief under 900 words, in Markdown, with these sections:
 1. Principles (3 to 5 lines).

@@ -17,7 +17,7 @@ or opened cold on a phone. Read docs/DESIGN.md first: its principles and tokens 
 baseline, and you propose changes to them, not around them. Then read docs/index.html,
 docs/style.css, docs/app.js (renderScan, drawChart), docs/data/companies.json, the
 newest screenshots under prompts/design/ (read each PNG you use), and the docs/PLAN.md
-Backlog (especially step 12h "visual identity").
+Backlog and docs/DESIGN.md (the v2.0 direction, "Broadsheet ledger").
 
 Hard constraints (an option that breaks one is invalid):
 - Plain HTML, one JS file, one CSS file, Plotly 2.35.2 already loaded. No framework,

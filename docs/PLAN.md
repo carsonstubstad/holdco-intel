@@ -375,7 +375,7 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   Commits: the `curate: ...` data commits, then `step 15b: strategy documents run`
   (ticks the box, as in 09 and 14b).
 
-- [ ] **16 Design the v2.0 page.** Planning chat, no executor session. Runs after 15b's
+- [x] **16 Design the v2.0 page.** Planning chat, no executor session. Runs after 15b's
   closing commit and before 17, so the mockups use real document quotes and (est.)
   dates. Screenshots of today's page; a design-reviewer full brief and 2 to 3
   creative-director directions for the v2.0 page (scorecard card, compare chips, "In
@@ -418,9 +418,11 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
 - [ ] **18 In their words and folded sections.** Site only, plus ARCHITECTURE.md
   sections 2 and 7. (1) "In their words" between the cards and the chart, from
   commentary.json: tabs Strategy, AI & data, Clients and Outlook; one row per selected
-  company with its newest quote on the theme, the speaker when present, the source type,
-  the date and a link to source_url; with one company selected, one row per theme (all
-  six themes, so performance and capital allocation show there). A company with no quote
+  company with its newest quote on the theme (Strategy prefers strategy material up to a
+  year old, DESIGN.md Q3), the speaker when present, the source type, the date and a link
+  to source_url; with one company selected, one row per theme that has a quote (all six
+  themes, so performance and capital allocation show there) and one muted line naming
+  the themes without one (Q4). A company with no quote
   on the theme shows "No quote on this theme yet"; a missing commentary.json shows the
   panel's empty sentence. Headlines are not shown. (2) Two collapsed sections under the
   cards: "All guidance (n)" (G1's summary line and every current record with quote and
@@ -525,3 +527,9 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   releases stay in the Curate-needed queue), so after a document run it understates
   freshness. `get_commentary` was fixed in `tweak: commentary as_of counts document runs`
   (newer of the two). Step 21's "curated as of" note should use the same rule.
+- 2026-10-15 (step 16, for 20): a shorter What changed: held records fold into one
+  "Reaffirmed: PUB, HAVAS" line, so the cards start higher on the first screen.
+- 2026-10-15 (step 16, for 20): tick chips make "show one company" five clicks; a quick
+  way to show one company only (for the one-company quotes view), if 17 shows it is missed.
+- 2026-10-15 (step 16, for 20): the printed chart shows the on-screen selection; decide
+  whether print redraws it with all six, like the cards.
