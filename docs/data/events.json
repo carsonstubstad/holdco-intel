@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-16T00:35:22Z",
+ "as_of": "2026-10-17T00:41:32Z",
  "items": [
   {
    "company": "HAVAS",
@@ -239,6 +239,54 @@
    "type": "results",
    "title": "Q3 2026 revenue",
    "confirmed": true,
+   "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
+  },
+  {
+   "company": "OMC",
+   "date": "2026-10-20",
+   "type": "results",
+   "title": "Q3 2026 results",
+   "confirmed": false,
+   "source_url": "https://investor.omc.com/events-and-presentations/default.aspx"
+  },
+  {
+   "company": "WPP",
+   "date": "2026-10-29",
+   "type": "results",
+   "title": "Q3 2026 trading update",
+   "confirmed": false,
+   "source_url": "https://www.wpp.com/en/investors/calendar-and-events/previous-events"
+  },
+  {
+   "company": "STGW",
+   "date": "2026-11-05",
+   "type": "results",
+   "title": "Q3 2026 results",
+   "confirmed": false,
+   "source_url": "https://www.stagwellglobal.com/investors/events-and-presentations/"
+  },
+  {
+   "company": "DENTSU",
+   "date": "2026-11-13",
+   "type": "results",
+   "title": "Q3 FY2026 results",
+   "confirmed": false,
+   "source_url": "https://www.group.dentsu.com/en/ir/calendar/"
+  },
+  {
+   "company": "PUB",
+   "date": "2027-02-02",
+   "type": "results",
+   "title": "FY 2026 results",
+   "confirmed": false,
+   "source_url": "https://www.publicisgroupe.com/en/news/press-releases/publicis-groupe-2025-full-year-results"
+  },
+  {
+   "company": "HAVAS",
+   "date": "2027-02-16",
+   "type": "results",
+   "title": "FY 2026 results",
+   "confirmed": false,
    "source_url": "https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/"
   }
  ]
