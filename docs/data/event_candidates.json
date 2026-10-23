@@ -1,18 +1,5 @@
 {
- "as_of": "2026-10-22T00:49:14Z",
- "items": [
-  {
-   "id": "608850bcfeae",
-   "company": "OMC",
-   "date": "2026-10-22",
-   "type": "results",
-   "title": "Third Quarter 2026 Earnings Call",
-   "confirmed": true,
-   "source_url": "https://investor.omc.com/events-and-presentations/events/event-details/2026/Third-Quarter-2026-Earnings-Call/default.aspx",
-   "replaces": "2026-10-20",
-   "source": "calendar:omnicom",
-   "fetched_at": "2026-10-22T00:49:34Z"
-  }
- ],
+ "as_of": "2026-10-23T00:49:55Z",
+ "items": [],
  "new_ids": []
 }
