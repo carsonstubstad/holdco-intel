@@ -18,9 +18,11 @@ Inputs (the caller names the step, e.g. "12f" or "tweak-polish", and may give a 
   say which plan you found.
 - CLAUDE.md (hard rules, Security, Stack and conventions, How to work).
 - docs/PLAN.md: the step's entry and acceptance criteria, plus the Backlog.
-- docs/DESIGN.md: the items assigned to this step (section 6 scope split) and anything
-  they reference.
-- The step prompt: `prompts/v1.1/step-<id>*.md` or `prompts/v1.1/tweak-*.md`. Its
+- docs/DESIGN.md: the items assigned to this step (for step 20, section 4's items whose
+  letter matches the part, A for 20a to D for 20d, and section 8) and anything they
+  reference.
+- The step prompt: `prompts/<version>/step-<id>*.md` or `prompts/<version>/tweak-*.md`
+  (e.g. `prompts/v2.0/step-20a-look.md`). Its
   "Required" list and its "Review the plan before approving" checklist are mandatory checks.
 - The code the plan touches (read the functions it names, so you judge against reality).
 

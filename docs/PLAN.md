@@ -314,8 +314,9 @@ the same day. The page becomes three main panels, in this order: compare chips w
 scorecard per company, "In their words" (verbatim management quotes by theme), then the
 share price chart. What changed, Press releases and Data health stay. Commentary gains
 sources beyond results releases. Step prompts are in `prompts/v2.0/`.
-- Order: 15a, 15b, 16, 17, 18, 19, 20, 21, in number order. Q3 `/curate` runs happen
-  between steps, never during one (expected, last year plus 364 days: OMC about 20 Oct,
+- Order: 15a, 15b, 16, 17, 18, 19, 20 (built as 20a to 20d), 21, in number order. Q3
+  `/curate` runs happen between steps, never during one (expected, last year plus 364
+  days: OMC about 20 Oct,
   WPP about 29 Oct, STGW about 5 Nov, DENTSU about 13 Nov).
 - Renumbered 2026-10-15: old 15 became 15a (build) and 15b (run); the design gate became
   16; old 16 and 17 became 17 and 18; the press tweak became 19 and took the AI &
@@ -457,19 +458,59 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   releases" label, newest first, and `pipeline/run.py` reclassifies stored press items on
   every run (DESIGN.md P1 to P3).
 
-- [ ] **20 Final design pass.** On the finished v2.0 page, after 19, so the look is
-  judged on what was built (e.g. the scorecard simplified once it is seen with real
-  data). Planning chat first: after-screenshots at 1440px and 375px plus a print preview,
-  a design-reviewer full brief on the built page, the 10-second reader test on every
-  panel and card row, and the "for 20" Backlog lines. The maintainer picks what fits about
-  90 minutes, removal and simplification first; a `plan: v2.0 final design` commit revises
-  docs/DESIGN.md and the step prompt is written. Then the executor builds the picks in one
-  session. Site only (docs/index.html, app.js, style.css): no new panel or feature, no
-  data, schema or pipeline change, no new dependency; anything bigger goes to the Backlog.
-  Acceptance: each picked item's DESIGN.md check passes; before and after screenshots at
-  1440px and 375px with page heights noted, and neither is taller than before; no
-  sideways scroll at 375px; print preview shows no split panels; zero console errors or
-  CSP violations; `make check` green. Commit: `step 20: final design pass`.
+**20 Final design pass: "Plot Sheet".** Designed 2026-10-26 with a Claude Cowork design
+agent over five rounds (mockups in `prompts/design/cowork/final/`, local only), reviewed
+by design-reviewer and written into docs/DESIGN.md by `plan: v2.0 final design`. Grey
+dotted paper with white panels; a dark filter capsule pinned while scrolling, where one
+click shows one company; one peer table instead of six cards; a quotes grid; one big
+chart with a key; print as a handout with all six companies. It replaces the one-session
+plan: the design work grew into four executor sessions of about 90 minutes, in order,
+each from its own prompt in `prompts/v2.0/` and ticking its own box. Site only
+(docs/index.html, app.js, style.css; 20d also ARCHITECTURE.md section 7): no new panel,
+data field, schema, pipeline change or dependency; anything bigger goes to the Backlog.
+"Neither page taller than before" is replaced by first-screen checks (in 20c and 20d).
+Every part: its DESIGN.md checks pass; `make check` green; zero console errors or CSP
+violations; no sideways scroll at 375 and 320px; before and after screenshots at 1440
+and 375px with page heights noted. Each part commits locally; the maintainer pushes after
+20d, so the live page changes once.
+Absorbed from the Backlog (lines dated 2026-10-15): the unclear company filter (step 19
+build check: B1 to B4), a quick way to show one company (B2), the dark chips' weight
+(B1), the phone header and What changed height (A2, B5, D1), a shorter What changed with
+reaffirmations folded (B5), Coming up listing capital markets days and deals (B5; AGMs
+stay out), the printed chart showing all six (D6), pressable theme buttons (A4), folded
+"no quote" rows (D4), the phone press cap (D5).
+
+- [ ] **20a Look.** DESIGN.md A1 to A7: tokens and the dotted paper, header and mark,
+  white panels in two weights, pill tracks for themes and chart windows, folds as panels,
+  loading and empty states, data health on the paper. Cards, chips and rows keep their
+  content until 20b to 20d. Acceptance: each A check; a fold, a track and the press panel
+  work by keyboard with a visible ring; renaming press_releases.json shows the grey
+  sentence and no count. Commit: `step 20a: plot sheet look`.
+
+- [ ] **20b Filter and What changed.** B1 to B6: the sticky capsule with the solo-first
+  rule, the phone opener, the chart legend no longer filtering, What changed following
+  the selection, Esc. Acceptance: each B check; the capsule stays visible while scrolling
+  at 1440 and 375 and nothing shows above it; `/#PUB,WPP` and `/#WPP` links still work;
+  Shift+Tab never leaves the focused control under the capsule. If it runs long, What
+  changed (B5) becomes 20b2 in a fresh session. Commit: `step 20b: filter capsule and
+  what changed`.
+
+- [ ] **20c Peer table.** C1 to C7: the table, every Change naming its base ("vs Q2 26")
+  or a reason, period links to sources, the headline, the foot line, the true minus and
+  formatting rules, the 961 to 1100px fit. Acceptance: each C check; three rows match a
+  hand check against kpis, guidance, events and prices (including the two-day move); at
+  1440×900 the whole table is on the first screen (last row at or above 860px); at 1024
+  no column is cut. Commit: `step 20c: peer table`.
+
+- [ ] **20d Phone, chart, quotes, press, print.** D1 to D7: company blocks at 960px and
+  below, the chart key and end-code leaders, the quotes grid, press rows, the A4 and
+  Letter handout, ARCHITECTURE.md section 7. Acceptance: each D check; at 375×812 the
+  capsule and the first company's growth figure are on the first screen; at 1440 with all
+  six the page is at most 3,390px (today 3,080); print is at most 4 pages on A4 and on
+  Letter with page 1 holding the header, What changed and all six table rows; every
+  printed end code is whole; no company color outside the chart. If it runs long, the
+  phone press cap (D5) is cut first; if D1 to D3 alone fill the session, D4 and D5 become
+  20e. Commit: `step 20d: phone, chart, quotes, press and print`.
 
 - [ ] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
   line describe the final v2.0 page. `pipeline/stats.py` (computed numbers from
@@ -479,7 +520,8 @@ sources beyond results releases. Step prompts are in `prompts/v2.0/`.
   fixes, run it yourself, disclaimer. Site: a one-line "what am I looking at" intro (no
   hardcoded benchmark name) and a data-freshness note (prices as of, curated as of, from
   status.json), dates shown as DESIGN.md S3 says ("9 Oct 2026, 01:51 UTC"), meta
-  description and Open Graph title/description, inline SVG favicon. No GIF, no recording.
+  description and Open Graph title/description, inline SVG favicon (the six-around-one
+  mark, DESIGN.md section 8). No GIF, no recording.
   Acceptance: `uv run python -m pipeline.stats` prints real numbers; README's first screen
   has the link, the one-line description and the disclaimer; the live Pages URL works on a
   real phone without horizontal scroll and on desktop with zero console errors.
@@ -513,7 +555,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-12 (12g review): "Reports today" reuses the blue of the "New" guidance badge.
   Check for confusion on the first real results day; a tweak if it confuses.
 - 2026-10-15 (v2.0 review): show the S&P 500's move over the same two days next to a
-  card's results move.
+  card's results move. 2026-10-26: it would sit beside the peer table's "On results"
+  column.
 - 2026-10-15 (v2.0 review): print follows the chosen companies (a peer-set handout).
 - 2026-10-15 (v2.0 review): once `metric_label` exists (2026-10-11 line), Stagwell's
   adjusted EBITDA guidance as its card's Profit line.
@@ -530,44 +573,17 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   releases stay in the Curate-needed queue), so after a document run it understates
   freshness. `get_commentary` was fixed in `tweak: commentary as_of counts document runs`
   (newer of the two). Step 21's "curated as of" note should use the same rule.
-- 2026-10-15 (step 16, for 20): a shorter What changed: held records fold into one
-  "Reaffirmed: PUB, HAVAS" line, so the cards start higher on the first screen.
-- 2026-10-15 (step 16, for 20): tick chips make "show one company" five clicks; a quick
-  way to show one company only (for the one-company quotes view), if 17 shows it is missed.
-- 2026-10-15 (step 16, for 20): the printed chart shows the on-screen selection; decide
-  whether print redraws it with all six, like the cards.
-- 2026-10-15 (step 17 review, for 20): on phones the header and What changed take about
-  560px, so the cards start below the first screen.
-- 2026-10-15 (step 17 review, for 20): the seven dark company chips are the heaviest thing
-  on the first screen; lighten them.
-- 2026-10-15 (step 17, for 20): figures lose trailing zeros ("11%" for 11.0, "+5%" for
-  5.0) because JSON drops them; showing "11.0%" needs the value as reported, a schema
-  question.
+- 2026-10-15 (step 17): figures lose trailing zeros ("11%" for 11.0, "+5%" for 5.0)
+  because JSON drops them; showing "11.0%" needs the value as reported, a schema
+  question. Not in 20 (a schema change); it shows in the peer table and its headline.
 - 2026-10-15 (step 17, for 21): a card's YTD silently uses the last close when a
   company's prices are two or more days stale (the old tile said "stale"); the step 21
   freshness note should cover it.
-- 2026-10-15 (step 17, for 20): with the Events panel gone, upcoming capital markets days,
-  deals and AGMs show nowhere while all six companies are shown (chart markers appear
-  only for a subset). Decide whether Coming up lists them.
-- 2026-10-15 (step 18 review, for 20): the In their words theme buttons read as plain
-  underlined text; make them look like buttons you press, without looking like the
-  company chips (e.g. one joined segmented bar, the pressed segment light grey). Decide
-  with the chart's window buttons, which share the style.
-- 2026-10-15 (step 18 review, for 20): fold the "No quote on this theme yet." rows into
-  one line ("No Clients quote yet: HAVAS, DENTSU"), as the one-company view does.
-- 2026-10-15 (step 18 review, for 20): All guidance drops records whose company code is
-  not in companies.json (the old tracker listed them). None exist today.
+- 2026-10-15 (step 18 review): All guidance drops records whose company code is not in
+  companies.json (the old tracker listed them). None exist today; not in 20.
 - 2026-10-15 (step 18 review): /curate quotes must stand alone; leave out openers such
   as "At the same time," (PUB Clients, 13 Oct). A rule in `.claude/commands/curate.md`;
   sort before the next /curate run (OMC Q3, about 20 Oct).
-- 2026-10-15 (step 19 build check, maintainer's first pick for 20): the company filter
-  is unclear. The chip row has no label, sits on the cards and scrolls away, so the chart
-  legend looks like the filter that drives press, and What changed ignores it. Keep one
-  selection and make it look like one: a labelled, lighter filter bar under the page
-  title ("Showing 4 of 6 · Reset"), pinned to the top while scrolling (one compact row on
-  phones); the chart legend no longer filters; decide whether What changed follows it
-  (borderline "no new feature"). Folds in the step 17 lines on chip weight and a quick
-  way to show one company. No separate press toggle (two filters that disagree).
 - 2026-10-15 (step 19 review): a Financing press label (bond issues, buybacks,
   dividends, liquidity agreements) as a key, unflagged category. Today "Publicis prices
   EUR 500 million of bond issue" and "Havas share buyback documents" sit in Other.
@@ -578,5 +594,14 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   Financing line.
 - 2026-10-15 (step 19 review): a press filter by label (e.g. only Deals across all six).
   A feature, so not step 20.
-- 2026-10-15 (step 19 review, for 20): on phones 14 key rows is a long scroll; decide
-  whether to cap the collapsed list.
+- 2026-10-26 (step 20 design): sort the peer table by a column (rank by growth or YTD).
+- 2026-10-26 (step 20 design): hover a company in the chart key to highlight its line and
+  dim the others.
+- 2026-10-26 (step 20 review): PUB #9A7D2E and OMC #d95f02 are hard to tell apart on the
+  chart (ΔE 3.3 for color-blind readers, 12.1 for normal vision); their end codes and the
+  key carry them. Option: a second cue for one of them, such as a dash pattern.
+- 2026-10-26 (step 20 design, for 21, needs a yes there): a link-preview image
+  (`og:image`, 1200×630, no figures so it never goes stale), drafted by Cowork as
+  `prompts/design/cowork/final/og-image.png`; it would be a new file in `docs/`.
+- 2026-10-26 (step 20 design, for 21, needs a yes there): a "Copy link" pill in the
+  capsule for the current peer set (the URL hash already holds it).
