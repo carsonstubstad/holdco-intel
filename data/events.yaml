@@ -37,6 +37,14 @@ items:
     confirmed: true
     source_url: https://www.publicisgroupe.com/en/investors/investors-analysts/events
 
+  # Omnicom: next results date not announced yet
+  # estimate: Q4 2025 results (2026-02-18) + 364 days
+  - company: OMC
+    date: 2027-02-17
+    type: results
+    title: "Q4 and FY 2026 results"
+    confirmed: false
+    source_url: https://investor.omc.com/events-and-presentations/default.aspx
   - company: OMC
     date: 2026-10-22
     type: results
@@ -75,6 +83,13 @@ items:
     source_url: https://investor.omc.com/events-and-presentations/default.aspx
 
   # WPP: calendar page lists nothing upcoming yet (Q3 trading update was 30 Oct last year)
+  # estimate: FY 2025 preliminary results (2026-02-26) + 364 days
+  - company: WPP
+    date: 2027-02-25
+    type: results
+    title: "FY 2026 preliminary results"
+    confirmed: false
+    source_url: https://www.wpp.com/en/investors/calendar-and-events
   # estimate: Q3 2025 trading update (2025-10-30) + 364 days
   - company: WPP
     date: 2026-10-29
@@ -159,6 +174,13 @@ items:
     source_url: https://www.havas.com/investor-relations-shareholders/financial-and-ir-calendar-contact/
 
   # Dentsu: IR calendar shows Q3 in "Nov" (month only); exact date usually posted late Oct
+  # estimate: FY2025 results (2026-02-13) + 364 days
+  - company: DENTSU
+    date: 2027-02-12
+    type: results
+    title: "FY2026 results"
+    confirmed: false
+    source_url: https://www.group.dentsu.com/en/ir/calendar/
   # estimate: Q3 FY2025 results (2025-11-14) + 364 days
   - company: DENTSU
     date: 2026-11-13
@@ -197,14 +219,20 @@ items:
     confirmed: true
     source_url: https://www.group.dentsu.com/en/ir/calendar/
 
-  # Stagwell: "Upcoming Events" is empty; the Q3 date may only appear on results day
-  # estimate: Q3 2025 results (2025-11-06) + 364 days
+  # Stagwell: "Upcoming Events" is empty; the Q3 date is from the 8 Oct scheduling release
+  # estimate: Q4 2025 results (2026-03-10) + 364 days
   - company: STGW
-    date: 2026-11-05
+    date: 2027-03-09
     type: results
-    title: "Q3 2026 results"
+    title: "Q4 and FY 2026 results"
     confirmed: false
     source_url: https://www.stagwellglobal.com/investors/events-and-presentations/
+  - company: STGW
+    date: 2026-10-29
+    type: results
+    title: "Q3 2026 results"
+    confirmed: true
+    source_url: https://www.stagwellglobal.com/stagwell-schedules-webcast-to-discuss-financial-results-for-the-three-and-nine-months-ended-september-30-2026/
   - company: STGW
     date: 2026-07-30
     type: results
