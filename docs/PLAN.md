@@ -486,6 +486,11 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   content until 20b to 20d. Acceptance: each A check; a fold, a track and the press panel
   work by keyboard with a visible ring; renaming press_releases.json shows the grey
   sentence and no count. Commit: `step 20a: plot sheet look`.
+  Built 2026-10-26 with a maintainer-approved polish round: the quote column set in rem (the
+  serif's 62ch), the press scope line on its header row, data health warnings in ink, not
+  red. Status words in All guidance carry their glyph. Page height at 1440: 3,415px (3,336
+  before); at 375: 5,273px (4,892), the new panel padding. The 3,390px whole-page budget
+  after 20d now depends on 20c's table being shorter than the cards.
 
 - [ ] **20b Filter and What changed.** B1 to B6: the sticky capsule with the solo-first
   rule, the phone opener, the chart legend no longer filtering, What changed following
@@ -605,3 +610,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   `prompts/design/cowork/final/og-image.png`; it would be a new file in `docs/`.
 - 2026-10-26 (step 20 design, for 21, needs a yes there): a "Copy link" pill in the
   capsule for the current peer set (the URL hash already holds it).
+- 2026-10-26 (20a build check): the maintainer asked whether every panel should take the
+  primary panels' 2px ink edge; kept the two weights for now (the capsule and the peer
+  table's title are not built yet). Look again at 20c's build check; if the secondary edges
+  still feel weak, the lever is a darker `--border-2` (one token), not ink, since a 1px ink
+  outline is the tracks' and pills' control style.
