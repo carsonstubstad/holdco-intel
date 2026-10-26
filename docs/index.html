@@ -24,18 +24,27 @@
     </div>
   </header>
 
+  <div id="filter" class="band">
+    <div class="capsule">
+      <svg class="mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle class="ink" cx="10" cy="2.8" r="1.9"/><circle class="ink" cx="16.24" cy="6.4" r="1.9"/><circle class="ink" cx="16.24" cy="13.6" r="1.9"/><circle class="ink" cx="10" cy="17.2" r="1.9"/><circle class="ink" cx="3.76" cy="13.6" r="1.9"/><circle class="ink" cx="3.76" cy="6.4" r="1.9"/><circle class="coral" cx="10" cy="10" r="3.2"/></svg>
+      <span id="filter-label" class="filter-label">Peer set</span>
+      <button type="button" class="filter-opener" aria-expanded="false" aria-controls="filter-pills" hidden><span class="opener-label">Peer set:</span> <span class="opener-value"></span><span class="chev" aria-hidden="true"></span></button>
+      <div id="filter-pills" class="filter-pills" role="group" aria-labelledby="filter-label"></div>
+      <p class="filter-status" hidden><span class="filter-count"></span><span class="filter-sep" aria-hidden="true">·</span><button type="button" class="filter-reset">Reset</button></p>
+    </div>
+  </div>
+
   <main>
     <section id="panel-changes" class="panel" aria-labelledby="h-changes">
       <div class="panel-head">
         <h2 id="h-changes">What changed</h2>
+        <p class="scope"></p>
       </div>
       <div class="body"><p class="empty">Loading…</p></div>
     </section>
 
     <section id="panel-cards" class="panel primary" aria-labelledby="h-cards">
       <h2 id="h-cards" class="visually-hidden">Scorecards</h2>
-      <div class="compare" role="group" aria-label="Companies"></div>
-      <p class="compare-note muted" hidden></p>
       <div class="body cards" role="region" aria-label="Scorecards"><p class="empty">Loading…</p></div>
     </section>
 

@@ -10,6 +10,12 @@
   --hairline: #dbe2ea;
   --border-2: #7f8c9d;
   --capsule: #1b2a41;
+  /* On the capsule: text, muted text, unpressed pill edge, hover fill, focus ring. */
+  --capsule-text: #ffffff;
+  --capsule-muted: #c7d0dc;
+  --capsule-edge: #8fa0b6;
+  --capsule-hover: rgba(255, 255, 255, 0.12);
+  --capsule-focus: #ffd166;
   --shadow: 0 6px 16px rgba(27, 42, 65, 0.18);
   --accent: #ff6b4a;
   --link: #1d4ed8;
@@ -53,7 +59,8 @@
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+/* B1: focused controls and in-page jumps stop below the pinned filter band (84px tall). */
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 100px; }
 
 body {
   margin: 0;
@@ -65,11 +72,12 @@ body {
   line-height: 1.45;
 }
 
-/* A1: grey paper with a faint dot grid, on screen only; print stays white. */
+/* A1: grey paper with a faint dot grid, on screen only; print stays white. Viewport-fixed, like
+   the filter band's, so the two grids line up at any scroll position. */
 @media screen {
   body {
     background: var(--paper) radial-gradient(circle, var(--dot) 1px, transparent 1.2px) 0 0 /
-      var(--dot-pitch) var(--dot-pitch);
+      var(--dot-pitch) var(--dot-pitch) fixed;
   }
 }
 
@@ -118,6 +126,60 @@ svg.mark { height: 0.62em; width: auto; vertical-align: -0.02em; }
 }
 .head-github, .foot-github a { color: var(--ink-2); }
 
+/* B1: the filter band, a strip of paper pinned to the top with 12px above the capsule and 20px
+   below it. It lies over the header's bottom padding, so at rest the capsule keeps the header's
+   16px; its dots are viewport-fixed, like the body's, so the grids always line up. */
+.band {
+  position: sticky; top: 0; z-index: 10;
+  margin-top: -12px; padding: 12px var(--gutter) 20px;
+  background: var(--paper) radial-gradient(circle, var(--dot) 1px, transparent 1.2px) 0 0 /
+    var(--dot-pitch) var(--dot-pitch) fixed;
+}
+/* The page's one bold element and its one shadow. */
+.capsule {
+  display: flex; align-items: center; gap: var(--sp-2);
+  max-width: calc(var(--max) - 2 * var(--gutter)); min-height: 52px; margin: 0 auto;
+  padding: var(--sp-2) 10px var(--sp-2) var(--sp-4);
+  background: var(--capsule); color: var(--capsule-text);
+  border-radius: var(--radius-pill); box-shadow: var(--shadow);
+}
+.capsule svg.mark { flex: none; font-size: 22px; margin-right: 2px; }
+.capsule .mark .ink { fill: var(--capsule-text); }
+.capsule :focus-visible { outline: 2px solid var(--capsule-focus); outline-offset: 2px; }
+.filter-label {
+  margin-right: var(--sp-1); font-size: var(--fs-small); color: var(--capsule-muted);
+}
+.filter-pills { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+/* Pills: no company colors; pressed is white with ink text and a tick. */
+.filter-pills button {
+  font: inherit; font-size: var(--fs-pill); font-weight: var(--fw-medium);
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  min-height: var(--tap); padding: 0 14px; white-space: nowrap; cursor: pointer;
+  background: transparent; color: var(--capsule-text);
+  border: 1px solid var(--capsule-edge); border-radius: var(--radius-pill);
+  transition: background-color 150ms, color 150ms;
+}
+.filter-pills button:not([aria-pressed="true"]):hover { background: var(--capsule-hover); }
+.filter-pills button[aria-pressed="true"] {
+  background: var(--panel); color: var(--ink); border-color: var(--panel);
+}
+.filter-pills .tick { display: none; }
+.filter-pills [aria-pressed="true"] .tick { display: inline; }
+/* "Showing 2 of 6 · Reset" at the right, for a subset only. */
+.filter-status {
+  display: flex; align-items: center; gap: var(--sp-2);
+  margin: 0 0 0 auto; padding-right: var(--sp-2);
+  font-size: var(--fs-small); color: var(--capsule-muted); white-space: nowrap;
+}
+.filter-status[hidden] { display: none; }
+.filter-reset {
+  font: inherit; color: var(--capsule-text); cursor: pointer;
+  min-height: var(--tap); padding: 0 var(--sp-1); background: none; border: 0;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+/* The phone opener (B3) shows at 720px and below only. */
+.filter-opener { display: none; }
+
 main { display: grid; gap: var(--gap); }
 
 /* A3: every section is a white panel; the scorecards and the chart are primary (2px ink). */
@@ -148,32 +210,10 @@ main { display: grid; gap: var(--gap); }
 /* Warnings are ink at 600: red means direction only. */
 .warn { color: var(--ink); font-weight: var(--fw-strong); }
 
-/* Scorecards: tick chips (K2) and ledger cards (K3, K4). Until 20b the chip row is this panel's
-   header row, and until 20c the cards stay. */
-.compare { display: flex; flex-wrap: wrap; gap: var(--sp-2); padding: var(--sp-3) var(--pad) 0; }
-.compare[hidden] { display: none; }
-.compare-chip {
-  font: inherit; font-size: var(--fs-pill); font-weight: var(--fw-strong);
-  min-height: var(--tap); padding: 0 var(--sp-3);
-  display: inline-flex; align-items: center; gap: var(--sp-1);
-  background: var(--panel); color: var(--ink); cursor: pointer;
-  border: 1px solid var(--border-2); border-left: 3px solid var(--border-2);
-  border-radius: 0;
-}
-.compare-all { border-left-color: var(--ink); }
-.compare-chip .tick { display: none; }
-/* Ticked: dark fill and a check mark; the company-colored left edge stays. */
-.compare-chip[aria-pressed="true"] {
-  background: var(--ink); color: #ffffff;
-  border-top-color: var(--ink); border-right-color: var(--ink); border-bottom-color: var(--ink);
-}
-.compare-chip[aria-pressed="true"] .tick { display: inline; }
-.compare-note { margin: 0; padding: var(--sp-1) var(--pad) 0; font-size: var(--fs-small); }
-
+/* Scorecards: ledger cards (K3, K4) until 20c. */
 .cards {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: var(--sp-4); row-gap: 0;
-  margin-top: var(--sp-3); border-top: 1px solid var(--hairline);
 }
 /* The cards' own bottom margin closes the panel. */
 .panel > .body.cards { padding-bottom: 0; }
@@ -237,7 +277,7 @@ main { display: grid; gap: var(--gap); }
   border: 1px solid var(--ink); border-radius: var(--radius-pill);
 }
 
-/* The company chip keeps its colored edge until What changed (20b), quotes and press (20d). */
+/* The company chip keeps its colored edge until quotes and press (20d). */
 .chip.company {
   padding: 0 var(--sp-2) 0 6px; color: var(--ink); font-weight: var(--fw-strong);
   border-left: 4px solid var(--border-2); border-radius: 0;
@@ -288,6 +328,8 @@ main { display: grid; gap: var(--gap); }
 .bench-toggle[hidden] { display: none; }
 .bench-toggle::before { content: ""; width: 14px; border-top: 1.5px dashed currentColor; }
 #chart .scatterlayer .trace { transition: opacity 150ms ease; }
+/* B4: the legend is a key; Plotly styles its entries with an inline pointer cursor. */
+#chart .legendtoggle { cursor: default !important; }
 #chart { width: 100%; height: 300px; }
 .chart-headline {
   margin: 0; padding: var(--sp-3) var(--pad) 0;
@@ -299,15 +341,31 @@ main { display: grid; gap: var(--gap); }
 .footnote { margin: var(--sp-2) 0 0; color: var(--ink-2); font-size: var(--fs-small); }
 #panel-chart > .footnote { margin: 0; padding: 0 var(--pad) var(--sp-4); }
 
-/* What changed strip */
-/* Each group reads as one line on desktop: its heading, then its items side by side. */
-.c-groups { display: grid; gap: var(--sp-1); }
-#panel-changes .c-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-3); }
-#panel-changes .month { margin: 0; }
-ul.c-list { display: flex; flex-wrap: wrap; gap: 0 var(--sp-5); }
-#panel-changes ul.c-list li { border-bottom: 0; padding: 2px 0; }
-.c-value { font-variant-numeric: tabular-nums lining-nums; }
-.c-more-line { margin: var(--sp-1) 0 0; font-size: var(--fs-small); }
+/* B5: What changed in two columns (one at 720px and below), following the capsule. */
+.c-cols {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3) var(--sp-7);
+}
+.c-title {
+  margin: 0 0 var(--sp-1); font-size: var(--fs-small); font-weight: var(--fw-strong);
+  color: var(--ink-2);
+}
+ul.c-list { list-style: none; margin: 0; padding: 0; }
+/* A "·" opens each later part and fills the gap before it (--c-sep sets both). A part that wraps
+   to a new line takes its "·" past the row's left edge, where it is clipped (the 4px pad keeps
+   focus rings), so no line starts or ends with one. */
+ul.c-list li {
+  --c-sep: var(--sp-3);
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--c-sep);
+  margin-left: -4px; padding: 2px 0 2px 4px; overflow-wrap: anywhere;
+  clip-path: inset(-4px -4px -4px 0);
+}
+.c-sep {
+  display: inline-block; width: var(--c-sep); margin-left: calc(-1 * var(--c-sep));
+  text-align: center; color: var(--ink-2);
+}
+.c-value { font-weight: var(--fw-strong); font-variant-numeric: tabular-nums lining-nums; }
+.c-note, .c-jump { margin: 2px 0 0; }
+.c-jump { font-size: var(--fs-small); }
 
 /* Shared tables */
 .table-wrap { overflow-x: auto; }
@@ -437,18 +495,15 @@ ul.kpi-defs {
 }
 ul.kpi-defs strong { color: var(--ink); }
 
-/* Lists: press, What changed, health */
-.month { font-size: var(--fs-small); color: var(--ink-2); margin: var(--sp-3) 0 var(--sp-1); }
-.month:first-child { margin-top: 0; }
-ul.press, ul.failing, ul.facts, ul.c-list { list-style: none; margin: 0; padding: 0; }
-ul.press li, ul.c-list li {
+/* Lists: press, health */
+ul.press, ul.failing, ul.facts { list-style: none; margin: 0; padding: 0; }
+ul.press li {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3);
   padding: 6px 0; border-bottom: 1px solid var(--hairline);
   overflow-wrap: anywhere;
 }
-ul.press li:last-child, ul.c-list li:last-child { border-bottom: 0; }
+ul.press li:last-child { border-bottom: 0; }
 .date { color: var(--ink-2); font-size: var(--fs-small); font-variant-numeric: tabular-nums lining-nums; }
-.etype { color: var(--ink-2); font-size: var(--fs-small); text-transform: capitalize; }
 ul.press li.rest, ul.press li.rest a { color: var(--ink-2); }
 ul.press li .title { flex: 1 1 260px; min-width: 0; }
 ul.press li[hidden] { display: none; }
@@ -487,14 +542,49 @@ details.err-full pre {
 .foot-github { display: none; margin: var(--sp-1) 0 0; }
 
 @media screen and (max-width: 960px) {
+  /* The capsule stays one row: the "Showing…" words go (Reset stays) and the pills tighten. */
+  .filter-count, .filter-sep { display: none; }
+  .filter-pills button { padding: 0 var(--sp-3); }
+  .c-cols { column-gap: var(--sp-5); }
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* Two columns: the attribution moves under the quote instead of being squeezed beside it. */
   .q-row { grid-template-columns: 7rem minmax(0, 1fr); row-gap: var(--sp-1); }
   .q-attr { grid-column: 2; }
 }
 
+/* Where five pressed pills need the room, "Peer set" is hidden but stays the group's name. */
+@media screen and (max-width: 860px) {
+  .filter-label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+}
+
 @media screen and (max-width: 720px) {
   :root { --pad: 16px; --gap: 12px; --gutter: 12px; --fs-h1: 28px; --fs-headline: 16px; }
+  /* The band is 68px here; 80px keeps a focus ring clear of its edge. */
+  html { scroll-padding-top: 80px; }
+  /* B3: one 44px row, the mark, the opener and Reset; open, the pills take their own rows. */
+  .band { margin-top: -8px; padding: 8px var(--gutter) 16px; }
+  .capsule { flex-wrap: wrap; min-height: 44px; padding: 6px 12px; border-radius: 22px; }
+  .filter-opener {
+    font: inherit; font-size: var(--fs-pill); font-weight: var(--fw-medium);
+    display: inline-flex; align-items: center; gap: var(--sp-1);
+    min-height: var(--tap); padding: 0 var(--sp-1);
+    background: none; border: 0; color: var(--capsule-text); cursor: pointer;
+  }
+  .filter-opener[hidden] { display: none; }
+  .opener-label { font-weight: var(--fw-regular); color: var(--capsule-muted); }
+  /* The folds' chevron, turned down; up when open. */
+  .filter-opener .chev {
+    width: 7px; height: 7px; margin: -3px 0 0 6px;
+    border-color: var(--capsule-text); transform: rotate(45deg);
+  }
+  .band.is-open .filter-opener .chev { margin-top: 3px; transform: rotate(-135deg); }
+  .filter-pills { display: none; order: 3; flex-basis: 100%; padding: var(--sp-1) 0 var(--sp-2); }
+  .band.is-open .filter-pills { display: flex; }
+  .filter-pills button { padding: 0 clamp(8px, 2.5vw, 14px); }
+  .filter-status { padding-right: var(--sp-1); }
   /* One column: wordmark, tagline, "as of"; the GitHub link moves to the footer. */
   .site-header { flex-direction: column; align-items: flex-start; gap: var(--sp-1); }
   .tagline { margin-top: var(--sp-1); font-size: var(--fs-small); }
@@ -522,9 +612,10 @@ details.err-full pre {
   /* Dense flow puts status and date beside the label, above the full-width value. */
   ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
   .g-rec-value, .g-quote { grid-column: 1 / -1; }
-  /* Phone: heading above its items, one item per line. */
-  #panel-changes .c-group { display: block; }
-  ul.c-list { flex-direction: column; }
+  /* What changed: one column, no separators. */
+  .c-cols { grid-template-columns: minmax(0, 1fr); }
+  .c-sep { display: none; }
+  ul.c-list li { gap: 2px var(--sp-2); }
 }
 
 /* Phones and paper (an A4 page is about 703px wide): each quote stacks, chip, quote at full
@@ -544,7 +635,7 @@ details.err-full pre {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #chart .scatterlayer .trace,
+  #chart .scatterlayer .trace, .filter-pills button,
   .track > button, .bench-toggle, .show-more, details.fold > summary, .chev { transition: none; }
 }
 
@@ -554,6 +645,7 @@ details.err-full pre {
   /* The page margins stand in for the gutters, so the history grid fits an A4 line (703px). */
   :root { --gutter: 0px; --pad: 12px; }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .band { display: none; }
   .chart-controls, .modebar { display: none !important; }
   /* The chart keeps its screen width on paper (D6 redraws it in 20d); clip it inside its panel.
      clip-path, since overflow: hidden here made Chrome paginate the page into 10 sheets. */
@@ -561,10 +653,8 @@ details.err-full pre {
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
   .card, ul.press li, ul.c-list li, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
   h2 { break-after: avoid; }
-  /* All six cards in three columns whatever the selection: print never takes the phone layout. */
-  .compare, .compare-note { display: none !important; }
-  .cards { margin-top: 0; border-top: 0; }
-  .show-more, .c-more-line { display: none !important; }
+  /* Controls stay off paper: the show buttons and What changed's "See all guidance". */
+  .show-more, .c-jump { display: none !important; }
   details.err-full { display: none; }
   .cg-value { display: block; -webkit-line-clamp: none; overflow: visible; }
   /* Q7: the pressed theme for all six companies, its name kept on paper. */

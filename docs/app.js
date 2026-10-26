@@ -205,9 +205,11 @@ const STATUS_RANK = {raised: 0, cut: 0, new: 0, withdrawn: 0, held: 1};
 
 // ---------- shared view state: one company selection, chart toggles ----------
 
-let selected = new Set(); // codes the cards, guidance, quotes and chart show; set in main()
+let selected = new Set(); // codes every panel under the capsule shows; set in main()
 let benchVisible = true;
-let eventsVisible = true;
+let showFilter = null; // set by renderFilter: the capsule's pressed pills, count and opener
+let closeFilter = null; // set by renderFilter: closes the phone opener; true if it was open
+let redrawChanges = null; // set by renderChanges after its first draw
 let redrawChart = null; // set by renderChart once the chart exists
 let showSelection = null; // set by renderCards
 let redrawQuotes = null; // set by renderQuotes after its first draw
@@ -218,6 +220,24 @@ let resetPress = null; // set by renderPress: collapses an expanded press list (
 
 function allCodes(ctx) {
   return ctx.list.map((c) => c.code);
+}
+
+const COUNT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
+  'nine', 'ten', 'eleven', 'twelve'];
+
+// "six" for 6, so counts follow companies.json; digits past twelve.
+function countWord(n) {
+  return COUNT_WORDS[n] ?? String(n);
+}
+
+// A scope line: "All six companies" when every company is shown, else the shown codes in
+// companies.json order ("PUB, WPP"); blank without a company list.
+function scopeLabel(ctx, codes) {
+  if (!ctx.list.length) return '';
+  const want = new Set(codes);
+  const shown = allCodes(ctx).filter((c) => want.has(c));
+  return shown.length === ctx.list.length && shown.length > 1
+    ? `All ${countWord(shown.length)} companies` : shown.join(', ');
 }
 
 // Codes named in the URL hash (#PUB,WPP), in companies.json order; unknown codes are ignored.
@@ -248,6 +268,14 @@ function setSelection(ctx, codes, announce = true) {
   if (!next.length) next = allCodes(ctx);
   if (next.length === selected.size && next.every((c) => selected.has(c))) return;
   selected = new Set(next);
+  // A capsule that fails to update logs and drops out, so the panels still follow the selection.
+  try {
+    if (showFilter) showFilter();
+  } catch (err) {
+    console.warn('[holdco] filter failed to update:', err);
+    showFilter = null;
+  }
+  safeRedraw('panel-changes', redrawChanges, () => { redrawChanges = null; });
   safeRedraw('panel-cards', showSelection, () => { showSelection = null; });
   safeRedraw('panel-chart', redrawChart, () => { redrawChart = null; });
   safeRedraw('fold-guidance', redrawGuidanceFold, () => { redrawGuidanceFold = null; });
@@ -255,8 +283,9 @@ function setSelection(ctx, codes, announce = true) {
   safeRedraw('panel-press', redrawPress, () => { redrawPress = null; resetPress = null; });
   writeHash(ctx);
   if (announce) {
+    const names = next.map((c) => companyName(ctx, c)).join(', ');
     document.getElementById('announce').textContent = next.length === ctx.list.length
-      ? 'Showing all companies' : 'Showing ' + next.map((c) => companyName(ctx, c)).join(', ');
+      ? 'Showing all companies' : `Showing ${names}${next.length === 1 ? ' only' : ''}`;
   }
 }
 
@@ -272,14 +301,12 @@ function safeRedraw(panelId, fn, clear) {
   }
 }
 
-// Hides or shows one company; the last one shown stays shown.
-function toggleCompany(ctx, code) {
-  if (!selected.has(code)) return setSelection(ctx, [...selected, code]);
-  if (selected.size === 1) {
-    document.getElementById('announce').textContent = 'At least one company stays shown';
-    return;
-  }
-  setSelection(ctx, [...selected].filter((c) => c !== code));
+// B2, solo first: from all companies a click shows that one only; in a subset it adds or removes
+// the company, and removing the last one shows all again (setSelection's fallback).
+function pickCompany(ctx, code) {
+  if (selected.size === ctx.list.length) return setSelection(ctx, [code]);
+  setSelection(ctx, selected.has(code) ? [...selected].filter((c) => c !== code)
+    : [...selected, code]);
 }
 
 // Shows or hides the benchmark line; the toggle button and the legend entry stay in sync.
@@ -289,68 +316,220 @@ function setBenchmarkVisible(on) {
   if (redrawChart) redrawChart();
 }
 
-// ---------- What changed strip ----------
+// ---------- The filter capsule: one place to pick companies (B1 to B3) ----------
 
-const CHANGES_LIMIT = 6;
-
-// Upcoming results and recent guidance changes for all companies; never the guidance counts.
-function renderChanges(ctx, data) {
-  const panel = 'panel-changes';
-  const since = addDays(ctx.today, -30);
-  const coming = upcomingEvents(data.events, ctx.today, 14).filter((e) => e.type === 'results')
-    .slice(0, CHANGES_LIMIT);
-  const recent = currentGuidance(data.guidance)
-    .filter((r) => isIsoDate(r.set_date) && r.set_date.slice(0, 10) >= since
-      && r.set_date.slice(0, 10) <= ctx.today)
-    .sort((a, b) => b.set_date.localeCompare(a.set_date))
-    .slice(0, CHANGES_LIMIT - coming.length);
-  if (!coming.length && !recent.length) {
-    return empty(panel,
-      'No results in the next 14 days and no guidance changes in the last 30 days.');
+// "All", then one pill per company code; for a subset the "Showing…" count and Reset; at 720px
+// and below an opener that folds the pills away. Without companies.json the band hides.
+function renderFilter(ctx) {
+  const band = document.getElementById('filter');
+  const group = document.getElementById('filter-pills');
+  const opener = band.querySelector('.filter-opener');
+  const status = band.querySelector('.filter-status');
+  const reset = band.querySelector('.filter-reset');
+  if (!ctx.list.length) {
+    band.hidden = true;
+    return;
   }
 
-  const group = (title, items) => el('div', {className: 'c-group'},
-    el('h3', {className: 'month'}, title), el('ul', {className: 'c-list'}, ...items));
-  const groups = el('div', {className: 'c-groups'});
-  if (coming.length) {
-    groups.appendChild(group('Coming up', coming.map((e) => {
-      const n = daysBetween(ctx.today, e.date);
-      const date = fmtDay(e.date) + (e.confirmed === true ? '' : ' (est.)');
-      return el('li', {},
-        companyChip(ctx, e.company),
-        el('span', {className: 'etype'}, 'Results'),
-        el('span', {className: 'nowrap date'}, safeUrl(e.source_url) ? link(e.source_url, date) : date),
-        n === 0 ? el('span', {className: 'badge badge-today'}, 'Reports today')
-          : el('span', {className: 'muted'}, n === 1 ? 'Tomorrow' : `in ${n} days`));
-    })));
-  }
-  if (recent.length) {
-    groups.appendChild(group('Recent guidance', recent.map((r) => {
-      const s = String(r.status ?? 'unknown');
-      return el('li', {},
-        statusBadge(s, capitalize(s)),
-        companyChip(ctx, r.company),
-        el('span', {}, metricLabel(r.metric)),
-        el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' ')),
-        el('strong', {className: 'c-value'}, String(r.value ?? '')),
-        el('span', {className: 'nowrap date'}, link(r.source_url, fmtDay(r.set_date))));
-    })));
-  }
+  const isOpen = () => band.classList.contains('is-open');
+  // Closing with focus on a pill that folds away hands focus to the opener.
+  const setOpen = (open) => {
+    if (!open && NARROW.matches && group.contains(document.activeElement)) opener.focus();
+    band.classList.toggle('is-open', open);
+    opener.setAttribute('aria-expanded', String(open));
+  };
+  // The opener closes after any choice.
+  const pill = (label, title, onClick) => {
+    const btn = el('button', {type: 'button', title, 'aria-pressed': 'false'},
+      el('span', {className: 'tick', 'aria-hidden': 'true'}, '✓'), label);
+    btn.addEventListener('click', () => {
+      onClick();
+      setOpen(false);
+    });
+    return btn;
+  };
+  const allPill = pill('All', null, () => setSelection(ctx, allCodes(ctx)));
+  const pills = new Map(ctx.list.map((c) => [c.code,
+    pill(String(c.code), companyName(ctx, c.code), () => pickCompany(ctx, c.code))]));
+  group.replaceChildren(allPill, ...pills.values());
 
-  // An in-page jump: link() opens a new tab, and the URL keeps the selection's #PUB,WPP.
-  const more = el('a', {href: '#fold-guidance', className: 'c-more'}, 'See all guidance');
-  more.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    const fold = document.getElementById('fold-guidance');
-    if (!fold) return;
-    fold.open = true;
-    fold.scrollIntoView();
-    fold.querySelector('summary')?.focus({preventScroll: true});
+  opener.addEventListener('click', () => setOpen(!isOpen()));
+  reset.addEventListener('click', () => {
+    setSelection(ctx, allCodes(ctx));
+    setOpen(false);
   });
-  bodyOf(panel).replaceChildren(groups, el('p', {className: 'c-more-line'}, more));
+  NARROW.addEventListener('change', () => setOpen(false));
+  // Tabbing out of the open grid closes it, so the taller capsule never covers the focus.
+  band.addEventListener('focusout', (e) => {
+    if (isOpen() && e.relatedTarget && !band.contains(e.relatedTarget)) setOpen(false);
+  });
+  opener.hidden = false;
+
+  const total = ctx.list.length;
+  const show = () => {
+    const shown = allCodes(ctx).filter((c) => selected.has(c));
+    const all = shown.length === total;
+    // With all shown, "All" is pressed and no company is.
+    allPill.setAttribute('aria-pressed', String(all));
+    for (const [code, btn] of pills) {
+      btn.setAttribute('aria-pressed', String(!all && selected.has(code)));
+    }
+    opener.querySelector('.opener-value').textContent = all && total > 1
+      ? 'all ' + countWord(total)
+      : shown.length <= 2 ? shown.join(', ') : `${shown.length} of ${total}`;
+    status.querySelector('.filter-count').textContent = shown.length === 1
+      ? `Showing ${shown[0]} only` : `Showing ${shown.length} of ${total}`;
+    // Reset hides once all are shown; focus on it moves to the control that stays.
+    const resetHadFocus = document.activeElement === reset;
+    status.hidden = all;
+    if (all && resetHadFocus) (NARROW.matches ? opener : allPill).focus();
+  };
+  // Set only once the first update has worked, so a capsule that fails never blocks setSelection.
+  show();
+  showFilter = show;
+  closeFilter = () => {
+    if (!isOpen()) return false;
+    setOpen(false);
+    return true;
+  };
 }
 
-// ---------- Scorecards: compare chips and one card per company ----------
+// ---------- What changed: coming up and guidance moves, following the capsule (B5) ----------
+
+const CHANGES_ROWS = 3;
+const COMING_WORD = {capital_markets_day: 'capital markets day', deal: 'deal'};
+const MOVE_STATUSES = ['raised', 'cut', 'new', 'withdrawn'];
+
+// A link to a company document with its ↗; plain text (and no ↗) without a safe URL.
+function docLink(u, text) {
+  const node = link(u, text);
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    node.append(' ', el('span', {'aria-hidden': 'true'}, '↗'));
+  }
+  return node;
+}
+
+// Coming up: results, capital markets days and deals in the next 14 days. Guidance: moves set in
+// the last 30 days, then that window's reaffirmations on one line. Print shows all companies.
+function renderChanges(ctx, data) {
+  const panel = 'panel-changes';
+  const scope = document.querySelector('#' + panel + ' .panel-head .scope');
+  redrawChanges = null;
+  scope.textContent = '';
+  if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
+
+  const year = ctx.today.slice(0, 4);
+  const since = addDays(ctx.today, -30);
+  const order = new Map(allCodes(ctx).map((c, i) => [c, i]));
+  const rank = (code) => order.get(code) ?? ctx.list.length;
+  const coming = upcomingEvents(data.events, ctx.today, 14)
+    .filter((e) => MARKER_TYPES.includes(e.type))
+    .sort((a, b) => a.date.slice(0, 10).localeCompare(b.date.slice(0, 10))
+      || rank(a.company) - rank(b.company));
+  // One record set for the moves and the Reaffirmed line: set in the last 30 days, up to today.
+  const recent = currentGuidance(data.guidance)
+    .filter((r) => isIsoDate(r.set_date) && r.set_date.slice(0, 10) >= since
+      && r.set_date.slice(0, 10) <= ctx.today);
+  const body = bodyOf(panel);
+  const sep = () => el('span', {className: 'c-sep', 'aria-hidden': 'true'}, '·');
+  const column = (title, ...content) => el('div', {className: 'c-col'},
+    el('h3', {className: 'c-title'}, title), ...content);
+  const list = (rows) => (rows.length ? el('ul', {className: 'c-list'}, ...rows) : null);
+
+  const eventRow = (e) => {
+    const n = daysBetween(ctx.today, e.date);
+    const what = e.type === 'results' ? [titlePeriod(e.title), 'results'].filter(Boolean).join(' ')
+      : COMING_WORD[e.type] ?? String(e.type).replace(/_/g, ' ');
+    const date = fmtDayIn(e.date, year) + (e.confirmed === true ? '' : ' (est.)');
+    // "Reports today" fits results; a capital markets day or a deal is just "Today".
+    const onTheDay = e.type === 'results' ? 'Reports today' : 'Today';
+    return el('li', {},
+      el('span', {}, companyName(ctx, e.company) + ' ' + what),
+      el('span', {className: 'nowrap'}, sep(), docLink(e.source_url, date)),
+      n === 0 ? el('span', {}, sep(), el('span', {className: 'badge badge-today'}, onTheDay))
+        : el('span', {className: 'muted'}, sep(), n === 1 ? 'tomorrow' : `in ${n} days`));
+  };
+  const moveRow = (r) => {
+    const s = String(r.status);
+    const period = String(r.period ?? '').replace(/_/g, ' ');
+    const date = docLink(r.source_url, fmtDayIn(r.set_date, year));
+    return el('li', {},
+      statusBadge(s, statusLabel(s)),
+      el('span', {}, companyName(ctx, r.company)),
+      el('span', {className: 'muted'}, [metricLabel(r.metric), period].filter(Boolean).join(' ')),
+      el('strong', {className: 'c-value'}, String(r.value ?? '')),
+      el('span', {className: 'nowrap'}, sep(), date));
+  };
+
+  // An in-page jump: link() opens a new tab, and the URL keeps the selection's #PUB,WPP.
+  const jumpLink = (left) => {
+    const a = el('a', {href: '#fold-guidance'}, 'See all guidance'
+      + (left ? `, ${left} more ${left === 1 ? 'move' : 'moves'}` : ''));
+    a.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      const fold = document.getElementById('fold-guidance');
+      if (!fold) return;
+      fold.open = true;
+      fold.scrollIntoView();
+      fold.querySelector('summary')?.focus({preventScroll: true});
+    });
+    return a;
+  };
+
+  function draw(codes) {
+    const links = () => [...body.querySelectorAll('a')];
+    const focusAt = links().indexOf(document.activeElement);
+    const want = new Set(codes);
+    const everyone = allCodes(ctx).every((c) => want.has(c));
+    const mine = (x) => everyone || want.has(x.company);
+
+    const events = coming.filter(mine);
+    const comingCol = column('Coming up',
+      list(events.slice(0, CHANGES_ROWS).map(eventRow)),
+      events.length ? null : el('p', {className: 'empty'},
+        'No results, capital markets days or deals in the next 14 days.'),
+      events.length > CHANGES_ROWS
+        ? el('p', {className: 'c-note muted'}, `and ${events.length - CHANGES_ROWS} more`) : null);
+
+    const shownRecords = recent.filter(mine);
+    const setDate = (r) => r.set_date.slice(0, 10);
+    const moves = shownRecords.filter((r) => MOVE_STATUSES.includes(r.status))
+      .sort((a, b) => setDate(b).localeCompare(setDate(a)) || rank(a.company) - rank(b.company)
+        || String(a.metric).localeCompare(String(b.metric)));
+    // Each company once, at its newest held date, in companies.json order.
+    const heldAt = new Map();
+    for (const r of shownRecords.filter((x) => x.status === 'held')) {
+      const prev = heldAt.get(r.company);
+      if (!prev || setDate(r) > prev) heldAt.set(r.company, setDate(r));
+    }
+    // "Publicis Groupe 13 Oct" never splits across lines.
+    const held = [...heldAt.keys()].sort((a, b) => rank(a) - rank(b)).map((c) => el('span',
+      {className: 'nowrap'}, companyName(ctx, c) + ' ',
+      el('span', {className: 'muted'}, fmtDayIn(heldAt.get(c), year))));
+    const jump = jumpLink(Math.max(moves.length - CHANGES_ROWS, 0));
+    const guidanceCol = column('Guidance, last 30 days',
+      list(moves.slice(0, CHANGES_ROWS).map(moveRow)),
+      moves.length ? null : el('p', {className: 'empty'},
+        'No guidance raised, cut, set or withdrawn.'),
+      held.length ? el('p', {className: 'c-note'}, el('span', {className: 'muted'}, 'Reaffirmed '),
+        ...held.flatMap((span, i) => [i ? ', ' : null, span])) : null,
+      el('p', {className: 'c-jump'}, jump));
+
+    scope.textContent = scopeLabel(ctx, codes);
+    body.replaceChildren(el('div', {className: 'c-cols'}, comingCol, guidanceCol));
+    // Never leave keyboard focus on a link that was just replaced: the link in the same place,
+    // else "See all guidance".
+    if (focusAt >= 0) (links()[focusAt] || jump).focus();
+  }
+
+  draw([...selected]);
+  redrawChanges = () => draw([...selected]);
+  // Paper shows every company's changes, like the cards (D6).
+  window.addEventListener('beforeprint', () => { if (redrawChanges) draw(allCodes(ctx)); });
+  window.addEventListener('afterprint', () => { if (redrawChanges) redrawChanges(); });
+}
+
+// ---------- Scorecards: one card per company ----------
 
 const STATUS_GLYPH = {raised: '▲', cut: '▼', held: '=', new: '+', withdrawn: '×'};
 
@@ -532,15 +711,8 @@ function ytdByCode(ctx, prices) {
 
 function renderCards(ctx, data) {
   const panel = 'panel-cards';
-  const chipRow = document.querySelector('#' + panel + ' .compare');
-  const note = document.querySelector('#' + panel + ' .compare-note');
   showSelection = null;
-  if (!ctx.list.length) {
-    chipRow.replaceChildren();
-    chipRow.hidden = true;
-    note.hidden = true;
-    return empty(panel, 'Company list unavailable.');
-  }
+  if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
 
   const year = Number(ctx.today.slice(0, 4));
   const kpiRows = (Array.isArray(data.kpis?.rows) ? data.kpis.rows : [])
@@ -574,24 +746,6 @@ function renderCards(ctx, data) {
   const body = bodyOf(panel);
   body.replaceChildren(...cards.values());
 
-  // K2: "All", then one tick chip per company; built after the cards, so a card that fails
-  // to render never leaves live chips behind.
-  const tick = () => el('span', {className: 'tick', 'aria-hidden': 'true'}, '✓');
-  const allChip = el('button', {type: 'button', className: 'compare-chip compare-all',
-    'aria-pressed': 'true'}, tick(), 'All');
-  allChip.addEventListener('click', () => setSelection(ctx, allCodes(ctx)));
-  const chips = new Map();
-  for (const c of ctx.list) {
-    const chip = el('button', {type: 'button', className: 'compare-chip', 'aria-pressed': 'true',
-      'data-code': c.code, title: companyName(ctx, c.code)}, tick(), String(c.code));
-    const color = safeColor(c.color);
-    if (color) chip.style.borderLeftColor = color;
-    chip.addEventListener('click', () => toggleCompany(ctx, c.code));
-    chips.set(c.code, chip);
-  }
-  chipRow.replaceChildren(allChip, ...chips.values());
-  chipRow.hidden = false;
-
   // K5: the swipe row is a tab stop only on narrow screens, where it scrolls.
   const setTabStop = () => (NARROW.matches ? body.setAttribute('tabindex', '0')
     : body.removeAttribute('tabindex'));
@@ -600,18 +754,16 @@ function renderCards(ctx, data) {
 
   // Unselected cards are hidden on screen only (CSS), so print shows all six (K7).
   showSelection = () => {
-    const n = selected.size;
-    const total = ctx.list.length;
-    allChip.setAttribute('aria-pressed', String(n === total));
-    for (const [code, chip] of chips) chip.setAttribute('aria-pressed', String(selected.has(code)));
     for (const [code, card] of cards) {
       const off = !selected.has(code);
-      // Never leave keyboard focus inside a card that is about to be hidden.
-      if (off && card.contains(document.activeElement)) chips.get(code).focus();
+      // Never leave keyboard focus inside a card that is about to be hidden: it goes to the
+      // capsule, its first pressed pill or, where the pills fold away, the opener.
+      if (off && card.contains(document.activeElement)) {
+        document.querySelector(NARROW.matches ? '#filter .filter-opener'
+          : '#filter-pills [aria-pressed="true"]')?.focus();
+      }
       card.classList.toggle('is-off', off);
     }
-    note.textContent = n < total ? `Showing ${n} of ${total}` : '';
-    note.hidden = n === total;
   };
   showSelection();
 }
@@ -813,7 +965,6 @@ function rebased(vals) {
 const NARROW = window.matchMedia('(max-width: 720px)');
 const END_LABEL_GAP_PX = 12;
 
-let traceKeys = []; // per trace in the last draw: {kind: 'company'|'bench'|'events', code}
 let endLabels = []; // per shown company line in the last draw: {code, color, x, y}
 let endAnnotations = []; // the last placed end labels, reused so a redraw never drops them
 
@@ -852,17 +1003,16 @@ function drawChart(ctx, data, aligned, win) {
   if (b < 0) b = 0;
   const x = union.slice(b);
 
-  // K6: unselected companies stay in the legend as 'legendonly', so a click brings them back.
+  // B4: only the shown companies are drawn; the legend is a key, and the capsule the control.
+  const shownSeries = series.filter((s) => selected.has(s.company.code));
   const companyTraces = [];
-  traceKeys = [];
   endLabels = [];
-  for (const s of series) {
+  for (const s of shownSeries) {
     const code = s.company.code;
     const rank = ctx.list.indexOf(s.company);
     const color = safeColor(s.company.color);
     const fullName = escapeHtml(s.company.name ?? code);
     const y = rebased(s.filled.slice(b));
-    const on = selected.has(code);
     companyTraces.push({
       type: 'scatter',
       mode: 'lines',
@@ -870,15 +1020,13 @@ function drawChart(ctx, data, aligned, win) {
       name: NARROW.matches ? escapeHtml(code) : fullName,
       meta: fullName,
       legendrank: rank + 1,
-      visible: on ? true : 'legendonly',
       x,
       y,
       line: {width: 2.5, color: color || undefined},
       hovertemplate: '%{meta}: %{y:.1f}<extra></extra>',
     });
-    traceKeys.push({kind: 'company', code});
     const lastIdx = y.findLastIndex((v) => v !== null);
-    if (on && lastIdx >= 0) {
+    if (lastIdx >= 0) {
       endLabels.push({code, color: color || '#1f2328', x: x[lastIdx], y: y[lastIdx]});
     }
   }
@@ -901,7 +1049,6 @@ function drawChart(ctx, data, aligned, win) {
       line: {width: 1.5, color: '#5f6368', dash: 'dash'},
       hovertemplate: '%{meta}: %{y:.1f}<extra></extra>',
     });
-    traceKeys.push({kind: 'bench'});
   }
 
   const first = x[0];
@@ -925,9 +1072,8 @@ function drawChart(ctx, data, aligned, win) {
     line: {color: '#d8dee4', width: 1},
   }];
   if (dates.length) {
-    const visible = eventsVisible ? true : 'legendonly';
-    // Vertical event lines as one trace of null-separated segments, so the Events
-    // legend entry toggles them together with the markers (shapes ignore the legend).
+    // Vertical event lines as one trace of null-separated segments, grouped with the markers
+    // under the one Events key entry.
     traces.push({
       type: 'scatter',
       mode: 'lines',
@@ -935,14 +1081,12 @@ function drawChart(ctx, data, aligned, win) {
       name: 'Events',
       legendgroup: 'events',
       showlegend: false,
-      visible,
       hoverinfo: 'skip',
       x: dates.flatMap((d) => [d, d, null]),
       y: dates.flatMap(() => [0, 1.04, null]),
       yaxis: 'y2',
       line: {color: '#c4c8cc', width: 1, dash: 'dot'},
     });
-    traceKeys.push({kind: 'events'});
     // One small marker per date at the top of the plot carries the hover text.
     traces.push({
       type: 'scatter',
@@ -951,7 +1095,6 @@ function drawChart(ctx, data, aligned, win) {
       name: 'Events',
       legendgroup: 'events',
       legendrank: 3000,
-      visible,
       x: dates,
       y: dates.map(() => 1),
       yaxis: 'y2',
@@ -961,15 +1104,14 @@ function drawChart(ctx, data, aligned, win) {
         .map(escapeHtml).join(' · ')).join(HOVER_BR)),
       hovertemplate: '%{hovertext}<extra></extra>',
     });
-    traceKeys.push({kind: 'events'});
   }
 
   // The headline reads the same rebased lines, for the shown companies only.
   const lastOf = (ys) => ys.findLast((v) => v !== null);
   // Codes on narrow screens, like the legend; raw strings, never the escaped Plotly names.
-  const ends = series.map((s, i) => ({code: s.company.code,
+  const ends = shownSeries.map((s, i) => ({code: s.company.code,
     name: NARROW.matches ? String(s.company.code) : String(s.company.name ?? s.company.code),
-    v: lastOf(companyTraces[i].y)})).filter((e) => selected.has(e.code) && isNum(e.v));
+    v: lastOf(companyTraces[i].y)})).filter((e) => isNum(e.v));
   const headline = document.getElementById('chart-headline');
   if (headline && ends.length) {
     let text;
@@ -994,7 +1136,7 @@ function drawChart(ctx, data, aligned, win) {
 
   // Place the end labels before drawing with an estimated range (5% padding, the last plot
   // height), so they never disappear; placeEndLabels corrects them once the plot exists.
-  const shown = [100, ...companyTraces.filter((t) => t.visible === true).flatMap((t) => t.y),
+  const shown = [100, ...companyTraces.flatMap((t) => t.y),
     ...(benchVisible ? benchY : [])].filter(isNum);
   const lo = Math.min(...shown);
   const hi = Math.max(...shown);
@@ -1008,7 +1150,9 @@ function drawChart(ctx, data, aligned, win) {
     hovermode: 'x unified',
     hoverlabel: {bgcolor: 'rgba(255,255,255,0.95)', bordercolor: '#d8dee4', font: {size: 12}},
     showlegend: true,
-    legend: {orientation: 'h', x: 0, y: 1.08, yanchor: 'bottom', font: {size: 12}},
+    // A key, not a control (B4): clicks on it change nothing.
+    legend: {orientation: 'h', x: 0, y: 1.08, yanchor: 'bottom', font: {size: 12},
+      itemclick: false, itemdoubleclick: false},
     // Fewer x ticks on narrow screens keep the dates horizontal, so the plot keeps its height.
     xaxis: {type: 'date', range: [first, last], showgrid: false, ticks: 'outside', ticklen: 4,
       tickformat: '%b %Y', automargin: true, nticks: NARROW.matches ? 3 : undefined},
@@ -1060,7 +1204,7 @@ function renderChart(ctx, data) {
   bodyOf(panel).replaceChildren(gd);
   document.querySelector('#panel-chart .chart-controls').hidden = false;
   let win = 'YTD';
-  // Every redraw reads the current window, the selection and benchmark/events visibility.
+  // Every redraw reads the current window, the selection and the benchmark's visibility.
   const draw = () => drawChart(ctx, data, aligned, win).then(placeEndLabels)
     .catch((err) => console.warn('[holdco] chart draw failed:', err));
 
@@ -1086,19 +1230,6 @@ function renderChart(ctx, data) {
   window.addEventListener('afterprint', () => Plotly.Plots.resize(gd));
 
   select('YTD');
-  // Legend clicks route through the same setters as the chips and buttons (K6); Plotly's own
-  // hide/show and double-click isolate are turned off.
-  gd.on('plotly_legendclick', (ev) => {
-    const key = traceKeys[ev.curveNumber];
-    if (key?.kind === 'company') toggleCompany(ctx, key.code);
-    else if (key?.kind === 'bench') setBenchmarkVisible(!benchVisible);
-    else if (key?.kind === 'events') {
-      eventsVisible = !eventsVisible;
-      draw();
-    }
-    return false;
-  });
-  gd.on('plotly_legenddoubleclick', () => false);
   gd.on('plotly_relayout', (ev) => {
     const keys = Object.keys(ev || {});
     if (keys.some((k) => k === 'autosize' || k === 'width' || k === 'height'
@@ -1515,9 +1646,9 @@ function renderPress(ctx, data) {
       none.textContent = mine.length ? '' : 'No press releases from '
         + (want.size === 1 ? companyName(ctx, [...want][0]) : 'the selected companies')
         + ' in the last 30 days.';
-      const label = everyone ? 'All six companies' : allCodes(ctx).filter((c) => want.has(c))
-        .join(', ');
-      scopeText = (expanded) => label + ' · ' + (!key.length
+      // Blank without companies.json, so the line never starts with " · ".
+      const label = scopeLabel(ctx, codes);
+      scopeText = (expanded) => (label ? label + ' · ' : '') + (!key.length
         ? `${releases(mine.length)}, none key`
         : expanded ? `all ${mine.length}, key releases first`
           : `${key.length} key ${key.length === 1 ? 'release' : 'releases'} of ${mine.length}`);
@@ -1527,10 +1658,14 @@ function renderPress(ctx, data) {
   }
 
   // Closing shrinks the list; bring the button back so the reader isn't left further down.
-  // Esc scrolls only when the button has gone above the viewport, so the page never jumps.
+  // Esc scrolls only when the button has gone up under the pinned filter band (or off the top),
+  // so the page never jumps.
   const collapse = (fromEsc) => {
     keepFocus(() => setOpen(false));
-    if (!fromEsc || more.getBoundingClientRect().top < 0) more.scrollIntoView({block: 'nearest'});
+    const covered = document.getElementById('filter')?.getBoundingClientRect().bottom ?? 0;
+    if (!fromEsc || more.getBoundingClientRect().top < covered) {
+      more.scrollIntoView({block: 'nearest'});
+    }
   };
   more.addEventListener('click', () => {
     if (isOpen()) collapse(false);
@@ -1608,8 +1743,8 @@ function failPanel(panelId) {
   // A fold's summary line, or the press scope line, describes content that is no longer there.
   const count = document.querySelector('#' + panelId + ' .fold-count');
   if (count) count.textContent = '';
-  if (panelId === 'panel-press') {
-    const scope = document.querySelector('#panel-press .panel-head .scope');
+  if (panelId === 'panel-press' || panelId === 'panel-changes') {
+    const scope = document.querySelector('#' + panelId + ' .panel-head .scope');
     if (scope) scope.textContent = '';
   }
   empty(panelId, 'This panel could not be rendered.');
@@ -1651,6 +1786,12 @@ async function main() {
   const linked = selectionFromHash(ctx);
   selected = new Set(linked.length ? linked : allCodes(ctx));
 
+  // The capsule is not a panel: a failure leaves it without pills and the panels still draw.
+  try {
+    renderFilter(ctx);
+  } catch (err) {
+    console.warn('[holdco] filter failed to render:', err);
+  }
   runPanel('panel-changes', renderChanges, ctx, data);
   runPanel('panel-cards', renderCards, ctx, data);
   runPanel('fold-guidance', renderGuidanceFold, ctx, data);
@@ -1678,9 +1819,11 @@ async function main() {
     writeHash(ctx);
   });
 
-  // The one Esc handler (R6): shows all companies, unpins a KPI cell, collapses press.
+  // The one Esc handler (R6, B6): an open phone opener closes and nothing else happens;
+  // otherwise it shows all companies, unpins a KPI cell and collapses press.
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    if (closeFilter && closeFilter()) return;
     if (resetPress) resetPress();
     if (selected.size < ctx.list.length) setSelection(ctx, allCodes(ctx));
     if (unpinKpi) unpinKpi();

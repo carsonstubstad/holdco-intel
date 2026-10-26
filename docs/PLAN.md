@@ -492,7 +492,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   before); at 375: 5,273px (4,892), the new panel padding. The 3,390px whole-page budget
   after 20d now depends on 20c's table being shorter than the cards.
 
-- [ ] **20b Filter and What changed.** B1 to B6: the sticky capsule with the solo-first
+- [x] **20b Filter and What changed.** B1 to B6: the sticky capsule with the solo-first
   rule, the phone opener, the chart legend no longer filtering, What changed following
   the selection, Esc. Acceptance: each B check; the capsule stays visible while scrolling
   at 1440 and 375 and nothing shows above it; `/#PUB,WPP` and `/#WPP` links still work;
