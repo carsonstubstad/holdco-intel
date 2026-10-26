@@ -480,7 +480,7 @@ reaffirmations folded (B5), Coming up listing capital markets days and deals (B5
 stay out), the printed chart showing all six (D6), pressable theme buttons (A4), folded
 "no quote" rows (D4), the phone press cap (D5).
 
-- [ ] **20a Look.** DESIGN.md A1 to A7: tokens and the dotted paper, header and mark,
+- [x] **20a Look.** DESIGN.md A1 to A7: tokens and the dotted paper, header and mark,
   white panels in two weights, pill tracks for themes and chart windows, folds as panels,
   loading and empty states, data health on the paper. Cards, chips and rows keep their
   content until 20b to 20d. Acceptance: each A check; a fold, a track and the press panel

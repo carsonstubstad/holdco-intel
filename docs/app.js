@@ -353,6 +353,12 @@ function renderChanges(ctx, data) {
 // ---------- Scorecards: compare chips and one card per company ----------
 
 const STATUS_GLYPH = {raised: '▲', cut: '▼', held: '=', new: '+', withdrawn: '×'};
+
+// "▲ Raised", "= 12 held": the glyph always comes with a word; an unknown status is the word only.
+function statusLabel(s, word = capitalize(s)) {
+  return (STATUS_GLYPH[s] ? STATUS_GLYPH[s] + ' ' : '') + word;
+}
+
 const MOVE_TITLE = 'close before results day to close after it';
 // [label, metric, fallback metric, prefix naming the fallback]
 const CARD_GUIDANCE = [['Top line', 'organic_growth', 'revenue', 'Revenue'],
@@ -390,8 +396,8 @@ function titlePeriod(title) {
   return /\binterim\b|\bhalf[- ]year/i.test(t) ? 'H1' : null;
 }
 
-function cardRow(kind, kicker, ...content) {
-  return el('div', {className: 'card-row card-' + kind}, el('div', {className: 'kicker'}, kicker),
+function cardRow(kind, label, ...content) {
+  return el('div', {className: 'card-row card-' + kind}, el('div', {className: 'label'}, label),
     ...content);
 }
 
@@ -448,7 +454,7 @@ function guidanceLine(label, r, prefix, year) {
     el('div', {className: 'cg-value', title: pre ? pre + ' ' + value : value},
       pre ? el('span', {className: 'muted'}, pre + ' ') : null, value),
     el('div', {className: 'cg-meta'},
-      statusBadge(s, (STATUS_GLYPH[s] ? STATUS_GLYPH[s] + ' ' : '') + capitalize(s)), ' · ', date));
+      statusBadge(s, statusLabel(s)), ' · ', date));
   return line;
 }
 
@@ -724,7 +730,7 @@ function renderQuotes(ctx, data) {
       const mine = ofCompany(shown[0]);
       for (const [t, label] of QUOTE_THEMES) {
         const r = pickQuote(mine, t, ctx.today);
-        if (r) rows.push(quoteRow(el('span', {className: 'kicker'}, label), r, ctx.today));
+        if (r) rows.push(quoteRow(el('span', {className: 'label'}, label), r, ctx.today));
         else gaps.push(label);
       }
     } else {
@@ -1048,7 +1054,11 @@ function renderChart(ctx, data) {
   const aligned = buildAligned(ctx, data.prices);
   if (!aligned.union.length) return none('No price data available.');
 
-  const gd = document.getElementById('chart');
+  // The body holds the "Loading…" line until here; past every empty path the chart replaces it,
+  // and the window track and benchmark toggle (hidden while loading) appear.
+  const gd = el('div', {id: 'chart'});
+  bodyOf(panel).replaceChildren(gd);
+  document.querySelector('#panel-chart .chart-controls').hidden = false;
   let win = 'YTD';
   // Every redraw reads the current window, the selection and benchmark/events visibility.
   const draw = () => drawChart(ctx, data, aligned, win).then(placeEndLabels)
@@ -1100,7 +1110,7 @@ function renderChart(ctx, data) {
 
 const KPI_COLUMNS = 8;
 const KPI_CLAMP = 8; // percentage points at which the color scale saturates
-const KPI_ZERO = [247, 247, 247];
+const KPI_TINT = 0.18; // the strongest fill: 18% of the end color over white
 const KPI_POS = [33, 102, 172];
 const KPI_NEG = [178, 24, 43];
 const KPI_HINT = 'Hover, tap or focus a cell for its period, note and source.';
@@ -1147,21 +1157,12 @@ function kpiText(v) {
   return isNum(v) ? (v > 0 ? '+' : '') + String(v) + '%' : '–';
 }
 
-function luminance(rgb) {
-  const lin = rgb.map((c) => {
-    const s = c / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  });
-  return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
-}
-
-// Diverging fill centered at zero; magnitude reads as darkness, so it also works in grayscale.
+// Diverging blue-to-red tint over white, centered at zero and light enough that the text stays
+// ink; magnitude still reads as darkness, so it also works in grayscale.
 function kpiFill(v) {
-  const t = Math.min(Math.abs(v) / KPI_CLAMP, 1);
+  const t = Math.min(Math.abs(v) / KPI_CLAMP, 1) * KPI_TINT;
   const end = v > 0 ? KPI_POS : KPI_NEG;
-  const rgb = KPI_ZERO.map((z, i) => Math.round(z + (end[i] - z) * t));
-  const lum = luminance(rgb);
-  return {bg: `rgb(${rgb.join(', ')})`, dark: 1.05 / (lum + 0.05) > (lum + 0.05) / 0.05};
+  return `rgb(${end.map((e) => Math.round(255 + (e - 255) * t)).join(', ')})`;
 }
 
 function renderKpis(ctx, data) {
@@ -1214,9 +1215,7 @@ function renderKpis(ctx, data) {
     btn.addEventListener('click', () => pin(info, btn));
     const td = el('td', {className: 'kpi-cell', colspan: span > 1 ? span : null}, btn);
     if (isNum(v)) {
-      const fill = kpiFill(v);
-      td.style.backgroundColor = fill.bg;
-      if (fill.dark) td.classList.add('kpi-dark');
+      td.style.backgroundColor = kpiFill(v);
     } else {
       td.classList.add('kpi-none');
     }
@@ -1225,8 +1224,8 @@ function renderKpis(ctx, data) {
 
   const head = el('tr', {}, el('th', {scope: 'col', className: 'kpi-corner'},
     el('span', {className: 'visually-hidden'}, 'Company')),
-    el('th', {scope: 'col', className: 'kpi-delta-head', title: 'Change in organic growth, '
-      + "each company's newest quarter vs the one before, percentage points"}, 'Δ q/q, pp'));
+    el('th', {scope: 'col', className: 'kpi-delta-head', title: 'Change vs the quarter before'},
+      'Change'));
   for (let q = first; q <= last; q++) head.appendChild(el('th', {scope: 'col'}, quarterLabel(q)));
 
   const tbody = el('tbody');
@@ -1241,8 +1240,6 @@ function renderKpis(ctx, data) {
     const name = el('th', {scope: 'row', className: 'kpi-company'},
       el('span', {className: 'name-full'}, String(c.name ?? c.code)),
       el('span', {className: 'name-code', title: String(c.name ?? c.code)}, String(c.code)));
-    const color = safeColor(c.color);
-    if (color) name.style.borderLeftColor = color;
     // Δ q/q: this company's newest quarter vs the quarter directly before, both quarterly
     // figures (a half-year never counts). Glyph and sign carry the direction, not color.
     const newest = byQuarter.size ? Math.max(...byQuarter.keys()) : null;
@@ -1277,19 +1274,15 @@ function renderKpis(ctx, data) {
 
   const defs = data.kpis.definitions && typeof data.kpis.definitions === 'object'
     ? data.kpis.definitions : {};
-  const defList = el('ul', {className: 'kpi-defs'});
+  // A plain list, open on screen and in print, and the target of in-page jumps to #definitions;
+  // left out when no company has a definition.
+  const defList = el('ul', {className: 'kpi-defs', id: 'definitions', tabindex: '-1',
+    'aria-label': 'Definitions'});
   for (const c of ctx.list) {
     if (typeof defs[c.code] === 'string') {
       defList.appendChild(el('li', {}, el('strong', {}, String(c.name ?? c.code)), ': ',
         defs[c.code]));
     }
-  }
-
-  // Definitions stay closed on screen and print open.
-  let defBox = null;
-  if (defList.childElementCount) {
-    defBox = el('details', {className: 'kpi-defs'}, el('summary', {}, 'Definitions'), defList);
-    openForPrint(defBox);
   }
 
   const wrap = el('div', {className: 'table-wrap'}, table);
@@ -1299,7 +1292,7 @@ function renderKpis(ctx, data) {
     el('p', {className: 'footnote'}, 'As reported by each company; definitions differ, so '
       + 'figures are not directly comparable. A half-year figure spans two quarters only where '
       + 'no quarterly figure is published. Colors saturate at ±' + KPI_CLAMP + '%.'),
-    defBox,
+    defList.childElementCount ? defList : null,
   ].filter(Boolean));
   // Newest quarter first on narrow screens. A closed <details> has no width to scroll, so the
   // grid scrolls to its right end each time Quarterly history opens (Q6).
@@ -1307,6 +1300,9 @@ function renderKpis(ctx, data) {
   fold.addEventListener('toggle', () => {
     if (fold.open) wrap.scrollLeft = wrap.scrollWidth;
   });
+  // Set only once the grid is drawn, so the summary line stays blank while loading or empty.
+  fold.querySelector('.fold-count').textContent =
+    `organic growth, ${KPI_COLUMNS} quarters as reported`;
 }
 
 // Opens a <details> for printing and puts it back as it was afterwards; a second beforeprint
@@ -1375,7 +1371,7 @@ function guidanceRecordLines(records) {
         el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' '))),
       el('strong', {className: 'g-rec-value'}, value),
       // The set date links to the source; without a valid date the link reads "source".
-      el('span', {className: 'g-meta muted'}, statusBadge(s, capitalize(s)), ' · ',
+      el('span', {className: 'g-meta muted'}, statusBadge(s, statusLabel(s)), ' · ',
         link(r.source_url, isIsoDate(r.set_date) ? fmtDay(r.set_date) : 'source')),
       showQuote ? el('span', {className: 'g-quote'}, quote) : null);
   });
@@ -1390,13 +1386,12 @@ function renderGuidanceFold(ctx, data) {
   count.textContent = '';
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
   const records = currentGuidance(data.guidance);
-  if (!records.length) {
-    count.textContent = '(0)';
-    return empty(panel, 'No guidance records yet.');
-  }
+  if (!records.length) return empty(panel, 'No guidance records yet.');
 
   const companyOf = (r) => String(r.company ?? '');
-  const badges = (pairs) => pairs.flatMap(([s, n], i) => [i ? ' · ' : null, statusBadge(s, `${n} ${s}`)]);
+  // A zero count names no direction: no glyph and no green or red ("0 cut").
+  const badges = (pairs) => pairs.flatMap(([s, n], i) => [i ? ' · ' : null,
+    n ? statusBadge(s, statusLabel(s, `${n} ${s}`)) : statusBadge('none', `0 ${s}`)]);
   const known = allCodes(ctx);
   // Codes not in companies.json follow the known ones while all are shown, so no record is lost.
   const extra = [...new Set(records.map(companyOf))].filter((c) => !Object.hasOwn(ctx.byCode, c));
@@ -1413,16 +1408,18 @@ function renderGuidanceFold(ctx, data) {
       ...badges(statusCounts(mine, SUMMARY_STATUSES, ['raised', 'cut']))) : null;
     const missing = shown.filter((c) => !mine.some((r) => companyOf(r) === c));
     const missingLine = missing.length ? el('p', {className: 'g-missing muted'},
-      'No guidance on file: ' + missing.join(', ')) : null;
+      'No guidance on file: ' + missing.map((c) => companyName(ctx, c)).join(', ')) : null;
+    // A heading only for a company with records, its name in plain text (no company color).
     const groups = shown.filter((c) => !missing.includes(c)).map((code) => el('div',
       {className: 'g-group'},
-      el('h3', {className: 'g-group-head'}, ...(Object.hasOwn(ctx.byCode, code)
-        ? [companyChip(ctx, code), ' ', companyName(ctx, code)] : [code])),
+      el('h3', {className: 'g-group-head'}, companyName(ctx, code)),
       el('ul', {className: 'g-records'},
         ...guidanceRecordLines(mine.filter((r) => companyOf(r) === code)))));
-    // The summary says what is inside: the count, then each non-zero status.
-    count.textContent = [`(${mine.length})`, ...statusCounts(mine, SUMMARY_STATUSES, [])
-      .map(([s, n]) => `${n} ${s}`)].join(' · ');
+    // The summary says what is inside: "15 records: 1 raised, 2 new, 12 held"; blank for none.
+    const statuses = statusCounts(mine, SUMMARY_STATUSES, []).map(([s, n]) => `${n} ${s}`);
+    count.textContent = !mine.length ? ''
+      : `${mine.length} ${mine.length === 1 ? 'record' : 'records'}`
+        + (statuses.length ? ': ' + statuses.join(', ') : '');
     body.replaceChildren(...[summary, missingLine, ...groups].filter(Boolean));
     // Never leave keyboard focus on a link that was just replaced.
     if (hadFocus) fold.querySelector('summary')?.focus();
@@ -1457,6 +1454,9 @@ function renderPress(ctx, data) {
       || String(b.id ?? '').localeCompare(String(a.id ?? '')));
   redrawPress = null;
   resetPress = null;
+  // The scope line sits on the header row and stays blank until there are releases to describe.
+  const scope = document.querySelector('#' + panel + ' .panel-head .scope');
+  scope.textContent = '';
   if (!items.length) return empty(panel, 'No press releases in the last 30 days.');
   const rows = new Map(items.map((p) => [p,
     el('li', {className: isKeyPress(p) ? 'key' : 'rest'},
@@ -1466,7 +1466,6 @@ function renderPress(ctx, data) {
       el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))))]));
   const releases = (n) => `${n} ${n === 1 ? 'release' : 'releases'}`;
 
-  const scope = el('p', {className: 'press-scope'});
   const list = el('ul', {className: 'press', id: 'press-list'});
   const sub = el('li', {className: 'press-sub'}, 'Other releases');
   const none = el('p', {className: 'empty'});
@@ -1549,7 +1548,7 @@ function renderPress(ctx, data) {
     draw([...selected], wasOpen === true);
     wasOpen = null;
   });
-  bodyOf(panel).replaceChildren(scope, list, none, more);
+  bodyOf(panel).replaceChildren(list, none, more);
   draw([...selected], false);
   redrawPress = () => draw([...selected], false);
   resetPress = () => {
@@ -1606,9 +1605,12 @@ function failPanel(panelId) {
     const themes = document.querySelector('#panel-quotes .q-themes');
     if (themes) themes.hidden = true;
   }
-  if (panelId === 'fold-guidance') {
-    const count = document.querySelector('#fold-guidance .fold-count');
-    if (count) count.textContent = '';
+  // A fold's summary line, or the press scope line, describes content that is no longer there.
+  const count = document.querySelector('#' + panelId + ' .fold-count');
+  if (count) count.textContent = '';
+  if (panelId === 'panel-press') {
+    const scope = document.querySelector('#panel-press .panel-head .scope');
+    if (scope) scope.textContent = '';
   }
   empty(panelId, 'This panel could not be rendered.');
 }

@@ -1,42 +1,54 @@
+/* Plot Sheet tokens (DESIGN.md section 2). Company colors live only in companies.json. */
 :root {
-  --bg: #ffffff;
+  --paper: #eef2f6;
+  --dot: #d6dee7;
+  --dot-pitch: 22px;
   --panel: #ffffff;
-  --text: #1f2328;
-  --rule: #1f2328;
-  --muted: #656d76;
-  --faint: #8c959f;
-  --border: #d8dee4;
-  --grid: #eef0f2;
-  --up: #1a7f37;
-  --down: #cf222e;
-  --warn: #9a6700;
-  --focus: #0969da;
-  --link: var(--focus);
-  --bench: #5f6368;
-  --event: #c4c8cc;
+  --hover: #f5f7fa;
+  --ink: #1b2a41;
+  --ink-2: #4f5f74;
+  --hairline: #dbe2ea;
+  --border-2: #7f8c9d;
+  --capsule: #1b2a41;
+  --shadow: 0 6px 16px rgba(27, 42, 65, 0.18);
+  --accent: #ff6b4a;
+  --link: #1d4ed8;
+  --up: #157a3a;
+  --down: #b42334;
+  --focus: #1d4ed8;
 
-  --fs-xs: 12px;
-  --fs-sm: 13px;
-  --fs-base: 14px;
-  --fs-md: 16px;
-  --fs-lg: 20px;
-  --fs-xl: 24px;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --serif: "Iowan Old Style", Charter, Georgia, "Times New Roman", serif;
+  --fs-small: 12px;
+  --fs-pill: 13px;
+  --fs-body: 14px;
+  --fs-quote: 17px;
+  --fs-headline: 20px;
+  --fs-h2: 22px;
+  --fs-fig: 28px;
+  --fs-h1: 35px;
   --fw-regular: 400;
+  --fw-medium: 500;
   --fw-strong: 600;
+  --fw-bold: 700;
 
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
   --sp-4: 16px;
   --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --pad: 20px;
+  --gap: 16px;
+  --gutter: 24px;
+  --max: 1280px;
 
-  --radius: 8px;
-  --radius-chip: 3px;
+  --radius: 12px;
   --radius-pill: 999px;
-
-  --serif: "Iowan Old Style", Charter, Georgia, "Times New Roman", serif;
-  --measure: 68ch;
   --tap: 32px;
+  --measure: 62ch;
 }
 
 * { box-sizing: border-box; }
@@ -45,25 +57,33 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    sans-serif;
-  font-size: var(--fs-base);
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
   font-weight: var(--fw-regular);
   line-height: 1.45;
+}
+
+/* A1: grey paper with a faint dot grid, on screen only; print stays white. */
+@media screen {
+  body {
+    background: var(--paper) radial-gradient(circle, var(--dot) 1px, transparent 1.2px) 0 0 /
+      var(--dot-pitch) var(--dot-pitch);
+  }
 }
 
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 h1, h2, h3 { margin: 0; }
-h2 { font-size: var(--fs-lg); font-weight: var(--fw-strong); margin-bottom: var(--sp-3); }
-
-.kicker {
-  font-size: var(--fs-xs); font-weight: var(--fw-strong); text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--muted);
+/* Panel titles; a fold's title is its summary's text, set the same. */
+h2, .fold-title {
+  font-size: var(--fs-h2); font-weight: var(--fw-strong); line-height: 1.15; letter-spacing: -0.01em;
 }
+
+/* Labels are sentence case at 12px; nothing on the page is set in capitals (A1). */
+.label { font-size: var(--fs-small); color: var(--ink-2); }
 
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
@@ -72,71 +92,97 @@ h2 { font-size: var(--fs-lg); font-weight: var(--fw-strong); margin-bottom: var(
   clip: rect(0 0 0 0); white-space: nowrap;
 }
 
-.site-header, main {
-  max-width: 1200px;
+.site-header, main, .health {
+  max-width: var(--max);
   margin: 0 auto;
-  padding: 0 var(--sp-4);
+  padding: 0 var(--gutter);
 }
 
+/* A2: the wordmark and its mark on the paper, 12px from the top. */
 .site-header {
   display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5);
   align-items: flex-end; justify-content: space-between;
-  padding-top: var(--sp-5); padding-bottom: var(--sp-3);
+  padding-top: var(--sp-3); padding-bottom: var(--sp-4);
 }
-.site-header h1 { font-size: var(--fs-xl); font-weight: var(--fw-strong); }
-.tagline { margin: 2px 0 0; color: var(--muted); }
+.site-header h1 {
+  font-size: var(--fs-h1); font-weight: var(--fw-bold); line-height: 1; letter-spacing: -0.03em;
+}
+/* Six ink dots around one coral dot; coral appears nowhere else on the page. */
+svg.mark { height: 0.62em; width: auto; vertical-align: -0.02em; }
+.mark .ink { fill: var(--ink); }
+.mark .coral { fill: var(--accent); }
+.tagline { margin: var(--sp-2) 0 0; color: var(--ink-2); }
 .header-meta {
-  display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4);
-  color: var(--muted); font-size: var(--fs-sm);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+  color: var(--ink-2); font-size: var(--fs-small);
 }
+.head-github, .foot-github a { color: var(--ink-2); }
 
-main { display: grid; gap: var(--sp-4); }
+main { display: grid; gap: var(--gap); }
 
-/* K1: no panel boxes; each section opens with a black rule on the white page. */
+/* A3: every section is a white panel; the scorecards and the chart are primary (2px ink). */
 .panel {
-  border-top: 2px solid var(--rule);
-  padding: var(--sp-3) 0 0;
+  background: var(--panel);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
   min-width: 0;
 }
+.panel.primary { border: 2px solid var(--ink); }
+/* The header row: title, scope line, then the panel's own controls at the right. */
+.panel-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) var(--pad) 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+.scope { margin: 0; font-size: var(--fs-small); color: var(--ink-2); }
+.panel-controls { margin-left: auto; }
+.panel > .body { padding: var(--sp-3) var(--pad) var(--sp-4); }
 
-.empty { color: var(--faint); margin: var(--sp-1) 0; }
-.muted { color: var(--muted); }
+/* A6: the loading line and each panel's grey sentence sit where its content starts. */
+.empty { color: var(--ink-2); margin: 0; }
+.muted { color: var(--ink-2); }
 .nowrap { white-space: nowrap; }
 .up { color: var(--up); }
 .down { color: var(--down); }
-.flat { color: var(--muted); }
-.warn { color: var(--warn); }
+.flat { color: var(--ink-2); }
+/* Warnings are ink at 600: red means direction only. */
+.warn { color: var(--ink); font-weight: var(--fw-strong); }
 
-/* Scorecards: tick chips (K2) and ledger cards (K3, K4) */
-.compare { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+/* Scorecards: tick chips (K2) and ledger cards (K3, K4). Until 20b the chip row is this panel's
+   header row, and until 20c the cards stay. */
+.compare { display: flex; flex-wrap: wrap; gap: var(--sp-2); padding: var(--sp-3) var(--pad) 0; }
 .compare[hidden] { display: none; }
 .compare-chip {
-  font: inherit; font-size: var(--fs-sm); font-weight: var(--fw-strong);
+  font: inherit; font-size: var(--fs-pill); font-weight: var(--fw-strong);
   min-height: var(--tap); padding: 0 var(--sp-3);
   display: inline-flex; align-items: center; gap: var(--sp-1);
-  background: var(--panel); color: var(--text); cursor: pointer;
-  border: 1px solid var(--border); border-left: 3px solid var(--faint);
-  border-radius: var(--radius-chip);
+  background: var(--panel); color: var(--ink); cursor: pointer;
+  border: 1px solid var(--border-2); border-left: 3px solid var(--border-2);
+  border-radius: 0;
 }
-.compare-all { border-left-color: var(--text); }
+.compare-all { border-left-color: var(--ink); }
 .compare-chip .tick { display: none; }
 /* Ticked: dark fill and a check mark; the company-colored left edge stays. */
 .compare-chip[aria-pressed="true"] {
-  background: var(--text); color: #ffffff;
-  border-top-color: var(--text); border-right-color: var(--text); border-bottom-color: var(--text);
+  background: var(--ink); color: #ffffff;
+  border-top-color: var(--ink); border-right-color: var(--ink); border-bottom-color: var(--ink);
 }
 .compare-chip[aria-pressed="true"] .tick { display: inline; }
-.compare-note { margin: var(--sp-1) 0 0; font-size: var(--fs-xs); }
+.compare-note { margin: 0; padding: var(--sp-1) var(--pad) 0; font-size: var(--fs-small); }
 
 .cards {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: var(--sp-4); row-gap: 0; margin-top: var(--sp-2);
+  column-gap: var(--sp-4); row-gap: 0;
+  margin-top: var(--sp-3); border-top: 1px solid var(--hairline);
 }
+/* The cards' own bottom margin closes the panel. */
+.panel > .body.cards { padding-bottom: 0; }
+.cards > .empty { grid-column: 1 / -1; margin-bottom: var(--sp-4); }
 /* Six rows per card on a subgrid, so each row lines up across a row of cards. A square box,
    so the company-color top rule stays straight. */
 .card {
   grid-row: span 6; display: grid; grid-template-rows: subgrid; row-gap: 0;
-  border: 1px solid var(--border); border-top: 3px solid var(--company, var(--faint));
+  border: 1px solid var(--hairline); border-top: 3px solid var(--company, var(--border-2));
   border-radius: 0; padding: 0 var(--sp-3);
   margin-bottom: var(--sp-4); min-width: 0;
 }
@@ -147,87 +193,111 @@ main { display: grid; gap: var(--sp-4); }
   display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2);
   padding: 6px 0;
 }
-.card-name { font-size: var(--fs-md); font-weight: var(--fw-strong); }
-.card-code { color: var(--muted); font-size: var(--fs-xs); font-weight: var(--fw-strong); }
+.card-name { font-size: var(--fs-body); font-weight: var(--fw-strong); }
+.card-code { color: var(--ink-2); font-size: var(--fs-small); font-weight: var(--fw-strong); }
 .card-row {
-  border-top: 1px solid var(--border); padding: 6px 0;
-  min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--hairline); padding: 6px 0;
+  min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums lining-nums;
 }
-.card-row .kicker { margin-bottom: 0; }
-.card-fig { font-size: var(--fs-xl); font-weight: var(--fw-strong); line-height: 1.2; }
-.card-delta { font-size: var(--fs-sm); font-weight: var(--fw-strong); }
-/* The delta sits beside the figure, and Next puts its date on the kicker's line, so the
+.card-fig {
+  font-size: var(--fs-fig); font-weight: var(--fw-medium); line-height: 1; letter-spacing: -0.01em;
+}
+.card-delta { font-size: var(--fs-small); font-weight: var(--fw-strong); }
+/* The delta sits beside the figure, and Next puts its date on the label's line, so the
    first row of cards fits a 1440x900 window. */
 .card-growth, .card-next {
   display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--sp-2);
 }
-.card-growth .kicker { flex-basis: 100%; }
+.card-growth .label { flex-basis: 100%; }
 /* Guidance: label | value (up to three lines) over status and date. */
 .cg-line { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); column-gap: var(--sp-2); }
 .cg-line + .cg-line { margin-top: var(--sp-1); }
-.cg-label { grid-row: span 2; color: var(--muted); font-size: var(--fs-sm); }
+.cg-label { grid-row: span 2; color: var(--ink-2); font-size: var(--fs-small); }
 .cg-value {
   grid-column: 2; font-weight: var(--fw-strong);
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
 }
 .cg-value .muted { font-weight: var(--fw-regular); }
-.cg-meta { grid-column: 2; margin-top: 2px; color: var(--muted); font-size: var(--fs-xs); }
+.cg-meta { grid-column: 2; margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); }
 
-/* Badges and chips */
+/* Status words in token colors, never color alone: the word is always there. */
 .badge, .chip {
   display: inline-block;
-  font-size: var(--fs-xs); font-weight: var(--fw-strong); line-height: 1.6;
-  padding: 0 7px; border-radius: var(--radius-pill);
+  font-size: var(--fs-small); font-weight: var(--fw-regular); line-height: 1.6;
   white-space: nowrap;
 }
-.status-new, .badge-today { background: #ddf4ff; color: #0550ae; }
-.status-raised { background: #dafbe1; color: #116329; }
-.status-held { background: #eaeef2; color: #424a53; }
-.status-cut { background: #ffebe9; color: #a40e26; }
-.status-withdrawn { background: #24292f; color: #ffffff; text-decoration: line-through; }
-.status-none, .status-unknown { background: #f3f4f6; color: var(--faint); font-weight: 500; }
-
-.chip.company {
-  background: #f3f4f6; color: var(--text);
-  border-left: 4px solid var(--faint); border-radius: var(--radius-chip);
+.status-raised { color: var(--up); }
+.status-cut { color: var(--down); }
+.status-held { color: var(--ink-2); }
+.status-new { color: var(--ink); font-weight: var(--fw-strong); }
+.status-withdrawn { color: var(--ink-2); text-decoration: line-through; }
+.status-none, .status-unknown { color: var(--ink-2); font-weight: var(--fw-medium); }
+.badge-today {
+  padding: 0 var(--sp-2); color: var(--ink); font-weight: var(--fw-medium);
+  border: 1px solid var(--ink); border-radius: var(--radius-pill);
 }
-.chip.category { background: #fff8c5; color: #7d4e00; }
+
+/* The company chip keeps its colored edge until What changed (20b), quotes and press (20d). */
+.chip.company {
+  padding: 0 var(--sp-2) 0 6px; color: var(--ink); font-weight: var(--fw-strong);
+  border-left: 4px solid var(--border-2); border-radius: 0;
+}
+.chip.category {
+  padding: 0 var(--sp-2); color: var(--ink-2);
+  border: 1px solid var(--border-2); border-radius: var(--radius-pill);
+}
+
+/* A4: one control family, never like the company chips: track segments for the theme and
+   window choices, single pills for the S&P 500 toggle and "Show N other releases". */
+.track > button, .bench-toggle, .show-more {
+  font: inherit; font-size: var(--fs-pill); font-weight: var(--fw-medium); color: var(--ink);
+  min-height: var(--tap); padding: 0 14px; white-space: nowrap; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--ink); border-radius: var(--radius-pill);
+  transition: background-color 150ms, color 150ms;
+}
+.track > button:not([aria-pressed="true"]):hover, .bench-toggle:not([aria-pressed="true"]):hover,
+.show-more:hover { background: var(--paper); }
+.track > button[aria-pressed="true"], .bench-toggle[aria-pressed="true"] {
+  background: var(--ink); color: #ffffff;
+}
+.bench-toggle, .show-more { display: inline-flex; align-items: center; }
+
+.track {
+  display: inline-flex; background: var(--panel);
+  border: 1px solid var(--ink); border-radius: var(--radius-pill); overflow: hidden;
+}
+.track[hidden] { display: none; }
+/* Segments are joined by 1px ink dividers; the end ones take the pill's curve, so the inset
+   focus ring follows it. */
+.track > button { border: 0; border-left: 1px solid var(--ink); border-radius: 0; }
+.track > button:first-child {
+  border-left: 0; border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+}
+.track > button:last-child { border-radius: 0 var(--radius-pill) var(--radius-pill) 0; }
+/* The track clips anything outside it, so the ring sits inside the segment; on ink it is
+   white, since the focus blue on ink is 2.2:1. */
+.track > button:focus-visible { outline-offset: -3px; }
+.track > button[aria-pressed="true"]:focus-visible { outline-color: #ffffff; }
 
 /* Panel B: chart */
-.panel-head {
-  display: flex; flex-wrap: wrap; gap: var(--sp-2);
-  align-items: center; justify-content: space-between;
-  margin-bottom: var(--sp-2);
-}
-.panel-head h2 { margin-bottom: 0; }
-.chart-controls[hidden] { display: none; }
 .chart-controls { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
-.windows { display: flex; gap: var(--sp-2); }
-/* Window buttons and the benchmark toggle are underlined text, so they never look like the
-   company chips (K6). */
-.windows button, .bench-toggle, .q-themes button {
-  font: inherit; font-size: var(--fs-sm); color: var(--muted);
-  min-height: var(--tap); padding: 0 4px; background: none; cursor: pointer;
-  border: 0; border-bottom: 2px solid transparent; border-radius: 0;
-}
-.windows button[aria-pressed="true"], .bench-toggle[aria-pressed="true"],
-.q-themes button[aria-pressed="true"] {
-  color: var(--text); font-weight: var(--fw-strong); border-bottom-color: var(--rule);
-}
-/* The benchmark toggle carries a dashed swatch that matches its chart line. */
-.bench-toggle::before {
-  content: ""; display: inline-block; width: 14px; margin-right: 6px; vertical-align: middle;
-  border-top: 2px dashed var(--bench);
-}
-.bench-toggle[aria-pressed="false"] { color: var(--faint); }
-.bench-toggle[aria-pressed="false"]::before { border-top-color: var(--event); }
+.chart-controls[hidden] { display: none; }
+/* The benchmark toggle ("- - - S&P 500"): as tall as the track beside it; its dashes echo the
+   benchmark's dashed line, in the pill's text color. */
+.bench-toggle { gap: 6px; min-height: calc(var(--tap) + 2px); }
+.bench-toggle[hidden] { display: none; }
+.bench-toggle::before { content: ""; width: 14px; border-top: 1.5px dashed currentColor; }
 #chart .scatterlayer .trace { transition: opacity 150ms ease; }
 #chart { width: 100%; height: 300px; }
-.footnote { margin: var(--sp-2) 0 0; color: var(--muted); font-size: var(--fs-xs); }
 .chart-headline {
-  margin: 0 0 var(--sp-1); font-size: var(--fs-lg); font-weight: var(--fw-strong);
-  font-variant-numeric: tabular-nums;
+  margin: 0; padding: var(--sp-3) var(--pad) 0;
+  font-size: var(--fs-headline); font-weight: var(--fw-strong);
+  font-variant-numeric: tabular-nums lining-nums;
 }
+.chart-headline:not([hidden]) + .body { padding-top: var(--sp-1); }
+#panel-chart > .body { padding-bottom: var(--sp-2); }
+.footnote { margin: var(--sp-2) 0 0; color: var(--ink-2); font-size: var(--fs-small); }
+#panel-chart > .footnote { margin: 0; padding: 0 var(--pad) var(--sp-4); }
 
 /* What changed strip */
 /* Each group reads as one line on desktop: its heading, then its items side by side. */
@@ -236,204 +306,230 @@ main { display: grid; gap: var(--sp-4); }
 #panel-changes .month { margin: 0; }
 ul.c-list { display: flex; flex-wrap: wrap; gap: 0 var(--sp-5); }
 #panel-changes ul.c-list li { border-bottom: 0; padding: 2px 0; }
-.c-value { font-variant-numeric: tabular-nums; }
-.c-more-line { margin: var(--sp-1) 0 0; font-size: var(--fs-sm); }
+.c-value { font-variant-numeric: tabular-nums lining-nums; }
+.c-more-line { margin: var(--sp-1) 0 0; font-size: var(--fs-small); }
 
 /* Shared tables */
 .table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: var(--fs-sm); }
+table { border-collapse: collapse; width: 100%; font-size: var(--fs-body); }
 th, td {
   text-align: left; padding: 6px var(--sp-2);
-  border-bottom: 1px solid var(--border); vertical-align: top;
+  border-bottom: 1px solid var(--hairline); vertical-align: top;
 }
-th { color: var(--muted); font-weight: var(--fw-strong); font-size: var(--fs-xs); }
+th { color: var(--ink-2); font-weight: var(--fw-regular); font-size: var(--fs-small); }
 
 /* Panel C: guidance matrix */
 .g-summary { margin: 0 0 var(--sp-1); line-height: 1.8; }
-.g-missing { margin: 0 0 var(--sp-2); font-size: var(--fs-xs); }
-.g-meta { margin-top: 2px; font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
-.show-more {
-  font: inherit; font-size: var(--fs-xs); color: var(--link); text-align: left;
-  display: inline-flex; flex-wrap: nowrap; white-space: nowrap; align-items: center;
-  gap: var(--sp-1);
-  padding: 2px 8px; background: var(--panel); cursor: pointer;
-  border: 1px solid var(--border); border-radius: 6px;
-}
-.show-more[aria-expanded="true"] { background: var(--grid); }
+.g-missing { margin: 0 0 var(--sp-2); font-size: var(--fs-small); }
+.g-meta { margin-top: 2px; font-size: var(--fs-small); font-variant-numeric: tabular-nums lining-nums; }
+/* "Show N other releases": a pill in the A4 family (a hairline is never a control edge). */
+.show-more { margin-top: var(--sp-3); }
 .g-group + .g-group { margin-top: var(--sp-3); }
 .g-group-head {
-  font-size: var(--fs-sm); font-weight: var(--fw-strong);
-  padding-bottom: var(--sp-1); border-bottom: 1px solid var(--border);
+  font-size: var(--fs-body); font-weight: var(--fw-strong);
+  padding-bottom: var(--sp-1); border-bottom: 1px solid var(--hairline);
 }
 ul.g-records { list-style: none; margin: 0; padding: 0; }
 /* One record per row: label (metric over period) | value | status and source. */
 ul.g-records li {
   display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; gap: 2px var(--sp-3);
-  padding: var(--sp-2) 0; border-bottom: 1px solid var(--grid); overflow-wrap: anywhere;
+  padding: var(--sp-2) 0; border-bottom: 1px solid var(--hairline); overflow-wrap: anywhere;
 }
 ul.g-records li:last-child { border-bottom: 0; }
-.g-label { color: var(--muted); font-size: var(--fs-xs); }
+.g-label { color: var(--ink-2); font-size: var(--fs-small); }
 .g-label .date { display: block; }
-.g-rec-value { font-variant-numeric: tabular-nums; }
+.g-rec-value { font-variant-numeric: tabular-nums lining-nums; }
 ul.g-records .g-meta { margin-top: 0; white-space: nowrap; }
 /* Management's words are never cut short (principle 3). */
-.g-quote { grid-column: 2 / -1; color: var(--muted); font-size: var(--fs-xs); }
+.g-quote { grid-column: 2 / -1; color: var(--ink-2); font-size: var(--fs-small); }
 
-/* Folded sections under the cards (Q6). min-width: 0, because main is a grid and the open
-   growth grid must scroll inside the fold, not widen the page. */
-details.fold { min-width: 0; border-top: 1px solid var(--border); }
+/* A5: folded sections are secondary panels whose summary is the header row. */
 details.fold > summary {
-  display: flex; align-items: center; gap: var(--sp-2); min-height: var(--tap);
-  font-size: var(--fs-md); font-weight: var(--fw-strong); cursor: pointer;
+  list-style: none; cursor: pointer; align-items: center;
+  border-bottom: 0; border-radius: calc(var(--radius) - 1px);
+  transition: background-color 150ms;
 }
-details.fold > summary::before { content: "▸"; color: var(--text); font-size: inherit; }
-details.fold[open] > summary::before { content: "▾"; }
 details.fold > summary::-webkit-details-marker { display: none; }
-details.fold > summary { list-style: none; }
-details.fold > summary:hover { text-decoration: underline; text-underline-offset: 3px; }
-/* What is inside, in plain muted text. */
-.fold-count, .fold-note { color: var(--muted); font-weight: var(--fw-regular); }
-details.fold > .body { padding-bottom: var(--sp-3); }
+details.fold[open] > summary {
+  border-bottom: 1px solid var(--hairline);
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+}
+details.fold > summary:hover { background: var(--hover); }
+details.fold > summary:focus-visible { outline-offset: -3px; }
+.chev {
+  flex: 0 0 auto; width: 8px; height: 8px; margin: 0 4px 0 2px;
+  border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  transform: rotate(-45deg); transition: transform 150ms;
+}
+details.fold[open] .chev { transform: rotate(45deg); }
+.fold-count { font-size: var(--fs-small); color: var(--ink-2); }
+.fold-cue { margin-left: auto; font-size: var(--fs-small); color: var(--ink-2); }
+.fold-cue::before { content: "Show"; }
+details.fold[open] .fold-cue::before { content: "Hide"; }
 
-/* In their words (Q1, Q2): theme buttons, under the subline, share the window buttons'
-   underlined style. */
-#panel-quotes h2 { margin-bottom: 0; }
-.q-sub { margin: 2px 0 0; font-size: var(--fs-sm); }
-.q-themes { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-1) 0 var(--sp-1); }
-.q-themes[hidden] { display: none; }
+/* In their words (Q2): the theme track sits in the header row; quote rows until 20d. */
 .q-print-theme { display: none; }
 ul.quotes { list-style: none; margin: 0; padding: 0; }
 ul.quotes[hidden], .q-missing[hidden] { display: none; }
+/* The quote column in rem: 62ch would resolve in the row's 14px sans, not the quote's serif. */
 .q-row {
-  display: grid; grid-template-columns: 7rem minmax(0, var(--measure)) minmax(0, 1fr);
+  display: grid; grid-template-columns: 7rem minmax(0, 37rem) minmax(0, 1fr);
   column-gap: var(--sp-4); align-items: baseline;
-  padding: var(--sp-3) 0; border-bottom: 1px solid var(--border);
+  padding: var(--sp-3) 0; border-bottom: 1px solid var(--hairline);
 }
+.q-row:first-child { padding-top: var(--sp-1); }
 .q-row:last-child { border-bottom: 0; }
 .q-quote {
-  margin: 0; font-family: var(--serif); font-size: var(--fs-md); line-height: 1.5;
+  margin: 0; font-family: var(--serif); font-size: var(--fs-quote); line-height: 1.6;
   font-style: normal; overflow-wrap: break-word;
 }
-.q-attr { margin: 0; color: var(--muted); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.q-attr { margin: 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: anywhere; }
 .q-attr a { white-space: nowrap; }
-.q-age { display: block; margin-top: 2px; color: var(--muted); font-size: var(--fs-xs); }
-.q-none, .q-missing { margin: 0; color: var(--muted); }
+.q-age { display: block; margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); }
+.q-none, .q-missing { margin: 0; color: var(--ink-2); }
 .q-none { grid-column: 2 / -1; }
 .q-missing { padding-top: var(--sp-2); }
 
 /* Panel G: organic growth grid */
-table.kpis { font-variant-numeric: tabular-nums; }
+table.kpis { font-variant-numeric: tabular-nums lining-nums; }
 table.kpis th[scope="col"] { text-align: center; white-space: nowrap; }
-/* Company and Δ stay pinned while the grid starts scrolled to its newest quarter. One
-   variable sets the company width and the Δ offset. */
+/* Company and Change stay pinned while the grid starts scrolled to its newest quarter. One
+   variable sets the company width and the Change offset. */
 table.kpis { --kpi-co-w: 216px; }
 table.kpis th.kpi-company, table.kpis th.kpi-corner {
   position: sticky; left: 0; z-index: 1; background: var(--panel);
   width: var(--kpi-co-w); min-width: var(--kpi-co-w); max-width: var(--kpi-co-w);
-  overflow: hidden; text-overflow: ellipsis; /* a long name never widens past the Δ offset */
+  overflow: hidden; text-overflow: ellipsis; /* a long name never widens past the Change offset */
 }
 table.kpis th.kpi-delta-head, table.kpis td.kpi-delta {
   position: sticky; left: var(--kpi-co-w); z-index: 1; background: var(--panel);
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--hairline);
 }
+/* The company name in plain text: no chip, no color edge (A5). */
 table.kpis th.kpi-company {
-  color: var(--text); font-size: var(--fs-sm); white-space: nowrap;
-  border-left: 4px solid var(--faint);
+  color: var(--ink); font-size: var(--fs-body); font-weight: var(--fw-strong); white-space: nowrap;
 }
 th.kpi-company .name-code { display: none; }
-/* Δ q/q: plain text outside the color scale; glyph and sign carry the direction. */
+/* Change: plain text outside the color scale; glyph and sign carry the direction. */
 table.kpis td.kpi-delta {
   text-align: center; vertical-align: middle; white-space: nowrap; font-weight: var(--fw-strong);
 }
 table.kpis th.kpi-delta-head { cursor: help; }
+/* Fills are at most 18% over white (app.js kpiFill), so the figures are always ink. */
 td.kpi-cell {
   min-width: 64px; padding: 0; text-align: center; vertical-align: middle;
   border: 1px solid var(--panel);
 }
 td.kpi-cell button {
-  font: inherit; font-weight: var(--fw-strong); color: var(--text);
+  font: inherit; font-weight: var(--fw-strong); color: var(--ink);
   width: 100%; padding: 6px var(--sp-1);
   background: transparent; border: 0; cursor: pointer;
 }
 td.kpi-cell button:focus-visible { outline: 2px solid var(--focus); outline-offset: -3px; }
-td.kpi-cell button[aria-pressed="true"] { outline: 2px solid var(--text); outline-offset: -3px; }
-td.kpi-dark button { color: #ffffff; }
-td.kpi-dark button[aria-pressed="true"] { outline-color: #ffffff; }
-td.kpi-none, td.kpi-none button { color: var(--faint); font-weight: var(--fw-regular); }
-.kpi-detail { margin: var(--sp-2) 0 0; min-height: 1.45em; color: var(--muted); overflow-wrap: anywhere; }
-.kpi-detail strong { color: var(--text); }
-details.kpi-defs { margin-top: var(--sp-2); color: var(--muted); font-size: var(--fs-xs); }
-details.kpi-defs summary { cursor: pointer; }
-ul.kpi-defs { list-style: none; margin: var(--sp-1) 0 0; padding: 0; }
+td.kpi-cell button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: -3px; }
+td.kpi-none, td.kpi-none button { color: var(--ink-2); font-weight: var(--fw-regular); }
+.kpi-detail { margin: var(--sp-2) 0 0; min-height: 1.45em; color: var(--ink-2); overflow-wrap: anywhere; }
+.kpi-detail strong { color: var(--ink); }
+/* Definitions: a plain list after the grid, open on screen and in print (A5). */
+ul.kpi-defs {
+  list-style: none; margin: var(--sp-2) 0 0; padding: 0;
+  color: var(--ink-2); font-size: var(--fs-small);
+}
+ul.kpi-defs strong { color: var(--ink); }
 
 /* Lists: press, What changed, health */
-.month { font-size: var(--fs-sm); color: var(--muted); margin: var(--sp-3) 0 var(--sp-1); }
+.month { font-size: var(--fs-small); color: var(--ink-2); margin: var(--sp-3) 0 var(--sp-1); }
 .month:first-child { margin-top: 0; }
 ul.press, ul.failing, ul.facts, ul.c-list { list-style: none; margin: 0; padding: 0; }
 ul.press li, ul.c-list li {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3);
-  padding: 6px 0; border-bottom: 1px solid var(--border);
+  padding: 6px 0; border-bottom: 1px solid var(--hairline);
   overflow-wrap: anywhere;
 }
 ul.press li:last-child, ul.c-list li:last-child { border-bottom: 0; }
-.date { color: var(--muted); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
-.etype { color: var(--muted); font-size: var(--fs-xs); text-transform: capitalize; }
-ul.press li.rest, ul.press li.rest a { color: var(--muted); }
+.date { color: var(--ink-2); font-size: var(--fs-small); font-variant-numeric: tabular-nums lining-nums; }
+.etype { color: var(--ink-2); font-size: var(--fs-small); text-transform: capitalize; }
+ul.press li.rest, ul.press li.rest a { color: var(--ink-2); }
 ul.press li .title { flex: 1 1 260px; min-width: 0; }
 ul.press li[hidden] { display: none; }
 ul.press li:has(+ li[hidden]) { border-bottom: 0; }
-.show-more { margin-top: var(--sp-2); }
-.press-scope { font-size: var(--fs-xs); color: var(--muted); margin: 0 0 var(--sp-2); }
 ul.press li.press-sub {
-  font-size: var(--fs-xs); font-weight: var(--fw-strong); color: var(--muted);
+  font-size: var(--fs-small); font-weight: var(--fw-strong); color: var(--ink-2);
   padding: var(--sp-3) 0 var(--sp-1);
 }
 /* Press hides rows, the list, the note or the button; display rules must not undo it. */
 #panel-press .body [hidden] { display: none; }
 
-/* Panel F: health */
-.health { width: calc(100% - 2 * var(--sp-4)); max-width: 1168px; margin: var(--sp-4) auto var(--sp-5); }
-ul.facts { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-5); font-variant-numeric: tabular-nums; }
-ul.failing li { padding: 2px 0; overflow-wrap: anywhere; color: var(--muted); }
-ul.failing li strong { color: var(--down); }
+/* A7: data health sits on the paper, not in a panel: small text, its label in ink. */
+.health {
+  margin-top: var(--gap); padding-bottom: var(--sp-7);
+  color: var(--ink-2); font-size: var(--fs-small);
+}
+.health-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-2); }
+.health h2 {
+  font-size: var(--fs-small); font-weight: var(--fw-strong); line-height: inherit;
+  letter-spacing: 0; color: var(--ink);
+}
+.health .body { flex: 1 1 16rem; min-width: 0; }
+.health .body > p { margin: var(--sp-1) 0 0; }
+ul.facts { display: flex; flex-wrap: wrap; gap: 0 var(--sp-4); font-variant-numeric: tabular-nums lining-nums; }
+ul.failing li { padding: 2px 0; overflow-wrap: anywhere; color: var(--ink-2); }
+ul.failing li strong { color: var(--ink); font-weight: var(--fw-strong); }
 ul.failing .err-head { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-details.err-full { color: var(--muted); font-size: var(--fs-xs); }
+details.err-full { color: var(--ink-2); font-size: var(--fs-small); }
 details.err-full summary { cursor: pointer; }
 details.err-full pre {
-  margin: var(--sp-1) 0 0; font-size: var(--fs-xs);
+  margin: var(--sp-1) 0 0; font-size: var(--fs-small);
   white-space: pre-wrap; overflow-wrap: anywhere;
 }
-.disclaimer { margin: var(--sp-3) 0 0; color: var(--faint); font-size: var(--fs-xs); }
+.disclaimer { margin: var(--sp-1) 0 0; color: var(--ink-2); font-size: var(--fs-small); }
+/* On phones the GitHub link joins the footer (A2). */
+.foot-github { display: none; margin: var(--sp-1) 0 0; }
 
-@media (max-width: 960px) {
+@media screen and (max-width: 960px) {
   .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* Two columns: the attribution moves under the quote instead of being squeezed beside it. */
   .q-row { grid-template-columns: 7rem minmax(0, 1fr); row-gap: var(--sp-1); }
   .q-attr { grid-column: 2; }
 }
 
-@media (max-width: 720px) {
-  .site-header, main { padding: 0 var(--sp-3); }
-  .site-header { padding-top: var(--sp-4); }
-  main { gap: var(--sp-4); }
-  /* No side padding, so the card row's bleed reaches the screen edge (K5). */
-  .panel { padding: var(--sp-3) 0 0; }
-  .health { width: calc(100% - 2 * var(--sp-3)); }
-  /* K5: one swipe row; only the row scrolls sideways, never the page. */
-  .cards {
+@media screen and (max-width: 720px) {
+  :root { --pad: 16px; --gap: 12px; --gutter: 12px; --fs-h1: 28px; --fs-headline: 16px; }
+  /* One column: wordmark, tagline, "as of"; the GitHub link moves to the footer. */
+  .site-header { flex-direction: column; align-items: flex-start; gap: var(--sp-1); }
+  .tagline { margin-top: var(--sp-1); font-size: var(--fs-small); }
+  .header-meta { align-items: flex-start; }
+  .head-github { display: none; }
+  .foot-github { display: block; }
+  /* The controls start their own line under the title and scope. */
+  .panel-controls { margin-left: 0; }
+  /* Narrower segments keep the four theme labels on one line at 320px. */
+  .track > button { padding: 0 clamp(6px, 2vw, 14px); }
+  /* K5: one swipe row inside the panel border; only the row scrolls sideways, never the page. */
+  .panel > .body.cards {
     display: flex; gap: var(--sp-4); overflow-x: auto;
     scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-    margin-inline: calc(-1 * var(--sp-3)); padding: 4px var(--sp-3);
-    scroll-padding-inline: var(--sp-3);
+    margin-inline: 0; padding: var(--sp-3) var(--pad) var(--sp-4);
+    scroll-padding-inline: var(--pad);
   }
   .card {
-    flex: 0 0 calc(100vw - 48px); scroll-snap-align: start;
+    flex: 0 0 calc(100% - 16px); scroll-snap-align: start;
     display: block; margin-bottom: 0;
   }
+  .cards > .empty { margin-bottom: 0; }
   .cg-line { grid-template-columns: 3.75rem minmax(0, 1fr); }
-  .chart-headline { font-size: var(--fs-md); }
   #chart { height: 420px; }
-  /* Each quote stacks: chip, quote at full width, attribution. */
+  /* Dense flow puts status and date beside the label, above the full-width value. */
+  ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
+  .g-rec-value, .g-quote { grid-column: 1 / -1; }
+  /* Phone: heading above its items, one item per line. */
+  #panel-changes .c-group { display: block; }
+  ul.c-list { flex-direction: column; }
+}
+
+/* Phones and paper (an A4 page is about 703px wide): each quote stacks, chip, quote at full
+   width, attribution; the history grid uses codes, so all eight quarters fit. */
+@media print, screen and (max-width: 720px) {
   .q-row { display: block; }
   /* The age sits beside the chip when it fits, else under it. */
   .q-label {
@@ -442,42 +538,37 @@ details.err-full pre {
   }
   .q-age { margin-top: 0; }
   .q-attr { margin-top: var(--sp-1); }
-  /* Dense flow puts status and date beside the label, above the full-width value. */
-  ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
-  .g-rec-value, .g-quote { grid-column: 1 / -1; }
   th.kpi-company .name-full { display: none; }
   th.kpi-company .name-code { display: inline; }
   table.kpis { --kpi-co-w: 76px; }
-  /* Phone: heading above its items, one item per line. */
-  #panel-changes .c-group { display: block; }
-  ul.c-list { flex-direction: column; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #chart .scatterlayer .trace { transition: none; }
+  #chart .scatterlayer .trace,
+  .track > button, .bench-toggle, .show-more, details.fold > summary, .chev { transition: none; }
 }
 
 @page { margin: 12mm; }
 
 @media print {
+  /* The page margins stand in for the gutters, so the history grid fits an A4 line (703px). */
+  :root { --gutter: 0px; --pad: 12px; }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .chart-controls, .modebar { display: none !important; }
+  /* The chart keeps its screen width on paper (D6 redraws it in 20d); clip it inside its panel.
+     clip-path, since overflow: hidden here made Chrome paginate the page into 10 sheets. */
+  #panel-chart > .body { clip-path: inset(0); }
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
   .card, ul.press li, ul.c-list li, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
   h2 { break-after: avoid; }
-  /* All six cards in three columns whatever the selection; overrides the phone row, since an
-     A4 page is narrower than 720px. */
+  /* All six cards in three columns whatever the selection: print never takes the phone layout. */
   .compare, .compare-note { display: none !important; }
-  .cards {
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--sp-4);
-    overflow: visible; margin-inline: 0; padding: 0;
-  }
-  .card { display: grid; flex: none; margin-bottom: var(--sp-4); }
+  .cards { margin-top: 0; border-top: 0; }
   .show-more, .c-more-line { display: none !important; }
   details.err-full { display: none; }
   .cg-value { display: block; -webkit-line-clamp: none; overflow: visible; }
   /* Q7: the pressed theme for all six companies, its name kept on paper. */
   .q-themes { display: none !important; }
-  .q-print-theme { display: block; margin: 0 0 var(--sp-1); }
-  details.fold > summary::before { content: none; }
+  .q-print-theme { display: block; margin: 0; padding: var(--sp-3) var(--pad) 0; }
+  .chev, .fold-cue { display: none; }
 }

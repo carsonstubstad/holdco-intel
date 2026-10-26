@@ -15,51 +15,56 @@
   <p id="announce" class="visually-hidden" aria-live="polite"></p>
   <header class="site-header">
     <div>
-      <h1>Holdco Intel</h1>
+      <h1>Holdco Intel <svg class="mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle class="ink" cx="10" cy="2.8" r="1.9"/><circle class="ink" cx="16.24" cy="6.4" r="1.9"/><circle class="ink" cx="16.24" cy="13.6" r="1.9"/><circle class="ink" cx="10" cy="17.2" r="1.9"/><circle class="ink" cx="3.76" cy="13.6" r="1.9"/><circle class="ink" cx="3.76" cy="6.4" r="1.9"/><circle class="coral" cx="10" cy="10" r="3.2"/></svg></h1>
       <p class="tagline">Daily public-source intelligence on six advertising holding companies.</p>
     </div>
     <div class="header-meta">
       <span id="as-of">as of …</span>
-      <a href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="head-github" href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
   </header>
 
   <main>
     <section id="panel-changes" class="panel" aria-labelledby="h-changes">
-      <h2 id="h-changes">What changed</h2>
-      <div class="body"></div>
+      <div class="panel-head">
+        <h2 id="h-changes">What changed</h2>
+      </div>
+      <div class="body"><p class="empty">Loading…</p></div>
     </section>
 
-    <section id="panel-cards" class="panel" aria-labelledby="h-cards">
+    <section id="panel-cards" class="panel primary" aria-labelledby="h-cards">
       <h2 id="h-cards" class="visually-hidden">Scorecards</h2>
       <div class="compare" role="group" aria-label="Companies"></div>
       <p class="compare-note muted" hidden></p>
-      <div class="body cards" role="region" aria-label="Scorecards"></div>
+      <div class="body cards" role="region" aria-label="Scorecards"><p class="empty">Loading…</p></div>
     </section>
 
-    <details id="fold-guidance" class="fold">
-      <summary>All guidance <span class="fold-count"></span></summary>
-      <div class="body"></div>
+    <details id="fold-guidance" class="panel fold">
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">All guidance</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <div class="body"><p class="empty">Loading…</p></div>
     </details>
 
-    <details id="fold-history" class="fold">
-      <summary>Quarterly history <span class="fold-note">· organic growth, as reported</span></summary>
-      <div class="body"></div>
+    <details id="fold-history" class="panel fold">
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">Quarterly history</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <div class="body"><p class="empty">Loading…</p></div>
     </details>
 
     <section id="panel-quotes" class="panel" aria-labelledby="h-quotes">
-      <h2 id="h-quotes" tabindex="-1">In their words</h2>
-      <p class="q-sub muted">Verbatim from company documents</p>
-      <div class="q-themes" role="group" aria-label="Theme" hidden></div>
-      <p class="q-print-theme kicker"></p>
-      <div class="body"></div>
+      <div class="panel-head">
+        <h2 id="h-quotes" tabindex="-1">In their words</h2>
+        <p class="scope">Verbatim from company documents</p>
+        <div class="q-themes track panel-controls" role="group" aria-label="Theme" hidden></div>
+      </div>
+      <p class="q-print-theme label"></p>
+      <div class="body"><p class="empty">Loading…</p></div>
     </section>
 
-    <section id="panel-chart" class="panel" aria-labelledby="h-chart">
+    <section id="panel-chart" class="panel primary" aria-labelledby="h-chart">
       <div class="panel-head">
-        <h2 id="h-chart" class="kicker">Share price, rebased to 100</h2>
-        <div class="chart-controls">
-          <div class="windows" role="group" aria-label="Chart window">
+        <h2 id="h-chart">Share price</h2>
+        <p class="scope">Rebased to 100 at the start of the window</p>
+        <div class="chart-controls panel-controls" hidden>
+          <div class="windows track" role="group" aria-label="Chart window">
             <button type="button" data-window="1M">1M</button>
             <button type="button" data-window="3M">3M</button>
             <button type="button" data-window="YTD" aria-pressed="true">YTD</button>
@@ -70,20 +75,26 @@
         </div>
       </div>
       <p id="chart-headline" class="chart-headline" aria-live="polite" hidden></p>
-      <div class="body"><div id="chart"></div></div>
+      <div class="body"><p class="empty">Loading…</p></div>
       <p class="footnote">Each line is rebased to 100 at the start of the window, in its own trading currency, price only (no dividends). The <span class="bench-name">S&amp;P 500</span> is a US-dollar reference; for the European and Japanese stocks it is a rough market comparison, not a currency-matched one.</p>
     </section>
 
     <section id="panel-press" class="panel" aria-labelledby="h-press">
-      <h2 id="h-press">Press releases, last 30 days</h2>
-      <div class="body"></div>
+      <div class="panel-head">
+        <h2 id="h-press">Press releases, last 30 days</h2>
+        <p class="scope"></p>
+      </div>
+      <div class="body"><p class="empty">Loading…</p></div>
     </section>
   </main>
 
-  <footer id="panel-health" class="panel health" aria-labelledby="h-health">
-    <h2 id="h-health">Data health</h2>
-    <div class="body"></div>
+  <footer id="panel-health" class="health" aria-labelledby="h-health">
+    <div class="health-line">
+      <h2 id="h-health">Data health.</h2>
+      <div class="body"><p class="empty">Loading…</p></div>
+    </div>
     <p class="disclaimer">Personal project built from public sources. Not affiliated with or endorsed by any company shown. Not investment advice.</p>
+    <p class="foot-github"><a href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">GitHub</a></p>
   </footer>
 </body>
 </html>
