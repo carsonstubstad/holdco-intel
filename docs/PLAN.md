@@ -499,6 +499,13 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   Shift+Tab never leaves the focused control under the capsule. If it runs long, What
   changed (B5) becomes 20b2 in a fresh session. Commit: `step 20b: filter capsule and
   what changed`.
+  Built 2026-10-26 with a maintainer-approved polish round: the page's dot grid is
+  viewport-fixed like the band's, so the two line up while scrolling; focus clearance at
+  720px and below is 80px (the band is 68px tall); the band is hidden when companies.json
+  is missing. On the day of a capital markets day or a deal the pill reads "Today". Kept
+  the paper band over a free-floating capsule (maintainer, at the build check). Page height
+  at 1440: 3,386px (3,415 before), /#WPP 2,482 (2,555); at 375: 5,098px (5,273), /#WPP
+  3,853 (4,096). From 20c the executor saves the before and after screenshots itself.
 
 - [ ] **20c Peer table.** C1 to C7: the table, every Change naming its base ("vs Q2 26")
   or a reason, period links to sources, the headline, the foot line, the true minus and
@@ -557,8 +564,6 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   edits index.html.
   2026-10-12: moved into step 12g as fold-in (5), next to the new chart headline.
 - 2026-10-11: dark mode (a second token set plus Plotly colors). Candidate for Parked.
-- 2026-10-12 (12g review): "Reports today" reuses the blue of the "New" guidance badge.
-  Check for confusion on the first real results day; a tweak if it confuses.
 - 2026-10-15 (v2.0 review): show the S&P 500's move over the same two days next to a
   card's results move. 2026-10-26: it would sit beside the peer table's "On results"
   column.

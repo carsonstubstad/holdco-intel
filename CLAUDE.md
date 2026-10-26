@@ -137,9 +137,10 @@ screenshots), `creative-director` (visual directions). Every gate is the maintai
    `plan-reviewer` and shows the maintainer a card. After the maintainer says "send it",
    the planning chat sends the reply to `executor` with SendMessage. Exiting plan mode
    stays with the maintainer in the terminal.
-3. Build check and polish round: the maintainer saves before/after screenshots under
-   `prompts/design/`; the planning chat runs `design-reviewer` (step review) and reads
-   `git diff`. The maintainer picks fixes, and the executor applies them in one polish
+3. Build check and polish round: the executor saves before/after screenshots under
+   `prompts/design/` (headless Chrome against localhost, from its scratchpad) and the
+   maintainer looks at the page in their own browser; the planning chat runs
+   `design-reviewer` (step review) and reads `git diff`. The maintainer picks fixes, and the executor applies them in one polish
    round in the same session, within the step's files. Anything bigger goes to the Backlog.
 4. Commit and push: the executor commits after the maintainer says "commit". Push only
    when the maintainer asks.
