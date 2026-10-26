@@ -126,6 +126,15 @@ rows:
     source_url: "https://www.publicisgroupe.com/sites/default/files/press-releases/2024-10/CP_Resultats_Q32024_ENG.pdf"
     note: "Net revenue."
   - company: OMC
+    period: Q3 2026
+    organic_growth_pct: 7.2
+    revenue_local_m: 6422.8
+    currency: USD
+    margin_metric: adjusted EBITA margin
+    margin_pct: 17.6
+    source_url: "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx"
+    note: "post-IPG; not comparable. Core Operations organic; consolidated revenue and margin. Core Operations margin 18.2%."
+  - company: OMC
     period: Q2 2026
     organic_growth_pct: 6.1
     revenue_local_m: 6562.5

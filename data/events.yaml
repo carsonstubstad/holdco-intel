@@ -37,14 +37,12 @@ items:
     confirmed: true
     source_url: https://www.publicisgroupe.com/en/investors/investors-analysts/events
 
-  # Omnicom: Q3 2026 date not announced yet (last year's scheduling release came ~8 Oct)
-  # estimate: Q3 2025 results (2025-10-21) + 364 days
   - company: OMC
-    date: 2026-10-20
+    date: 2026-10-22
     type: results
     title: "Q3 2026 results"
-    confirmed: false
-    source_url: https://investor.omc.com/events-and-presentations/default.aspx
+    confirmed: true
+    source_url: https://investor.omc.com/events-and-presentations/events/event-details/2026/Third-Quarter-2026-Earnings-Call/default.aspx
   - company: OMC
     date: 2026-07-28
     type: results
