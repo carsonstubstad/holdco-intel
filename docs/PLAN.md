@@ -569,7 +569,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   off). Page height at 1440: 3,298px (3,288 before), /#WPP 2,444 (2,457); at 375: 6,337px
   (6,332), /#WPP 3,650 (3,703).
 
-- [ ] **20f Quotes, press, folds and print.** D4, D5, F1, D6, D7: the quotes grid and press
+- [x] **20f Quotes, press, folds and print.** D4, D5, F1, D6, D7: the quotes grid and press
   rows inside closed folds, the A4 and Letter handout, ARCHITECTURE.md section 7.
   Acceptance: each check; at 1440 with all six the page is at most 3,390px; print is at
   most 4 pages on A4 and on Letter with page 1 holding the header, What’s new and all six

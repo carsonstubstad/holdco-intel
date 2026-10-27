@@ -351,13 +351,9 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
   border: 1px solid var(--ink); border-radius: var(--radius-pill);
 }
 
-/* The company chip keeps its colored edge until quotes and press (20f). */
-.chip.company {
-  padding: 0 var(--sp-2) 0 6px; color: var(--ink); font-weight: var(--fw-strong);
-  border-left: 4px solid var(--border-2); border-radius: 0;
-}
+/* D5: a press release's category, a word in a small outlined pill. */
 .chip.category {
-  padding: 0 var(--sp-2); color: var(--ink-2);
+  padding: 0 var(--sp-2); font-size: 11px; color: var(--ink-2);
   border: 1px solid var(--border-2); border-radius: var(--radius-pill);
 }
 
@@ -539,28 +535,41 @@ details.fold[open] .chev { transform: rotate(45deg); }
 .fold-cue::before { content: "Show"; }
 details.fold[open] .fold-cue::before { content: "Hide"; }
 
-/* In their words (Q2): the theme track sits in the header row; quote rows until 20f. */
-.q-print-theme { display: none; }
-ul.quotes { list-style: none; margin: 0; padding: 0; }
-ul.quotes[hidden], .q-missing[hidden] { display: none; }
-/* The quote column in rem: 62ch would resolve in the row's 14px sans, not the quote's serif. */
-.q-row {
-  display: grid; grid-template-columns: 7rem minmax(0, 37rem) minmax(0, 1fr);
-  column-gap: var(--sp-4); align-items: baseline;
-  padding: var(--sp-3) 0; border-bottom: 1px solid var(--hairline);
+/* In their words (F1): the theme track and "Verbatim from company documents" open the fold's body. */
+.q-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) var(--pad) 0;
 }
-.q-row:first-child { padding-top: var(--sp-1); }
-.q-row:last-child { border-bottom: 0; }
+/* D4: a grid of quotes, three across (two from 721 to 960px and in print, one on phones), with a
+   hairline above every row but the first. */
+ul.q-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--sp-6);
+  margin: 0; padding: 0; list-style: none;
+}
+ul.q-grid[hidden], .q-missing[hidden] { display: none; }
+.q-cell { padding: var(--sp-4) 0; border-top: 1px solid var(--hairline); }
+.q-cell:nth-child(-n + 3) { padding-top: var(--sp-1); border-top: 0; }
+/* The company (or the theme) at 600, its age at the right. */
+.q-who {
+  display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+.q-name { font-weight: var(--fw-strong); }
+.q-age { flex: none; color: var(--ink-2); font-size: var(--fs-small); }
+/* Never clamped; the opening quote hangs into the gutter, and the measure is 62ch of the serif
+   itself (ch resolves in the element's own font). */
 .q-quote {
-  margin: 0; font-family: var(--serif); font-size: var(--fs-quote); line-height: 1.6;
+  margin: 0; max-width: var(--measure); text-indent: -0.45em;
+  font-family: var(--serif); font-size: var(--fs-quote); line-height: 1.6;
   font-style: normal; overflow-wrap: break-word;
 }
-.q-attr { margin: 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: anywhere; }
-.q-attr a { white-space: nowrap; }
-.q-age { display: block; margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); }
-.q-none, .q-missing { margin: 0; color: var(--ink-2); }
-.q-none { grid-column: 2 / -1; }
-.q-missing { padding-top: var(--sp-2); }
+/* Speaker · source · date in --ink-2, the date and its ↗ never split. */
+.q-attr {
+  margin: var(--sp-2) 0 0; color: var(--ink-2); font-size: var(--fs-small); overflow-wrap: anywhere;
+}
+.q-attr a { color: var(--ink-2); white-space: nowrap; }
+.q-attr a:focus-visible { text-decoration: underline; }
+.q-missing { margin: 0; padding-top: var(--sp-2); color: var(--ink-2); }
 
 /* Panel G: organic growth grid */
 table.kpis { font-variant-numeric: tabular-nums lining-nums; }
@@ -611,23 +620,32 @@ ul.kpi-defs strong { color: var(--ink); }
 
 /* Lists: press, health */
 ul.press, ul.failing, ul.facts { list-style: none; margin: 0; padding: 0; }
+/* D5: date, code, category (key rows only) and title in fixed columns, so every title lines up. */
 ul.press li {
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3);
+  display: grid; grid-template-columns: 90px 64px 110px minmax(0, 1fr);
+  column-gap: var(--sp-3); row-gap: 2px; align-items: baseline;
   padding: 6px 0; border-bottom: 1px solid var(--hairline);
   overflow-wrap: anywhere;
 }
 ul.press li:last-child { border-bottom: 0; }
 .date { color: var(--ink-2); font-size: var(--fs-small); font-variant-numeric: tabular-nums lining-nums; }
-ul.press li.rest, ul.press li.rest a { color: var(--ink-2); }
-ul.press li .title { flex: 1 1 260px; min-width: 0; }
+.pr-co { font-size: var(--fs-small); font-weight: var(--fw-strong); }
+ul.press li .chip { justify-self: start; }
+ul.press li .title { grid-column: 4; min-width: 0; }
+/* Titles in ink (other releases' in --ink-2), each ↗ in --ink-2, underlined on hover and focus. */
+ul.press .title a { color: var(--ink); }
+ul.press li.rest .title a, ul.press .title a > [aria-hidden="true"] { color: var(--ink-2); }
+ul.press .title a:focus-visible { text-decoration: underline; }
 ul.press li[hidden] { display: none; }
 ul.press li:has(+ li[hidden]) { border-bottom: 0; }
 ul.press li.press-sub {
-  font-size: var(--fs-small); font-weight: var(--fw-strong); color: var(--ink-2);
+  display: block; font-size: var(--fs-small); font-weight: var(--fw-strong); color: var(--ink-2);
   padding: var(--sp-3) 0 var(--sp-1);
 }
 /* Press hides rows, the list, the note or the button; display rules must not undo it. */
 #panel-press .body [hidden] { display: none; }
+/* The phone cap's pill shows at 720px and below only. */
+#panel-press .show-cap { display: none; }
 
 /* A7: data health sits on the paper, not in a panel: small text, its label in ink. */
 .health {
@@ -692,9 +710,9 @@ details.err-full pre {
   .co-block:only-child { grid-column: 1 / -1; }
   .comps-foot { margin-top: 0; }
   #chart { height: 400px; }
-  /* Two columns: the attribution moves under the quote instead of being squeezed beside it. */
-  .q-row { grid-template-columns: 7rem minmax(0, 1fr); row-gap: var(--sp-1); }
-  .q-attr { grid-column: 2; }
+  /* D4: two quotes across; the third cell starts the second row. */
+  ul.q-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .q-cell:nth-child(3) { padding-top: var(--sp-4); border-top: 1px solid var(--hairline); }
 }
 
 /* Where five pressed pills need the room, "Peer set" is hidden but stays the group's name. */
@@ -738,6 +756,10 @@ details.err-full pre {
   .foot-github { display: block; }
   /* The controls start their own line under the title and scope. */
   .panel-controls { margin-left: 0; }
+  /* A fold's count line takes its own line under the title, with "Show" or "Hide" at the right of
+     its last line, never alone on a line. */
+  details.fold > summary .fold-count:not(:empty) { flex: 1 1 calc(100% - 48px); min-width: 0; }
+  details.fold > summary .fold-cue { align-self: flex-end; }
   /* Narrower segments keep the four theme labels on one line at 320px. */
   .track > button { padding: 0 clamp(6px, 2vw, 14px); }
   /* A near-square plot on phones: 280px tall across the panel's full width. The 8px at the right
@@ -769,19 +791,24 @@ details.err-full pre {
   .comps-blocks { grid-template-columns: minmax(0, 1fr); }
   .co-block:nth-child(2) { border-top: 1px solid var(--hairline); }
   .co-block:nth-child(odd) { border-right: 0; }
+  /* D4: one quote to a row. */
+  ul.q-grid { grid-template-columns: minmax(0, 1fr); }
+  .q-cell:nth-child(2) { padding-top: var(--sp-4); border-top: 1px solid var(--hairline); }
+  /* D5: date, code and pill on one line in fixed columns (so codes and pills line up down the
+     list), the title under them. */
+  ul.press li { grid-template-columns: 76px 56px minmax(0, 1fr); }
+  ul.press li .title { grid-column: 1 / -1; }
+  /* While capped, the list stops after 8 key rows, the last with no rule under it, and only the
+     cap's pill shows. */
+  #panel-press .press.capped li.over-cap,
+  #panel-press .press.capped ~ .show-more:not(.show-cap) { display: none; }
+  #panel-press .press.capped li:has(+ li.over-cap) { border-bottom: 0; }
+  #panel-press .press.capped ~ .show-cap:not([hidden]) { display: inline-flex; }
 }
 
-/* Phones and paper (an A4 page is about 703px wide): each quote stacks, chip, quote at full
-   width, attribution; the history grid uses codes, so all eight quarters fit. */
+/* Phones and paper (an A4 page is about 703px wide): the history grid uses codes, so all eight
+   quarters fit. */
 @media print, screen and (max-width: 720px) {
-  .q-row { display: block; }
-  /* The age sits beside the chip when it fits, else under it. */
-  .q-label {
-    display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--sp-2);
-    margin-bottom: var(--sp-1);
-  }
-  .q-age { margin-top: 0; }
-  .q-attr { margin-top: var(--sp-1); }
   th.kpi-company .name-full { display: none; }
   th.kpi-company .name-code { display: inline; }
   table.kpis { --kpi-co-w: 76px; }
@@ -795,17 +822,32 @@ details.err-full pre {
 @page { margin: 12mm; }
 
 @media print {
-  /* The page margins stand in for the gutters, so the history grid fits an A4 line (703px). */
-  :root { --gutter: 0px; --pad: 12px; }
+  /* D6, a handout with its own layout (never a screen breakpoint's). The page margins stand in for
+     the gutters, so the history grid fits an A4 line (703px); body text 11px, small text too (as
+     the table's labels), panels 1px with a 6px radius. */
+  :root { --gutter: 0px; --pad: 12px; --fs-body: 11px; --fs-small: 11px; --radius: 6px; }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .band { display: none; }
   .chart-controls { display: none !important; }
-  /* The chart keeps its screen width on paper (D6 redraws it in 20f); clip it inside its panel.
-     clip-path, since overflow: hidden here made Chrome paginate the page into 10 sheets. */
+  .panel.primary { border-width: 1px; }
+  /* Panel titles and the table's and chart's headlines at 16px, in a tighter header row. */
+  h2, .fold-title, .comps-headline, .chart-headline { font-size: 16px; }
+  .panel-head { padding-block: var(--sp-2) 6px; }
+  /* Block flow, not the screen's grid, so page 1 ends after the peer table and its foot line. */
+  main { display: block; }
+  main > * + * { margin-top: var(--gap); }
+  #panel-comps { break-after: page; }
+  /* Links in ink without their ↗ (the table's ↗-only guidance links go with it). */
+  a { color: var(--ink) !important; }
+  a [aria-hidden="true"], a.g-src { display: none; }
+  /* The chart redraws at 677×260 for paper (app.js PRINT_CHART); its box takes the same height, and
+     its panel clips anything wider (paper narrower than A4, or a redraw that failed). clip-path,
+     since overflow: hidden here made Chrome paginate the page into 10 sheets. */
+  #chart { height: 260px; }
   #panel-chart > .body { clip-path: inset(0); }
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
-  ul.press li, li.c-row, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
-  h2 { break-after: avoid; }
+  ul.press li, li.c-row, ul.g-records li, .q-cell, tr, #chart { break-inside: avoid; }
+  h2, details.fold > summary { break-after: avoid; }
   /* Controls stay off paper: the show buttons and the table's "Definitions · All guidance" (D6's
      rule for Definitions, brought forward with E3's All guidance). */
   .show-more, .comps-jumps { display: none !important; }
@@ -821,13 +863,32 @@ details.err-full pre {
   .comps .sub, .comps .delta { font-size: 11px; }
   .comps .fig1 { font-size: 18px; }
   .comps .fig2 { font-size: 13px; }
-  .comps th[scope="row"] { width: 120px; }
-  .comps td.margin, .comps td.g-top, .comps td.g-profit { min-width: 0; }
+  /* The company column gives the margin column the width to keep its basis to two lines. */
+  .comps th[scope="row"] { width: 96px; }
+  .comps td.margin { min-width: 112px; }
+  .comps td.g-top, .comps td.g-profit { min-width: 0; }
   .comps td.margin .sub { white-space: normal; }
   .comps .g-value { display: block; -webkit-line-clamp: none; overflow: visible; }
   .comps .est { display: block; }
-  /* Q7: the pressed theme for all six companies, its name kept on paper. */
+  /* The pressed theme for all six companies; the count line names it. Quotes three across, as on
+     screen, so the chart and every quote share page 2 (two across ran 100px onto page 3). */
   .q-themes { display: none !important; }
-  .q-print-theme { display: block; margin: 0; padding: var(--sp-3) var(--pad) 0; }
+  ul.q-grid { column-gap: var(--sp-4); }
+  .q-cell { padding: var(--sp-3) 0; }
+  .q-who { margin-bottom: var(--sp-1); }
+  .q-attr { margin-top: var(--sp-1); }
+  .q-quote { font-size: 13px; line-height: 1.5; }
+  /* Press: tight columns and 5px rows; other releases' titles take the empty category column. */
+  ul.press li {
+    grid-template-columns: 66px 50px 92px minmax(0, 1fr); column-gap: var(--sp-2); padding: 5px 0;
+  }
+  ul.press li.rest .title { grid-column: 3 / -1; }
+  .pr-co { white-space: nowrap; }
+  /* All guidance: one record per line, label and period, value, status (the quote under them). */
+  ul.g-records li { grid-template-columns: 11rem minmax(0, 1fr) auto; padding: 5px 0; }
+  .g-label .date { display: inline; margin-left: var(--sp-1); }
+  /* Quarterly history: no hover hint on paper, and the grid kept whole. */
+  .kpi-detail { display: none; }
+  #fold-history .table-wrap { break-inside: avoid; }
   .chev, .fold-cue { display: none; }
 }

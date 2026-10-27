@@ -186,14 +186,6 @@ function companyName(ctx, code) {
   return ctx.byCode[code]?.name || String(code ?? '');
 }
 
-function companyChip(ctx, code) {
-  const chip = el('span', {className: 'chip company'}, ctx.byCode[code]?.code || String(code ?? ''));
-  const color = safeColor(ctx.byCode[code]?.color);
-  if (color) chip.style.borderLeftColor = color;
-  chip.title = companyName(ctx, code);
-  return chip;
-}
-
 function currentGuidance(guidance) {
   const records = Array.isArray(guidance?.records) ? guidance.records : [];
   const superseded = new Set(records.map((r) => r?.supersedes).filter(Boolean));
@@ -436,11 +428,13 @@ function briefResults(events, kpiRows, kpisOk, today) {
     && inBrief(e.date, today)).map((e) => ({e, kpi: kpisOk ? resultsRow(kpiRows, e) : null}));
 }
 
-// A link to a company document with its ↗; plain text (and no ↗) without a safe URL.
+// A link to a company document with its ↗; plain text (and no ↗) without a safe URL. A no-break
+// space inside the ↗'s span keeps the ↗ with the last word, and goes with it on paper, which
+// hides the ↗ ("H1 26, operating profit").
 function docLink(u, text) {
   const node = link(u, text);
   if (node.nodeType === Node.ELEMENT_NODE) {
-    node.append(' ', el('span', {'aria-hidden': 'true'}, '↗'));
+    node.append(el('span', {'aria-hidden': 'true'}, NBSP + '↗'));
   }
   return node;
 }
@@ -1250,33 +1244,28 @@ function ageText(iso, today) {
   return m === 1 ? '1 month ago' : `${m} months ago`;
 }
 
-// Q2: label and age | the quote in the serif | speaker · source · dated link. Never cut short.
-function quoteRow(label, r, today) {
-  const row = el('li', {className: 'q-row'}, el('div', {className: 'q-label'}, label,
-    r ? el('span', {className: 'q-age'}, ageText(r.release_date, today)) : null));
-  if (!r) {
-    row.appendChild(el('p', {className: 'q-none'}, 'No quote on this theme yet.'));
-    return row;
-  }
-  const date = link(r.source_url, fmtDate(r.release_date));
-  if (date.nodeType === Node.ELEMENT_NODE) {
-    date.append(' ', el('span', {'aria-hidden': 'true'}, '↗'));
-  }
+// D4: one grid cell: the name (the theme, for one company) and the age | the quote in the serif,
+// never cut short | speaker · source · dated link.
+function quoteCell(label, r, today) {
   const speaker = speakerOf(r);
-  row.append(
+  return el('li', {className: 'q-cell'},
+    el('div', {className: 'q-who'}, el('span', {className: 'q-name'}, label),
+      el('span', {className: 'q-age'}, ageText(r.release_date, today))),
     el('blockquote', {className: 'q-quote'}, '“' + r.quote.trim() + '”'),
     el('p', {className: 'q-attr'}, speaker ? speaker + ' · ' : null,
-      sourceLabel(r.source_type), ' · ', date));
-  return row;
+      sourceLabel(r.source_type), ' · ', docLink(r.source_url, fmtDate(r.release_date))));
 }
 
-// Quotes only: the curator's headlines in commentary.json are never shown on the site.
+// Quotes only: the curator's headlines in commentary.json are never shown on the site. A fold
+// (F1) whose count line says what is inside; the theme track sits in its body.
 function renderQuotes(ctx, data) {
   const panel = 'panel-quotes';
-  const themes = document.querySelector('#' + panel + ' .q-themes');
-  const printTheme = document.querySelector('#' + panel + ' .q-print-theme');
+  const fold = document.getElementById(panel);
+  const themes = fold.querySelector('.q-themes');
+  const count = fold.querySelector('.fold-count');
   redrawQuotes = null;
   themes.hidden = true;
+  count.textContent = '';
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
   const known = new Set(QUOTE_THEMES.map(([t]) => t));
   const all = Array.isArray(data.commentary?.records) ? data.commentary.records : [];
@@ -1296,40 +1285,51 @@ function renderQuotes(ctx, data) {
   });
   themes.replaceChildren(...buttons);
 
-  const list = el('ul', {className: 'quotes'});
+  const list = el('ul', {className: 'q-grid'});
   const gapLine = el('p', {className: 'q-missing'});
   const ofCompany = (code) => records.filter((r) => r.company === code);
 
-  // Several companies: one row each on the pressed theme. One company (Q4): one row per theme
-  // with a quote, and the themes without one folded into a single line.
+  // Several companies: a cell for each one quoted on the pressed theme, the rest named in one line.
+  // One company (Q4): a cell per theme with a quote, and the themes without one in one line.
   function draw(codes) {
     const hadFocus = list.contains(document.activeElement);
     const shown = allCodes(ctx).filter((c) => codes.includes(c));
     const single = shown.length === 1;
-    const rows = [];
+    const themeLabel = QUOTE_TABS.find(([t]) => t === theme)[1];
+    const cells = [];
     const gaps = [];
     if (single) {
       const mine = ofCompany(shown[0]);
       for (const [t, label] of QUOTE_THEMES) {
         const r = pickQuote(mine, t, ctx.today);
-        if (r) rows.push(quoteRow(el('span', {className: 'label'}, label), r, ctx.today));
+        if (r) cells.push(quoteCell(label, r, ctx.today));
         else gaps.push(label);
       }
+      // "WPP: quoted on 6 of 6 themes", out of the themes this view lists.
+      count.textContent = `${shown[0]}: quoted on ${cells.length} of ${QUOTE_THEMES.length} themes`;
+      gapLine.textContent = gaps.length ? 'No quote yet on: ' + gaps.join(', ') : '';
     } else {
       for (const code of shown) {
-        rows.push(quoteRow(companyChip(ctx, code), pickQuote(ofCompany(code), theme, ctx.today),
-          ctx.today));
+        const r = pickQuote(ofCompany(code), theme, ctx.today);
+        if (r) cells.push(quoteCell(companyName(ctx, code), r, ctx.today));
+        else gaps.push(companyName(ctx, code));
       }
+      // "Strategy: 5 of 6 companies quoted" with every company shown, "Strategy: 2 of 2 quoted"
+      // for a subset; paper always shows the first, for the pressed theme.
+      const everyone = shown.length === ctx.list.length;
+      count.textContent = `${themeLabel}: ${cells.length} of ${shown.length} `
+        + `${everyone ? 'companies ' : ''}quoted`;
+      gapLine.textContent = gaps.length ? `No ${themeLabel} quote yet: ` + gaps.join(', ') : '';
     }
-    list.replaceChildren(...rows);
-    list.hidden = !rows.length;
-    gapLine.textContent = gaps.length ? 'No quote yet on: ' + gaps.join(', ') : '';
+    list.replaceChildren(...cells);
+    list.hidden = !cells.length;
     gapLine.hidden = !gaps.length;
+    // A track about to hide hands its focus to the fold's summary (one company, e.g. after print).
+    if (single && themes.contains(document.activeElement)) fold.querySelector('summary').focus();
     themes.hidden = single;
-    printTheme.textContent = QUOTE_TABS.find(([t]) => t === theme)[1];
     // Never leave keyboard focus on a link that was just replaced.
     if (hadFocus) {
-      (single ? document.getElementById('h-quotes')
+      (single ? fold.querySelector('summary')
         : buttons.find((b) => b.getAttribute('aria-pressed') === 'true'))?.focus();
     }
   }
@@ -1337,7 +1337,7 @@ function renderQuotes(ctx, data) {
   bodyOf(panel).replaceChildren(list, gapLine);
   draw([...selected]);
   redrawQuotes = () => draw([...selected]);
-  // Q7: paper shows the pressed theme for all six companies, with the theme name above it.
+  // Paper shows the pressed theme for all six companies; the count line names the theme.
   window.addEventListener('beforeprint', () => { if (redrawQuotes) draw(allCodes(ctx)); });
   window.addEventListener('afterprint', () => { if (redrawQuotes) redrawQuotes(); });
 }
@@ -1392,7 +1392,11 @@ function rebased(vals) {
 }
 
 // At 720px and below the x axis keeps at most 4 ticks and the chart headline names codes.
-const NARROW = window.matchMedia('(max-width: 720px)');
+// Screen only, like every breakpoint (DESIGN.md section 2): paper never takes the phone layout.
+const NARROW = window.matchMedia('screen and (max-width: 720px)');
+// D6: the printed plot. A4's content width (210mm less two 12mm margins: 186mm, 703px) less the
+// panel's 1px borders and 12px print padding; Letter's 725px line holds it too.
+const PRINT_CHART = {width: 677, height: 260};
 const END_LABEL_GAP_PX = 12;
 const LEADER_MIN_PX = 3; // a code moved less than this stays beside its dot, with no leader
 const INK = '#1b2a41'; // chart text and codes; the one fallback for a company color
@@ -1413,21 +1417,33 @@ let endAnnotations = []; // the last placed end labels, reused so a redraw never
 
 // D3: each line's company code in ink at its right end, pushed at least 12px apart. Every code
 // starts 16px right of its line's end, in one column; one the spacing moved points back at that
-// end with a 1px leader in the company color.
+// end with a 1px leader in the company color. The spacing runs on whole pixel rows, so rounding
+// never brings two codes closer than 12px (a rounded offset cost 1px; 20d).
 function endLabelAnnotations(ymin, ymax, h) {
   const perPx = (ymax - ymin) / Math.max(h, 1);
-  const gap = END_LABEL_GAP_PX * perPx;
+  // A value's pixel row, down from the plot's top.
+  const rowOf = (y) => (perPx > 0 ? (ymax - y) / perPx : 0);
   const sorted = [...endLabels].sort((a, b) => a.y - b.y);
-  const ys = sorted.map((l) => l.y);
-  for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1] + gap);
-  if (ys.length) ys[ys.length - 1] = Math.min(ys[ys.length - 1], ymax);
-  for (let i = ys.length - 2; i >= 0; i--) ys[i] = Math.min(ys[i], ys[i + 1] - gap);
+  const rows = sorted.map((l) => Math.round(rowOf(l.y)));
+  // Bottom to top, each code 12 rows above the one below it, none above the plot's top.
+  for (let i = 1; i < rows.length; i++) {
+    rows[i] = Math.min(rows[i], rows[i - 1] - END_LABEL_GAP_PX);
+  }
+  if (rows.length) rows[rows.length - 1] = Math.max(rows[rows.length - 1], 0);
+  for (let i = rows.length - 2; i >= 0; i--) {
+    rows[i] = Math.max(rows[i], rows[i + 1] + END_LABEL_GAP_PX);
+  }
   return sorted.map((l, i) => {
     const label = {x: l.x, xref: 'x', yref: 'y', text: escapeHtml(l.code), xanchor: 'left',
       yanchor: 'middle', font: {color: INK, size: 12}};
-    // The code's offset from its line's end in pixels; up the screen is negative.
-    const ay = perPx > 0 ? -Math.round((ys[i] - l.y) / perPx) : 0;
-    if (Math.abs(ay) < LEADER_MIN_PX) return {...label, y: ys[i], showarrow: false, xshift: 16};
+    // A quarter pixel into the code's row: Plotly's float sums land a hair short of a whole row
+    // (238.998), and text snaps down onto the row above.
+    const at = rows[i] + 0.25;
+    // The exact offset from the line's end to that place in pixels; up the screen is negative.
+    const ay = perPx > 0 ? at - rowOf(l.y) : 0;
+    if (Math.abs(ay) < LEADER_MIN_PX) {
+      return {...label, y: perPx > 0 ? ymax - at * perPx : l.y, showarrow: false, xshift: 16};
+    }
     return {...label, y: l.y, showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: l.color,
       ax: 16, ay};
   });
@@ -1446,16 +1462,20 @@ function placeEndLabels(gd) {
   return Plotly.relayout(gd, {annotations: next});
 }
 
-function drawChart(ctx, data, aligned, win) {
+// Draws the selection on screen; with `print` ({width, height}), the all-six chart for paper (D6):
+// never a subset, so no event markers, names in the headline and no phone rules, at that size.
+function drawChart(ctx, data, aligned, win, print = null) {
   const {series, union, bench} = aligned;
   const start = windowStart(win, union);
   let b = union.findIndex((d) => d >= start);
   if (b < 0) b = 0;
   const x = union.slice(b);
-  const subset = selected.size < ctx.list.length;
+  const showing = print ? new Set(allCodes(ctx)) : selected;
+  const subset = showing.size < ctx.list.length;
+  const narrow = !print && NARROW.matches;
 
   // B4: only the shown companies are drawn; the key is a key, and the capsule the control.
-  const shownSeries = series.filter((s) => selected.has(s.company.code));
+  const shownSeries = series.filter((s) => showing.has(s.company.code));
   const companyTraces = [];
   endLabels = [];
   for (const s of shownSeries) {
@@ -1522,7 +1542,7 @@ function drawChart(ctx, data, aligned, win) {
   const marks = items.filter((e) => e && isIsoDate(e.date) && MARKER_TYPES.includes(e.type)
     && e.date.slice(0, 10) >= first && e.date.slice(0, 10) <= last
     // Markers only for a subset, and only the shown companies' events (K6).
-    && subset && selected.has(e.company));
+    && subset && showing.has(e.company));
   // Events on one date share one line and one marker; the hover lists each (P1).
   const byDate = new Map();
   for (const e of marks) {
@@ -1568,7 +1588,7 @@ function drawChart(ctx, data, aligned, win) {
   const lastOf = (ys) => ys.findLast((v) => v !== null);
   // Codes on narrow screens; raw strings, never the escaped Plotly names.
   const ends = shownSeries.map((s, i) => ({code: s.company.code,
-    name: NARROW.matches ? String(s.company.code) : String(s.company.name ?? s.company.code),
+    name: narrow ? String(s.company.code) : String(s.company.name ?? s.company.code),
     v: lastOf(companyTraces[i].y)})).filter((e) => isNum(e.v));
   const headline = document.getElementById('chart-headline');
   if (headline && ends.length) {
@@ -1627,14 +1647,15 @@ function drawChart(ctx, data, aligned, win) {
   const hi = Math.max(...shown);
   const pad = (hi - lo) * 0.05;
   const gd = document.getElementById('chart');
-  const h = gd._fullLayout?._size?.h || gd.clientHeight - 60;
+  const h = print ? print.height - 60 : gd._fullLayout?._size?.h || gd.clientHeight - 60;
   endAnnotations = endLabelAnnotations(lo - pad, hi + pad, h);
 
-  // Section 7. No layout.height: #chart's CSS height reaches Plotly through responsive
-  // autosizing, so a breakpoint resizes the plot without a redraw. The right margin is 72, not
-  // 64: a moved DENTSU code (16px out, then its text) measured 5px past 64.
+  // Section 7. No layout.height on screen: #chart's CSS height reaches Plotly through responsive
+  // autosizing, so a breakpoint resizes the plot without a redraw; paper gets a fixed size. The
+  // right margin is 72, not 64: a moved DENTSU code (16px out, then its text) measured 5px past 64.
   const sans = getComputedStyle(document.body).fontFamily;
   const layout = {
+    ...(print ? {width: print.width, height: print.height} : {}),
     margin: {l: 44, r: 72, t: 12, b: 36},
     hovermode: 'x unified',
     hoverlabel: {bgcolor: '#ffffff', bordercolor: '#c9d3dd',
@@ -1648,7 +1669,7 @@ function drawChart(ctx, data, aligned, win) {
     xaxis: {type: 'date', range: [first, last], fixedrange: true, showgrid: false, showline: true,
       linecolor: '#c9d3dd', ticks: 'outside', ticklen: 4, tickcolor: '#c9d3dd',
       tickformat: tickFormat(win, first, last), hoverformat: '%-d %b %Y', automargin: true,
-      nticks: NARROW.matches ? 4 : 11, tickfont: {size: 12, color: '#4f5f74'}},
+      nticks: narrow ? 4 : 11, tickfont: {size: 12, color: '#4f5f74'}},
     yaxis: {fixedrange: true, gridcolor: '#e6ebf1', zeroline: false, ticksuffix: ' ',
       automargin: true, nticks: 7, tickfont: {size: 12, color: '#4f5f74'}},
     yaxis2: {overlaying: 'y', range: [0, 1.04], visible: false, fixedrange: true},
@@ -1718,9 +1739,27 @@ function renderChart(ctx, data) {
   }
 
   redrawChart = draw;
-  NARROW.addEventListener('change', draw);
-  window.addEventListener('beforeprint', () => Plotly.Plots.resize(gd));
-  window.addEventListener('afterprint', () => Plotly.Plots.resize(gd));
+  // Leaving the phone width while printing must not put the screen chart back on paper.
+  let printing = false;
+  NARROW.addEventListener('change', () => {
+    if (!printing) draw();
+  });
+  // D6: paper gets all six at a fixed size, drawn in beforeprint and labelled as its promise
+  // settles, before the printed page is laid out (Plots.resize waits 100ms, too late for it).
+  // Afterwards the screen chart comes back, and an autosize relayout returns its size at once:
+  // Plotly.react keeps the last width and height when the layout gives none.
+  window.addEventListener('beforeprint', () => {
+    if (!redrawChart) return;
+    printing = true;
+    drawChart(ctx, data, aligned, win, PRINT_CHART).then(placeEndLabels)
+      .catch((err) => console.warn('[holdco] print chart failed:', err));
+  });
+  window.addEventListener('afterprint', () => {
+    printing = false;
+    if (!redrawChart) return;
+    draw().then(() => Plotly.relayout(gd, {autosize: true}))
+      .catch((err) => console.warn('[holdco] chart resize failed:', err));
+  });
 
   select('YTD');
   gd.on('plotly_relayout', (ev) => {
@@ -2078,27 +2117,34 @@ function isKeyPress(p) {
   return Object.hasOwn(PRESS_KEY, p.category);
 }
 
+const PRESS_PHONE_CAP = 8; // D5: key rows a collapsed list shows at 720px and below
+
+// A fold (F1) of the last 30 days' releases: date, code, category, title (D5). Its count line names
+// the shown companies, the key count and the newest date.
 function renderPress(ctx, data) {
   const panel = 'panel-press';
+  const fold = document.getElementById(panel);
   const all = Array.isArray(data.press?.items) ? data.press.items : [];
   const since = addDays(ctx.today, -30);
+  const year = ctx.today.slice(0, 4);
   // Newest first, the higher id breaking a tie; key items are pulled ahead in draw().
   const items = all.filter((p) => p && isIsoDate(p.published) && p.published.slice(0, 10) >= since)
     .sort((a, b) => b.published.localeCompare(a.published)
       || String(b.id ?? '').localeCompare(String(a.id ?? '')));
   redrawPress = null;
   resetPress = null;
-  // The scope line sits on the header row and stays blank until there are releases to describe.
-  const scope = document.querySelector('#' + panel + ' .panel-head .scope');
-  scope.textContent = '';
+  // The count line stays blank until there are releases to describe.
+  const count = fold.querySelector('.fold-count');
+  count.textContent = '';
   if (!items.length) return empty(panel, 'No press releases in the last 30 days.');
+  // No company color: the code in ink, the category as a word in an outlined pill (key rows only).
   const rows = new Map(items.map((p) => [p,
     el('li', {className: isKeyPress(p) ? 'key' : 'rest'},
-      companyChip(ctx, p.company),
       el('span', {className: 'nowrap date'}, fmtDate(p.published)),
+      el('span', {className: 'pr-co'}, String(p.company ?? '')),
       isKeyPress(p) ? el('span', {className: 'chip category'}, PRESS_KEY[p.category]) : null,
-      el('span', {className: 'title'}, link(p.url, String(p.title ?? ''))))]));
-  const releases = (n) => `${n} ${n === 1 ? 'release' : 'releases'}`;
+      el('span', {className: 'title'}, docLink(p.url, String(p.title ?? ''))))]));
+  const release = (n) => (n === 1 ? 'release' : 'releases');
 
   const list = el('ul', {className: 'press', id: 'press-list'});
   const sub = el('li', {className: 'press-sub'}, 'Other releases');
@@ -2107,27 +2153,37 @@ function renderPress(ctx, data) {
   // key item shows every item and no button. Print shows every item for all six companies.
   const more = el('button', {type: 'button', className: 'show-more', 'aria-expanded': 'false',
     'aria-controls': 'press-list'});
+  // D5: at 720px and below a collapsed list stops after 8 key rows; this pill (CSS shows it there
+  // only, in place of the other one) shows the rest of them, and goes once it has.
+  const capMore = el('button', {type: 'button', className: 'show-more show-cap',
+    'aria-controls': 'press-list'});
   let extra = [];
-  let scopeText = () => '';
+  let over = []; // key rows past the phone cap
+  let countText = () => '';
   const isOpen = () => more.getAttribute('aria-expanded') === 'true';
+  const isCapped = () => list.classList.contains('capped');
+  const setCapped = (on) => {
+    list.classList.toggle('capped', on);
+    capMore.hidden = !on;
+    capMore.textContent = `Show ${over.length} more key ${release(over.length)}`;
+  };
   const setOpen = (open) => {
     for (const li of extra) li.hidden = !open;
     sub.hidden = !open || !extra.length;
     more.setAttribute('aria-expanded', String(open));
-    more.textContent = open ? 'Show fewer'
-      : `Show ${extra.length} other ${extra.length === 1 ? 'release' : 'releases'}`;
-    scope.textContent = scopeText(open);
+    more.textContent = open ? 'Show fewer' : `Show ${extra.length} other ${release(extra.length)}`;
+    setCapped(!open && over.length > 0);
+    count.textContent = countText(open);
   };
-  // replaceChildren blurs a focused row even when it stays, so focus goes back to it, else to
-  // the button, else to the first shown link.
+  // replaceChildren blurs a focused row even when it stays, so focus goes back to it, else to a
+  // button, else to the first shown link. Shown means laid out: CSS hides the capped rows.
+  const shown = (node) => node.isConnected && node.getClientRects().length > 0;
   const keepFocus = (change) => {
     const had = document.activeElement;
-    const inside = had && (list.contains(had) || had === more);
+    const inside = had && (list.contains(had) || had === more || had === capMore);
     change();
     if (!inside) return;
-    if (had.isConnected && !had.closest('[hidden]')) had.focus();
-    else if (!more.hidden) more.focus();
-    else list.querySelector('li:not([hidden]) a')?.focus();
+    ([had, capMore, more].find(shown) || [...list.querySelectorAll('a')].find(shown))?.focus();
   };
 
   // Shows the given companies' releases, key items first; open shows the rest too.
@@ -2141,20 +2197,29 @@ function renderPress(ctx, data) {
       const rest = key.length ? mine.filter((p) => !isKeyPress(p)) : [];
       extra = rest.map((p) => rows.get(p));
       const shownRows = (key.length ? key : mine).map((p) => rows.get(p));
-      for (const li of shownRows) li.hidden = false;
+      over = key.length ? shownRows.slice(PRESS_PHONE_CAP) : [];
+      for (const li of shownRows) {
+        li.hidden = false;
+        li.classList.toggle('over-cap', over.includes(li));
+      }
       list.replaceChildren(...shownRows, ...(extra.length ? [sub, ...extra] : []));
       list.hidden = !mine.length;
-      scope.hidden = !mine.length;
       none.hidden = mine.length > 0;
       none.textContent = mine.length ? '' : 'No press releases from '
         + (want.size === 1 ? companyName(ctx, [...want][0]) : 'the selected companies')
         + ' in the last 30 days.';
-      // Blank without companies.json, so the line never starts with " · ".
+      // "All six companies · 20 key releases of 32, newest 26 Oct". Blank with no releases or no
+      // companies.json. The newest is of all the shown companies' releases, so opening the list
+      // never changes it.
       const label = scopeLabel(ctx, codes);
-      scopeText = (expanded) => (label ? label + ' · ' : '') + (!key.length
-        ? `${releases(mine.length)}, none key`
+      // No-break spaces keep the date whole where the line wraps (phones).
+      const newest = mine.length
+        ? ', newest ' + fmtDayIn(mine[0].published, year).replaceAll(' ', NBSP) : '';
+      countText = (expanded) => (!label || !mine.length ? '' : label + ' · ' + (!key.length
+        ? `${mine.length} ${release(mine.length)}, none key`
         : expanded ? `all ${mine.length}, key releases first`
-          : `${key.length} key ${key.length === 1 ? 'release' : 'releases'} of ${mine.length}`);
+          : `${key.length} key ${release(key.length)} of ${mine.length}`)
+        + newest);
       more.hidden = !extra.length;
       setOpen(open);
     });
@@ -2162,35 +2227,51 @@ function renderPress(ctx, data) {
 
   // Closing shrinks the list; bring the button back so the reader isn't left further down.
   // Esc scrolls only when the button has gone up under the pinned filter band (or off the top),
-  // so the page never jumps.
+  // so the page never jumps; a closed fold has nothing to scroll to.
   const collapse = (fromEsc) => {
     keepFocus(() => setOpen(false));
+    const btn = [more, capMore].find(shown);
+    if (!fold.open || !btn) return;
     const covered = document.getElementById('filter')?.getBoundingClientRect().bottom ?? 0;
-    if (!fromEsc || more.getBoundingClientRect().top < covered) {
-      more.scrollIntoView({block: 'nearest'});
+    if (!fromEsc || btn.getBoundingClientRect().top < covered) {
+      btn.scrollIntoView({block: 'nearest'});
     }
   };
   more.addEventListener('click', () => {
     if (isOpen()) collapse(false);
     else setOpen(true);
   });
-  // Same guard as openForPrint: a second beforeprint before afterprint keeps the first state.
+  // The rest of the key rows; "Show N other releases" then takes over. Focus moves to the first
+  // row it showed, else (a release with no safe link) to that pill.
+  capMore.addEventListener('click', () => {
+    setCapped(false);
+    [over[0]?.querySelector('a'), more].find((n) => n && shown(n))?.focus();
+  });
+  // Same guard as openForPrint: a second beforeprint before afterprint keeps the first state, and
+  // a lifted phone cap stays lifted.
   let wasOpen = null;
+  let wasCapped = null;
   window.addEventListener('beforeprint', () => {
     if (!redrawPress) return;
-    if (wasOpen === null) wasOpen = isOpen();
+    if (wasOpen === null) {
+      wasOpen = isOpen();
+      wasCapped = isCapped();
+    }
     draw(allCodes(ctx), true);
   });
   window.addEventListener('afterprint', () => {
     if (!redrawPress) return;
     draw([...selected], wasOpen === true);
+    if (wasCapped === false) setCapped(false);
     wasOpen = null;
+    wasCapped = null;
   });
-  bodyOf(panel).replaceChildren(list, none, more);
+  bodyOf(panel).replaceChildren(list, none, capMore, more);
   draw([...selected], false);
   redrawPress = () => draw([...selected], false);
+  // Esc collapses an open list, and puts back a lifted phone cap.
   resetPress = () => {
-    if (isOpen()) collapse(true);
+    if (isOpen() || (over.length && !isCapped())) collapse(true);
   };
 }
 
@@ -2244,10 +2325,10 @@ function failPanel(panelId) {
     const themes = document.querySelector('#panel-quotes .q-themes');
     if (themes) themes.hidden = true;
   }
-  // A fold's summary line, or the press scope line, describes content that is no longer there.
+  // A fold's count line, or a computed scope line, describes content that is no longer there.
   const count = document.querySelector('#' + panelId + ' .fold-count');
   if (count) count.textContent = '';
-  if (['panel-press', 'panel-changes', 'panel-comps'].includes(panelId)) {
+  if (['panel-changes', 'panel-comps'].includes(panelId)) {
     const scope = document.querySelector('#' + panelId + ' .panel-head .scope');
     if (scope) scope.textContent = '';
   }
@@ -2305,8 +2386,8 @@ async function main() {
   runPanel('panel-quotes', renderQuotes, ctx, data);
   runPanel('panel-chart', renderChart, ctx, data);
   runPanel('panel-press', renderPress, ctx, data);
-  // Both folded sections print open (Q7). A link to a fold or into one (#fold-guidance, or the
-  // table's #definitions, opened in a new tab) opens it.
+  // All four folds print open and return to their screen state afterwards (D6). A link to a fold
+  // or into one (#fold-guidance, or the table's #definitions, opened in a new tab) opens it.
   const openLinkedFold = () => {
     const fold = document.getElementById(location.hash.slice(1))?.closest('details.fold');
     if (fold) fold.open = true;

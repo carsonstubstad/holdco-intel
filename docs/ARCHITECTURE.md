@@ -255,24 +255,34 @@ updates the open "Curate needed" Issue rather than opening a second one.
 
 ## 7. Site (docs/)
 
-One page, in this order since v2.0: What changed (results in the next 14 days from
-events.json, guidance changes in the last 30 days from guidance.json); company chips and one
-scorecard per company (kpis, guidance, events, prices); two folded sections, All guidance
-(every current guidance record) and Quarterly history (the organic growth grid from
-kpis.json); In their words (verbatim quotes from commentary.json records by theme; the
-curator's headlines are never shown); the share price chart (prices, results and deal event
-markers, the benchmark); press releases from the last 30 days (key categories by default,
-"Show all" for the rest); data health footer (status.json). Names, colors and the benchmark
-come from companies.json. One compare selection (chips, a chart legend click, or the URL
-hash `#PUB,WPP`; Esc and "All" reset it) drives the cards, All guidance, the quotes, the
-chart and press; it is shared by link only, never stored in the browser. Computed in the
-browser: base-100 rebasing per window, YTD and the two-day results move, the
-quarter-on-quarter growth delta, each card's headline guidance record and the status
-counts, and which quote shows (Strategy prefers investor day, annual report or strategy plan
-material up to 365 days old; otherwise the newest). All returns are local currency; the
-chart footnote says so. Print is a handout: all six cards, both folded sections open, the
-pressed quotes theme for all six companies and every press item for all six companies.
-Chart library: Plotly via CDN, version-pinned with SRI. No build step.
+One page, in this order since step 20 ("Plot Sheet"): the header; a filter capsule pinned to
+the top; What’s new; the Peer table; Share price; four folds, closed on load: In their words,
+Press releases, All guidance and Quarterly history; data health on the paper. The capsule is
+the page's one company control, solo first: from all six, a click shows that company only,
+then each click adds or removes one; "All", Reset and Esc show all six again. Its selection
+drives What’s new, the table, the chart, the quotes, press and All guidance; it lives in the
+URL hash (`#PUB,WPP`), is shared by link only and is never stored in the browser. What’s new
+is a dated brief for the companies shown: results, guidance moves, capital markets days and
+deals of the last 14 days, newest first, then the dates in the next 14 days (events.json,
+kpis.json, guidance.json, press_releases.json, prices.json). The Peer table gives each company
+one row: organic growth and its change (named against the quarter before), margin, each
+figure beside its guidance, the YTD and results-day share moves, and the next results date;
+at 960px and below each company is a block instead. Share price rebases each shown company's
+line to 100 at the start of the window (1M to 2Y) beside the benchmark; its key is a key, not
+a control, and a subset adds results, capital markets day and deal markers. The folds hold
+verbatim management quotes by theme (commentary.json; the curator's headlines are never
+shown), press releases from the last 30 days (key categories first), every current guidance
+record, and the organic growth grid with its definitions (kpis.json); each fold's summary
+line says what is inside. Names, colors and the benchmark come from companies.json; company
+colors appear only in the chart. Computed in the browser: base-100 rebasing per window, YTD
+and the two-day results move, the quarter-on-quarter growth change, the table's headline and
+guidance records, the status counts, and which quote shows (Strategy prefers investor day,
+annual report or strategy plan material up to 365 days old; otherwise the newest). All
+returns are local currency; the chart footnote says so. Print is a meeting handout on A4 or
+Letter: page 1 holds the header, What’s new and the whole peer table; every fold prints open,
+and every panel shows all six companies whatever the screen selection. The chart prints with
+all six (never a subset, so no event markers) in the pressed window, with the benchmark as
+toggled. Chart library: Plotly via CDN, version-pinned with SRI. No build step.
 
 ## 8. MCP server (mcp_server/)
 
