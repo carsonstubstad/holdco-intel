@@ -507,7 +507,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   at 1440: 3,386px (3,415 before), /#WPP 2,482 (2,555); at 375: 5,098px (5,273), /#WPP
   3,853 (4,096). From 20c the executor saves the before and after screenshots itself.
 
-- [ ] **20c Peer table.** C1 to C7: the table, every Change naming its base ("vs Q2 26")
+- [x] **20c Peer table.** C1 to C7: the table, every Change naming its base ("vs Q2 26")
   or a reason, period links to sources, the headline, the foot line, the true minus and
   formatting rules, the 961 to 1100px fit. Acceptance: each C check; three rows match a
   hand check against kpis, guidance, events and prices (including the two-day move); at

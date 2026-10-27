@@ -5,6 +5,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const MARKER_TYPES = ['results', 'capital_markets_day', 'deal'];
 const DAY_MS = 86400000;
 const NBSP = String.fromCharCode(160); // keeps a headline figure on its label's line
+const MINUS = String.fromCharCode(0x2212); // the true minus, as wide as "+" in tabular figures
 const HOVER_BR = '<br>'; // the only markup joined into Plotly hover text; every part is escaped
 
 // ---------- DOM helpers ----------
@@ -126,10 +127,21 @@ function pct(a, b) {
   return (a / b - 1) * 100;
 }
 
-// Rounded first, then signed, so a value that rounds to zero reads "0.0%", never "-0.0%".
+// "+0.2", "−0.1" with the true minus (C6). Rounded first, then signed, so a value that rounds to
+// zero reads "0.0", never "−0.0".
+function signedFixed(n, digits = 1) {
+  const r = Number(n.toFixed(digits));
+  return (r > 0 ? '+' : r < 0 ? MINUS : '') + Math.abs(r).toFixed(digits);
+}
+
 function signedPct(p) {
-  const r = Number(p.toFixed(1));
-  return (r > 0 ? '+' : '') + (r === 0 ? 0 : r).toFixed(1) + '%';
+  return signedFixed(p) + '%';
+}
+
+// A change with its glyph: "▲ +0.2", "▼ −0.1"; zero is "0.0", with no glyph and no sign.
+function glyphSigned(d) {
+  const r = Number(d.toFixed(1));
+  return (r > 0 ? '▲ ' : r < 0 ? '▼ ' : '') + signedFixed(r);
 }
 
 function nonNullPoints(series) {
@@ -211,7 +223,7 @@ let showFilter = null; // set by renderFilter: the capsule's pressed pills, coun
 let closeFilter = null; // set by renderFilter: closes the phone opener; true if it was open
 let redrawChanges = null; // set by renderChanges after its first draw
 let redrawChart = null; // set by renderChart once the chart exists
-let showSelection = null; // set by renderCards
+let redrawTable = null; // set by renderTable after its first draw
 let redrawQuotes = null; // set by renderQuotes after its first draw
 let redrawGuidanceFold = null; // set by renderGuidanceFold after its first draw
 let unpinKpi = null; // set by renderKpis
@@ -276,7 +288,7 @@ function setSelection(ctx, codes, announce = true) {
     showFilter = null;
   }
   safeRedraw('panel-changes', redrawChanges, () => { redrawChanges = null; });
-  safeRedraw('panel-cards', showSelection, () => { showSelection = null; });
+  safeRedraw('panel-comps', redrawTable, () => { redrawTable = null; });
   safeRedraw('panel-chart', redrawChart, () => { redrawChart = null; });
   safeRedraw('fold-guidance', redrawGuidanceFold, () => { redrawGuidanceFold = null; });
   safeRedraw('panel-quotes', redrawQuotes, () => { redrawQuotes = null; });
@@ -409,6 +421,21 @@ function docLink(u, text) {
   return node;
 }
 
+// An in-page jump that opens All guidance and moves focus to its summary: link() opens a new
+// tab, and the URL keeps the selection's #PUB,WPP. Shared by What changed and the peer table.
+function guidanceJump(text, ariaLabel) {
+  const a = el('a', {href: '#fold-guidance', 'aria-label': ariaLabel}, text);
+  a.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    const fold = document.getElementById('fold-guidance');
+    if (!fold) return;
+    fold.open = true;
+    fold.scrollIntoView();
+    fold.querySelector('summary')?.focus({preventScroll: true});
+  });
+  return a;
+}
+
 // Coming up: results, capital markets days and deals in the next 14 days. Guidance: moves set in
 // the last 30 days, then that window's reaffirmations on one line. Print shows all companies.
 function renderChanges(ctx, data) {
@@ -461,20 +488,8 @@ function renderChanges(ctx, data) {
       el('span', {className: 'nowrap'}, sep(), date));
   };
 
-  // An in-page jump: link() opens a new tab, and the URL keeps the selection's #PUB,WPP.
-  const jumpLink = (left) => {
-    const a = el('a', {href: '#fold-guidance'}, 'See all guidance'
-      + (left ? `, ${left} more ${left === 1 ? 'move' : 'moves'}` : ''));
-    a.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      const fold = document.getElementById('fold-guidance');
-      if (!fold) return;
-      fold.open = true;
-      fold.scrollIntoView();
-      fold.querySelector('summary')?.focus({preventScroll: true});
-    });
-    return a;
-  };
+  const jumpLink = (left) => guidanceJump('See all guidance'
+    + (left ? `, ${left} more ${left === 1 ? 'move' : 'moves'}` : ''));
 
   function draw(codes) {
     const links = () => [...body.querySelectorAll('a')];
@@ -524,12 +539,12 @@ function renderChanges(ctx, data) {
 
   draw([...selected]);
   redrawChanges = () => draw([...selected]);
-  // Paper shows every company's changes, like the cards (D6).
+  // Paper shows every company's changes, like the table (D6).
   window.addEventListener('beforeprint', () => { if (redrawChanges) draw(allCodes(ctx)); });
   window.addEventListener('afterprint', () => { if (redrawChanges) redrawChanges(); });
 }
 
-// ---------- Scorecards: one card per company ----------
+// ---------- Peer table: one row per company (C1 to C7) ----------
 
 const STATUS_GLYPH = {raised: '▲', cut: '▼', held: '=', new: '+', withdrawn: '×'};
 
@@ -539,9 +554,19 @@ function statusLabel(s, word = capitalize(s)) {
 }
 
 const MOVE_TITLE = 'close before results day to close after it';
-// [label, metric, fallback metric, prefix naming the fallback]
-const CARD_GUIDANCE = [['Top line', 'organic_growth', 'revenue', 'Revenue'],
-  ['Profit', 'operating_margin', 'eps', 'EPS']];
+// [slot, metric, fallback metric]: Top line is organic growth, else revenue; Profit is operating
+// margin, else EPS (G2, as K4 had it).
+const PEER_GUIDANCE = [['topLine', 'organic_growth', 'revenue'],
+  ['profit', 'operating_margin', 'eps']];
+// Why a table cell shows "–": a dash always says why (C6).
+const DASH_WHY = {
+  growth: 'No organic growth figure on file',
+  margin: 'No margin figure on file',
+  record: 'No record',
+  ytd: 'No price history this year',
+  gap: 'No close before results day',
+  none: 'No results day on file',
+};
 
 // [end quarter index, quarters covered] for "Q3 2026", "H1 2026" or "FY 2026"; null otherwise.
 function periodSpan(period) {
@@ -575,122 +600,228 @@ function titlePeriod(title) {
   return /\binterim\b|\bhalf[- ]year/i.test(t) ? 'H1' : null;
 }
 
-function cardRow(kind, label, ...content) {
-  return el('div', {className: 'card-row card-' + kind}, el('div', {className: 'label'}, label),
-    ...content);
-}
+// One company's facts for the peer table and, from 20d, its company block: numbers, raw periods,
+// URLs and reason codes, never display words (the helpers below word them).
+function peerFacts(ctx, c, src) {
+  const rows = src.kpiRows.filter((r) => r.company === c.code);
+  const g = latestRow(rows, 'organic_growth_pct');
+  const m = latestRow(rows, 'margin_pct');
 
-function growthRow(rows) {
-  const r = latestRow(rows, 'organic_growth_pct');
-  if (!r) return cardRow('growth', 'Organic growth', el('div', {className: 'card-fig muted'}, '–'));
-  const [end, len] = periodSpan(r.period);
-  const why = len === 1 ? null
-    : (len === 2 ? 'Half-year' : 'Full-year') + ' figure; no quarter before to compare';
-  let delta = el('div', {className: 'card-delta muted', title: why}, '–');
-  if (len === 1) {
-    const d = quarterDelta(quarterRows(rows), end);
-    const prev = end - 1;
-    if (d === null) {
-      delta.title = `No ${quarterLabel(prev)} figure to compare`;
+  // The latest quarter vs the quarter directly before, both quarterly figures (12g's rule); a
+  // half-year or full-year figure has no quarter before it.
+  let change = {delta: null, why: 'none'};
+  if (g) {
+    const [end, len] = periodSpan(g.period);
+    if (len > 1) {
+      change = {delta: null, why: len === 2 ? 'half' : 'full'};
     } else {
-      const vs = Math.floor(prev / 4) === Math.floor(end / 4) ? `Q${(prev % 4) + 1}`
-        : shortPeriod(quarterLabel(prev));
-      delta = el('div', {className: 'card-delta ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'flat')},
-        `${d > 0 ? '▲ +' : d < 0 ? '▼ ' : ''}${d.toFixed(1)} pp vs ${vs}`);
+      const delta = quarterDelta(quarterRows(rows), end);
+      change = {delta, why: delta === null ? 'gap' : null, end, base: end - 1};
     }
   }
-  return cardRow('growth', 'Organic growth · ' + shortPeriod(r.period),
-    el('div', {className: 'card-fig'}, kpiText(r.organic_growth_pct)), delta);
-}
 
-function marginRow(rows) {
-  const r = latestRow(rows, 'margin_pct');
-  if (!r) return cardRow('margin', 'Margin', el('div', {className: 'card-fig muted'}, '–'));
-  const basis = typeof r.margin_metric === 'string' && r.margin_metric ? r.margin_metric : null;
-  return cardRow('margin', ['Margin', shortPeriod(r.period), basis].filter(Boolean).join(' · '),
-    el('div', {className: 'card-fig'}, String(r.margin_pct) + '%'));
-}
-
-// One guidance line: label, value (with a prefix naming a fallback metric or a period that is
-// not this year's FY), then status glyph and word and the set date linked to the source.
-function guidanceLine(label, r, prefix, year) {
-  const line = el('div', {className: 'cg-line'}, el('div', {className: 'cg-label'}, label));
-  if (!r) {
-    line.appendChild(el('div', {className: 'cg-value muted'}, '–'));
-    return line;
+  const records = src.guidance.filter((r) => r.company === c.code);
+  const guidance = {onFile: records.length > 0};
+  for (const [slot, metric, alt] of PEER_GUIDANCE) {
+    const main = headlineRecord(records.filter((r) => r.metric === metric), src.year);
+    const other = main ? null : headlineRecord(records.filter((r) => r.metric === alt), src.year);
+    guidance[slot] = main || other ? {record: main || other, fallback: !main} : null;
   }
-  const value = String(r.value ?? '');
-  const period = String(r.period ?? '').replace(/_/g, ' ');
-  const pre = [prefix, period && period !== 'FY ' + year ? period + ':' : null]
-    .filter(Boolean).join(' ');
-  const s = typeof r.status === 'string' ? r.status : 'unknown';
-  const date = link(r.source_url,
-    isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : 'source');
-  if (date.nodeType === Node.ELEMENT_NODE) {
-    date.append(' ', el('span', {'aria-hidden': 'true'}, '↗'));
-  }
-  line.append(
-    el('div', {className: 'cg-value', title: pre ? pre + ' ' + value : value},
-      pre ? el('span', {className: 'muted'}, pre + ' ') : null, value),
-    el('div', {className: 'cg-meta'},
-      statusBadge(s, statusLabel(s)), ' · ', date));
-  return line;
-}
 
-function guidanceRow(records, year) {
-  if (!records.length) {
-    return cardRow('guidance', 'Guidance',
-      el('div', {className: 'cg-line'}, el('div', {className: 'cg-label'}, 'Top line'),
-        el('div', {className: 'cg-value muted'}, 'No guidance on file')),
-      guidanceLine('Profit', null, null, year));
-  }
-  return cardRow('guidance', 'Guidance', ...CARD_GUIDANCE.map(([label, metric, fallback, name]) => {
-    const main = headlineRecord(records.filter((r) => r.metric === metric), year);
-    const alt = main ? null : headlineRecord(records.filter((r) => r.metric === fallback), year);
-    return guidanceLine(label, main || alt, alt ? name : null, year);
-  }));
-}
-
-// YTD (the chart's own rebased numbers) and the move from the close before the latest results
-// day to the close after it, from the company's real closes only.
-function sharesRow(ctx, c, ytd, series, results) {
-  const out = [];
-  out.push(isNum(ytd) ? el('div', {className: 'card-ytd'}, signedPct(ytd) + ' YTD')
-    : el('div', {className: 'card-ytd muted'}, 'YTD: –'));
-  const ev = results.filter((e) => e.company === c.code)
+  // The move from the close before the latest results day (up to today) to the close after it,
+  // from the company's real closes only.
+  const ev = src.results.filter((e) => e.company === c.code)
     .sort((a, b) => b.date.localeCompare(a.date))[0];
-  if (!ev) {
-    out.push(el('div', {className: 'card-move muted'}, 'No results on file'));
-  } else {
+  let move = {state: 'none', period: null, value: null};
+  if (ev) {
     const day = ev.date.slice(0, 10);
-    const p = titlePeriod(ev.title);
-    const label = `Share move on ${p ? p + ' ' : ''}results`;
-    const pts = nonNullPoints(series);
+    const pts = nonNullPoints(src.series[c.ticker]);
     const before = pts.filter(([d]) => d < day).pop();
     const after = pts.find(([d]) => d > day);
-    const move = before && after ? pct(after[1], before[1]) : null;
-    if (isNum(move)) {
-      out.push(el('div', {className: 'card-move', title: MOVE_TITLE},
-        label + ' ', el('span', {className: 'nowrap'}, signedPct(move))));
-    } else if (before && after) {
-      out.push(el('div', {className: 'card-move muted', title: MOVE_TITLE}, label + ': –'));
-    } else {
-      out.push(el('div', {className: 'card-move muted', title: MOVE_TITLE},
-        label + (before ? ': pending' : ': –')));
-    }
+    const value = before && after ? pct(after[1], before[1]) : null;
+    move = {period: titlePeriod(ev.title), value: isNum(value) ? value : null,
+      state: isNum(value) ? 'done' : before && !after ? 'pending' : 'gap'};
   }
-  return cardRow('shares', 'Shares', ...out);
+
+  const e = src.upcoming.find((x) => x.company === c.code && x.type === 'results');
+  return {
+    code: c.code,
+    name: String(c.name ?? c.code),
+    growth: g ? {value: g.organic_growth_pct, period: g.period, url: g.source_url} : null,
+    change,
+    margin: m ? {value: m.margin_pct, period: m.period, url: m.source_url,
+      metric: typeof m.margin_metric === 'string' && m.margin_metric ? m.margin_metric : null} : null,
+    guidance,
+    ytd: isNum(src.ytd[c.code]) ? src.ytd[c.code] : null,
+    move,
+    next: e ? {date: e.date.slice(0, 10), confirmed: e.confirmed === true, period: titlePeriod(e.title),
+      url: e.source_url, today: e.date.slice(0, 10) === src.today} : null,
+  };
 }
 
-function nextRow(ctx, c, upcoming) {
-  const e = upcoming.find((x) => x.company === c.code && x.type === 'results');
-  if (!e) return cardRow('next', 'Next', el('div', {className: 'muted'}, 'No date yet'));
-  const p = titlePeriod(e.title);
-  const text = fmtDayIn(e.date, ctx.today.slice(0, 4)) + (e.confirmed === true ? '' : ' (est.)');
-  return cardRow('next', 'Next' + (p ? ' · ' + p : ''),
-    el('div', {className: 'card-date'}, link(e.source_url, text),
-      e.date.slice(0, 10) === ctx.today
-        ? el('span', {className: 'badge badge-today'}, 'Reports today') : null));
+// "Q3 26 ↗" linked to its source, read as "Publicis Groupe Q3 26 source"; plain text without a
+// safe URL.
+function periodLink(name, fact, what) {
+  const label = shortPeriod(fact.period);
+  const node = docLink(fact.url, label);
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    node.setAttribute('aria-label', [name, label, what, 'source'].filter(Boolean).join(' '));
+  }
+  return node;
+}
+
+// "▲ +0.2 pp" and its class; "–" when there is nothing to compare.
+function changeFigure(change) {
+  const d = change.delta;
+  if (d === null) return {text: '–', className: 'muted'};
+  return {text: glyphSigned(d) + ' pp', className: d > 0 ? 'up' : d < 0 ? 'down' : 'flat'};
+}
+
+// Quarter index -> "Q2 26".
+function shortQuarter(i) {
+  return shortPeriod(quarterLabel(i));
+}
+
+// What the change is measured against ("vs Q2 26"), or why there is none (C2).
+function changeBase(change) {
+  if (change.delta !== null) return 'vs ' + shortQuarter(change.base);
+  if (change.why === 'gap') return 'no ' + shortQuarter(change.base);
+  return {half: 'half-year', full: 'full-year'}[change.why] ?? 'no figure';
+}
+
+// What a screen reader hears in place of the figure, before the base: "up 0.2 points vs Q2 26".
+function changeSpoken(change) {
+  const d = change.delta;
+  if (d === null) return 'not compared,';
+  if (d === 0) return 'no change';
+  return `${d > 0 ? 'up' : 'down'} ${Math.abs(d).toFixed(1)} points`;
+}
+
+// The change cell's title: "+0.2 pp, Q3 26 vs Q2 26", or the full reason for a dash.
+function changeTitle(change) {
+  if (change.delta !== null) {
+    return `${signedFixed(change.delta)} pp, ${shortQuarter(change.end)} vs ${shortQuarter(change.base)}`;
+  }
+  if (change.why === 'gap') return `No ${shortQuarter(change.base)} figure to compare`;
+  if (change.why === 'half') return 'Half-year figure, no quarter before to compare';
+  if (change.why === 'full') return 'Full-year figure, no quarter before to compare';
+  return 'No organic growth figure to compare';
+}
+
+// The guidance value with a muted prefix naming a fallback metric ("Revenue", "EPS") or a period
+// that is not this year's FY ("H2 2026:"); the full text in title. Data text stays as written.
+function guidanceValue(slot, year) {
+  const r = slot.record;
+  const value = String(r.value ?? '');
+  const period = String(r.period ?? '').replace(/_/g, ' ');
+  const pre = [slot.fallback ? metricLabel(r.metric) : null,
+    period && period !== 'FY ' + year ? period + ':' : null].filter(Boolean).join(' ');
+  return el('div', {className: 'g-value', title: pre ? pre + ' ' + value : value},
+    pre ? el('span', {className: 'muted'}, pre + ' ') : null, value);
+}
+
+// "= Held · 13 Oct ↗": the status glyph and word, then the set date linked to its source.
+function guidanceStatus(r, year) {
+  const s = typeof r.status === 'string' ? r.status : 'unknown';
+  return el('div', {className: 'g-status'}, statusBadge(s, statusLabel(s)), ' · ',
+    docLink(r.source_url, isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : 'source'));
+}
+
+// The next results date linked to its source: "29 Oct ↗", or "29 Oct (est.) ↗" with "(est.) ↗"
+// in one span that the tight table drops under the date (C7); plain text without a safe URL.
+function nextDate(next, year) {
+  const node = link(next.url, fmtDayIn(next.date, year));
+  const linked = node.nodeType === Node.ELEMENT_NODE;
+  const arrow = linked ? el('span', {'aria-hidden': 'true'}, '↗') : null;
+  const tail = next.confirmed ? arrow
+    : el('span', {className: 'est'}, '(est.)', arrow ? ' ' : null, arrow);
+  if (!tail) return node;
+  if (!linked) return el('span', {}, node, ' ', tail);
+  node.append(' ', tail);
+  return node;
+}
+
+// One table row: the company name as the row header, then a cell per column. Every dash carries
+// its reason in title.
+function peerRow(f, year) {
+  const td = (className, ...content) => el('td', {className}, ...content);
+  const dash = (why) => el('span', {className: 'muted', title: why}, '–');
+  const sub = (...content) => el('span', {className: 'sub'}, ...content);
+
+  const growth = f.growth
+    ? td('num', el('span', {className: 'fig1'}, kpiText(f.growth.value)),
+      sub(periodLink(f.name, f.growth)))
+    : td('num', dash(DASH_WHY.growth));
+
+  // The figure is hidden from screen readers; the spoken words stand in for it, then the base.
+  const fig = changeFigure(f.change);
+  const change = el('td', {className: 'num change', title: changeTitle(f.change)},
+    el('span', {className: 'delta ' + fig.className, 'aria-hidden': 'true'}, fig.text),
+    el('span', {className: 'visually-hidden'}, changeSpoken(f.change) + ' '),
+    sub(changeBase(f.change)));
+
+  const metric = f.margin?.metric;
+  const margin = f.margin
+    ? el('td', {className: 'num margin',
+      title: metric ? `${capitalize(metric)}, ${String(f.margin.period).replace(/_/g, ' ')}` : null},
+    el('span', {className: 'fig2'}, plainPct(f.margin.value)),
+    sub(periodLink(f.name, f.margin, 'margin'),
+      metric ? ', ' + metric.replace(/ margin$/i, '') : null))
+    : td('num margin', dash(DASH_WHY.margin));
+
+  const guidanceCell = (slot) => {
+    if (!f.guidance.onFile && slot === 'topLine') {
+      return td('guid', el('span', {className: 'muted'}, 'No guidance on file'));
+    }
+    const s = f.guidance[slot];
+    return s ? td('guid', guidanceValue(s, year), guidanceStatus(s.record, year))
+      : td('guid', dash(DASH_WHY.record));
+  };
+
+  const ytd = isNum(f.ytd) ? td('num', el('span', {className: 'fig3'}, signedPct(f.ytd)))
+    : td('num', dash(DASH_WHY.ytd));
+
+  const mv = f.move;
+  const movePeriod = mv.period ? sub(mv.period) : null;
+  const move = mv.state === 'done'
+    ? el('td', {className: 'num', title: MOVE_TITLE},
+      el('span', {className: 'fig3'}, signedPct(mv.value)), movePeriod)
+    : mv.state === 'pending'
+      ? el('td', {className: 'num', title: MOVE_TITLE}, el('span', {className: 'muted'}, 'pending'),
+        movePeriod)
+      : td('num', dash(DASH_WHY[mv.state]), movePeriod);
+
+  const nx = f.next;
+  const today = nx?.today ? el('span', {className: 'badge badge-today'}, 'Reports today') : null;
+  const next = nx
+    ? td('num next', nextDate(nx, year),
+      nx.period || today ? sub(nx.period, nx.period && today ? ' ' : null, today) : null)
+    : td('num next', el('span', {className: 'muted'}, 'No date yet'));
+
+  return el('tr', {}, el('th', {scope: 'row'}, f.name), growth, change, margin,
+    guidanceCell('topLine'), guidanceCell('profit'), ytd, move, next);
+}
+
+// C4: who grows fastest and slowest among the given companies with a growth figure, each with
+// its own period ("(Q3)"; "(Q4 25)" outside this year). A tie goes to the first in companies.json
+// order, and the trail is never the lead. Null with fewer than two figures.
+function tableHeadline(facts, year) {
+  const withFigure = facts.filter((f) => f.growth);
+  if (withFigure.length < 2) return null;
+  let lead = withFigure[0];
+  for (const f of withFigure) if (f.growth.value > lead.growth.value) lead = f;
+  const rest = withFigure.filter((f) => f !== lead);
+  let trail = rest[0];
+  for (const f of rest) if (f.growth.value < trail.growth.value) trail = f;
+  const when = (f) => {
+    const p = String(f.growth.period);
+    return p.endsWith(' ' + year) ? p.split(' ')[0] : shortPeriod(p);
+  };
+  const part = (f, words) => [`${f.name} ${words} at `, el('strong', {}, kpiText(f.growth.value)),
+    `${NBSP}(${when(f)})`];
+  const [leadWords, trailWords] = lead.growth.value < 0 ? ['shrinks least', 'shrinks most']
+    : ['grows fastest', trail.growth.value < 0 ? 'is shrinking' : 'grows slowest'];
+  return [...part(lead, leadWords), ', ', ...part(trail, trailWords), '.'];
 }
 
 // YTD per company code, from the same aligned and rebased lines as the chart's YTD window.
@@ -709,63 +840,127 @@ function ytdByCode(ctx, prices) {
   return out;
 }
 
-function renderCards(ctx, data) {
-  const panel = 'panel-cards';
-  showSelection = null;
+// [group label, its column names (none: one column spanning both header rows), numeric].
+const TABLE_GROUPS = [['Company', null, false], ['Organic growth', ['Latest', 'Change'], true],
+  ['Margin', null, true], ['Guidance', ['Top line', 'Profit'], false],
+  ['Share price', ['YTD', 'Results day'], true], ['Next results', null, true]];
+
+// One <colgroup> per group (they carry the vertical rules), then two header rows: the group
+// labels, with Company, Margin and Next results spanning both, then the column names.
+function tableHead() {
+  const num = (on, extra) => [on ? 'num' : null, extra].filter(Boolean).join(' ') || null;
+  const groups = el('tr', {className: 'groups'}, ...TABLE_GROUPS.map(([label, cols, numeric]) => {
+    if (!cols) return el('th', {scope: 'col', rowspan: 2, className: num(numeric, 'group')}, label);
+    const th = el('th', {scope: 'colgroup', colspan: cols.length, className: num(numeric, 'group')},
+      label);
+    // Guidance's values clamp, so its label links to the full list; the header's own name stays
+    // "Guidance" for the cells it labels.
+    if (label === 'Guidance') {
+      th.setAttribute('aria-label', label);
+      const jump = guidanceJump('See all ↓', 'See all guidance');
+      jump.className = 'see-all';
+      th.append(' ', jump);
+    }
+    return th;
+  }));
+  const names = el('tr', {}, ...TABLE_GROUPS.flatMap(([, cols, numeric]) => (cols || [])
+    .map((name) => el('th', {scope: 'col', className: num(numeric)}, name))));
+  return [...TABLE_GROUPS.map(([, cols]) => el('colgroup', {span: cols ? cols.length : 1})),
+    el('thead', {}, groups, names)];
+}
+
+// C1: one row per shown company in companies.json order, the headline (C4) on the title's row and
+// the foot line (C5). Print shows all six.
+function renderTable(ctx, data) {
+  const panel = 'panel-comps';
+  const scope = document.querySelector('#' + panel + ' .panel-head .scope');
+  const headline = document.querySelector('#' + panel + ' .comps-headline');
+  redrawTable = null;
+  scope.textContent = '';
+  headline.hidden = true;
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
 
   const year = Number(ctx.today.slice(0, 4));
-  const kpiRows = (Array.isArray(data.kpis?.rows) ? data.kpis.rows : [])
-    .filter((r) => r && typeof r.company === 'string');
-  const guidance = currentGuidance(data.guidance);
   const items = Array.isArray(data.events?.items) ? data.events.items : [];
-  const results = items.filter((e) => e && e.type === 'results' && isIsoDate(e.date)
-    && e.date.slice(0, 10) <= ctx.today);
-  const upcoming = upcomingEvents(data.events, ctx.today, null);
-  const series = data.prices?.series && typeof data.prices.series === 'object'
-    ? data.prices.series : {};
-  const ytd = ytdByCode(ctx, data.prices);
-
-  // K4: every card has the same six rows, so a row of cards lines up on the subgrid.
-  const cards = new Map();
-  for (const c of ctx.list) {
-    const card = el('article', {className: 'card', 'data-code': c.code});
-    const color = safeColor(c.color);
-    if (color) card.style.setProperty('--company', color);
-    card.append(
-      el('header', {className: 'card-head'},
-        el('h3', {className: 'card-name'}, String(c.name ?? c.code)),
-        el('span', {className: 'card-code'}, String(c.code))),
-      growthRow(kpiRows.filter((r) => r.company === c.code)),
-      marginRow(kpiRows.filter((r) => r.company === c.code)),
-      guidanceRow(guidance.filter((r) => r.company === c.code), year),
-      sharesRow(ctx, c, ytd[c.code], series[c.ticker], results),
-      nextRow(ctx, c, upcoming));
-    cards.set(c.code, card);
-  }
-  const body = bodyOf(panel);
-  body.replaceChildren(...cards.values());
-
-  // K5: the swipe row is a tab stop only on narrow screens, where it scrolls.
-  const setTabStop = () => (NARROW.matches ? body.setAttribute('tabindex', '0')
-    : body.removeAttribute('tabindex'));
-  setTabStop();
-  NARROW.addEventListener('change', setTabStop);
-
-  // Unselected cards are hidden on screen only (CSS), so print shows all six (K7).
-  showSelection = () => {
-    for (const [code, card] of cards) {
-      const off = !selected.has(code);
-      // Never leave keyboard focus inside a card that is about to be hidden: it goes to the
-      // capsule, its first pressed pill or, where the pills fold away, the opener.
-      if (off && card.contains(document.activeElement)) {
-        document.querySelector(NARROW.matches ? '#filter .filter-opener'
-          : '#filter-pills [aria-pressed="true"]')?.focus();
-      }
-      card.classList.toggle('is-off', off);
-    }
+  const src = {
+    year,
+    today: ctx.today,
+    kpiRows: (Array.isArray(data.kpis?.rows) ? data.kpis.rows : [])
+      .filter((r) => r && typeof r.company === 'string'),
+    guidance: currentGuidance(data.guidance),
+    results: items.filter((e) => e && e.type === 'results' && isIsoDate(e.date)
+      && e.date.slice(0, 10) <= ctx.today),
+    upcoming: upcomingEvents(data.events, ctx.today, null),
+    series: data.prices?.series && typeof data.prices.series === 'object' ? data.prices.series : {},
+    ytd: ytdByCode(ctx, data.prices),
   };
-  showSelection();
+  const facts = new Map(ctx.list.map((c) => [c.code, peerFacts(ctx, c, src)]));
+  const rows = new Map([...facts].map(([code, f]) => [code, peerRow(f, year)]));
+
+  const tbody = el('tbody');
+  const table = el('table', {className: 'comps'},
+    el('caption', {className: 'visually-hidden'},
+      'Peer table: the latest reported figures for the companies shown'),
+    ...tableHead(),
+    tbody);
+
+  // C5: "Definitions" opens Quarterly history at its definitions, below the capsule. An in-page
+  // jump: the URL keeps the selection's #PUB,WPP.
+  const defs = el('a', {href: '#definitions'}, 'Definitions');
+  defs.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    const fold = document.getElementById('fold-history');
+    if (!fold) return;
+    fold.open = true;
+    const target = document.getElementById('definitions') || fold.querySelector('summary');
+    target?.scrollIntoView({block: 'start'});
+    target?.focus({preventScroll: true});
+  });
+  const wrap = el('div', {className: 'comps-wrap'}, table);
+  bodyOf(panel).replaceChildren(wrap,
+    el('p', {className: 'comps-foot'}, 'Latest reported figures, as stated. Growth and margin as '
+      + 'each company defines them. ', defs));
+  // While the table scrolls sideways inside its panel (narrow screens, until 20d's blocks), the
+  // wrapper is a named tab stop, so a keyboard can scroll it. Both sizes are watched: the wrapper
+  // narrows with the window, the table changes with the shown rows.
+  const scrollStop = new ResizeObserver(() => {
+    const scrolls = wrap.scrollWidth > wrap.clientWidth;
+    for (const [k, v] of [['tabindex', '0'], ['role', 'region'],
+      ['aria-label', 'Peer table, scrolls sideways']]) {
+      if (scrolls) wrap.setAttribute(k, v);
+      else wrap.removeAttribute(k);
+    }
+  });
+  scrollStop.observe(wrap);
+  scrollStop.observe(table);
+
+  function draw(codes) {
+    const had = document.activeElement;
+    const hadFocus = tbody.contains(had);
+    const want = new Set(codes);
+    const shown = allCodes(ctx).filter((c) => want.has(c));
+    tbody.replaceChildren(...shown.map((c) => rows.get(c)));
+    // With fewer than two growth figures the headline hides and the scope line names the shown.
+    const parts = tableHeadline(shown.map((c) => facts.get(c)), year);
+    headline.replaceChildren(...(parts || []));
+    headline.hidden = !parts;
+    scope.textContent = parts ? '' : scopeLabel(ctx, shown);
+    scope.hidden = Boolean(parts);
+    if (!hadFocus) return;
+    // A link whose row stays keeps focus; one whose row left hands it to the capsule: its first
+    // pressed pill or, where the pills fold away, the opener.
+    if (had.isConnected) had.focus();
+    else {
+      document.querySelector(NARROW.matches ? '#filter .filter-opener'
+        : '#filter-pills [aria-pressed="true"]')?.focus();
+    }
+  }
+
+  draw([...selected]);
+  redrawTable = () => draw([...selected]);
+  // Paper shows every company's row and their headline (D6).
+  window.addEventListener('beforeprint', () => { if (redrawTable) draw(allCodes(ctx)); });
+  window.addEventListener('afterprint', () => { if (redrawTable) redrawTable(); });
 }
 
 // ---------- In their words: management quotes by theme ----------
@@ -1271,7 +1466,7 @@ function quarterRows(rows) {
   return byQuarter;
 }
 
-// 12g's rule, shared by the grid and the cards: quarter q's organic growth vs the quarter
+// 12g's rule, shared by the grid and the table: quarter q's organic growth vs the quarter
 // directly before, both quarterly figures (a half-year never counts); null unless both exist.
 function quarterDelta(byQuarter, q) {
   const a = byQuarter.get(q)?.organic_growth_pct;
@@ -1283,9 +1478,14 @@ function isNum(v) {
   return typeof v === 'number' && Number.isFinite(v);
 }
 
-// The stored number with a sign; never rounded.
+// The stored number as reported, never rounded, with the true minus: "17.4%", "−2.8%".
+function plainPct(v) {
+  return (v < 0 ? MINUS : '') + String(Math.abs(v)) + '%';
+}
+
+// The stored number with a sign; never rounded. "–" when there is no number.
 function kpiText(v) {
-  return isNum(v) ? (v > 0 ? '+' : '') + String(v) + '%' : '–';
+  return isNum(v) ? (v > 0 ? '+' : '') + plainPct(v) : '–';
 }
 
 // Diverging blue-to-red tint over white, centered at zero and light enough that the text stays
@@ -1340,7 +1540,8 @@ function renderKpis(ctx, data) {
     const v = row.organic_growth_pct;
     const info = {row};
     const btn = el('button', {type: 'button', 'aria-pressed': 'false',
-      'aria-label': isNum(v) ? null : 'not stated, note available'}, kpiText(v));
+      'aria-label': isNum(v) ? null : 'not stated, note available',
+      title: isNum(v) ? null : 'Not stated; see the note'}, kpiText(v));
     btn.addEventListener('mouseenter', () => show(info));
     btn.addEventListener('focus', () => pin(info, btn));
     btn.addEventListener('click', () => pin(info, btn));
@@ -1375,7 +1576,8 @@ function renderKpis(ctx, data) {
     // figures (a half-year never counts). Glyph and sign carry the direction, not color.
     const newest = byQuarter.size ? Math.max(...byQuarter.keys()) : null;
     const d = newest === null ? null : quarterDelta(byQuarter, newest);
-    let delta = el('td', {className: 'kpi-delta kpi-none', 'aria-label': 'not available'}, '–');
+    let delta = el('td', {className: 'kpi-delta kpi-none', 'aria-label': 'not available',
+      title: 'No two quarters in a row to compare'}, '–');
     if (d !== null) {
       const prev = newest - 1;
       const span = Math.floor(newest / 4) === Math.floor(prev / 4)
@@ -1384,7 +1586,7 @@ function renderKpis(ctx, data) {
       const words = d > 0 ? `up ${d.toFixed(1)}` : d < 0 ? `down ${Math.abs(d).toFixed(1)}` : null;
       delta = el('td', {className: 'kpi-delta ' + (d > 0 ? 'up' : d < 0 ? 'down' : 'flat'),
         title: span, 'aria-label': `${span}: ` + (words ? words + ' percentage points' : 'no change')},
-      (d > 0 ? '▲ +' : d < 0 ? '▼ ' : '') + d.toFixed(1));
+      glyphSigned(d));
     }
     const tr = el('tr', {}, name, delta);
     for (let q = first; q <= last; q++) {
@@ -1394,7 +1596,8 @@ function renderKpis(ctx, data) {
         tr.appendChild(valueCell(halves.get(q), 2));
         q++;
       } else {
-        tr.appendChild(el('td', {className: 'kpi-cell kpi-none', 'aria-label': 'not stated'}, '–'));
+        tr.appendChild(el('td', {className: 'kpi-cell kpi-none', 'aria-label': 'not stated',
+          title: 'No figure stated for this quarter'}, '–'));
       }
     }
     tbody.appendChild(tr);
@@ -1450,7 +1653,7 @@ function openForPrint(details) {
   });
 }
 
-// ---------- All guidance (folded under the cards) ----------
+// ---------- All guidance (folded under the table) ----------
 
 const PERIOD_RANK = {FY: 0, H1: 1, H2: 2, Q1: 3, Q2: 4, Q3: 5, Q4: 6};
 const SUMMARY_STATUSES = ['raised', 'cut', 'new', 'held', 'withdrawn'];
@@ -1461,7 +1664,7 @@ function periodKey(period) {
   return m ? [Number(m[2]), PERIOD_RANK[m[1]]] : null;
 }
 
-// The headline record for a card's guidance line: a current-calendar-year period if any, else
+// The headline record for a table guidance cell: a current-calendar-year period if any, else
 // the earliest period; ties go to the newest set_date.
 function headlineRecord(records, year) {
   const key = (r) => periodKey(r.period) || [Infinity, 0];
@@ -1483,8 +1686,9 @@ function metricLabel(metric) {
 }
 
 // G3's record lines: status changes first, then held, then anything else; newest set_date first
-// within each. A quote that only repeats the value or the quote just above it is left out.
-function guidanceRecordLines(records) {
+// within each. A quote that only repeats the value or the quote just above it is left out. Set
+// dates read "13 Oct" in the given year, "2 Feb 2027" otherwise (C6).
+function guidanceRecordLines(records, year) {
   const rank = (r) => (Object.hasOwn(STATUS_RANK, r.status) ? STATUS_RANK[r.status] : 2);
   const setDate = (r) => (isIsoDate(r.set_date) ? r.set_date.slice(0, 10) : '');
   const byStatus = (a, b) => rank(a) - rank(b) || setDate(b).localeCompare(setDate(a))
@@ -1503,7 +1707,7 @@ function guidanceRecordLines(records) {
       el('strong', {className: 'g-rec-value'}, value),
       // The set date links to the source; without a valid date the link reads "source".
       el('span', {className: 'g-meta muted'}, statusBadge(s, statusLabel(s)), ' · ',
-        link(r.source_url, isIsoDate(r.set_date) ? fmtDay(r.set_date) : 'source')),
+        link(r.source_url, isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : 'source')),
       showQuote ? el('span', {className: 'g-quote'}, quote) : null);
   });
 }
@@ -1520,6 +1724,7 @@ function renderGuidanceFold(ctx, data) {
   if (!records.length) return empty(panel, 'No guidance records yet.');
 
   const companyOf = (r) => String(r.company ?? '');
+  const year = ctx.today.slice(0, 4);
   // A zero count names no direction: no glyph and no green or red ("0 cut").
   const badges = (pairs) => pairs.flatMap(([s, n], i) => [i ? ' · ' : null,
     n ? statusBadge(s, statusLabel(s, `${n} ${s}`)) : statusBadge('none', `0 ${s}`)]);
@@ -1545,7 +1750,7 @@ function renderGuidanceFold(ctx, data) {
       {className: 'g-group'},
       el('h3', {className: 'g-group-head'}, companyName(ctx, code)),
       el('ul', {className: 'g-records'},
-        ...guidanceRecordLines(mine.filter((r) => companyOf(r) === code)))));
+        ...guidanceRecordLines(mine.filter((r) => companyOf(r) === code), year))));
     // The summary says what is inside: "15 records: 1 raised, 2 new, 12 held"; blank for none.
     const statuses = statusCounts(mine, SUMMARY_STATUSES, []).map(([s, n]) => `${n} ${s}`);
     count.textContent = !mine.length ? ''
@@ -1558,7 +1763,7 @@ function renderGuidanceFold(ctx, data) {
 
   draw([...selected]);
   redrawGuidanceFold = () => draw([...selected]);
-  // Paper shows every company's guidance, like the cards (K7).
+  // Paper shows every company's guidance, like the table (D6).
   window.addEventListener('beforeprint', () => { if (redrawGuidanceFold) draw(known); });
   window.addEventListener('afterprint', () => { if (redrawGuidanceFold) redrawGuidanceFold(); });
 }
@@ -1709,7 +1914,8 @@ function renderHealth(ctx, data) {
     el('li', {className: ok < total ? 'warn' : ''}, `${ok}/${total} sources healthy`),
     el('li', {}, 'Runtime: ' + (typeof st.runtime_ms === 'number'
       ? (st.runtime_ms / 1000).toFixed(1) + ' s' : 'unknown')),
-    el('li', {}, 'Guidance age: ' + (typeof age === 'number' ? age + ' days' : 'no guidance yet')),
+    el('li', {}, 'Guidance age: ' + (typeof age === 'number'
+      ? `${age} ${age === 1 ? 'day' : 'days'}` : 'no guidance yet')),
     el('li', {}, el('a', {href: 'data/status.json'}, 'data/status.json')));
   const body = bodyOf(panel);
   body.replaceChildren(facts);
@@ -1743,10 +1949,12 @@ function failPanel(panelId) {
   // A fold's summary line, or the press scope line, describes content that is no longer there.
   const count = document.querySelector('#' + panelId + ' .fold-count');
   if (count) count.textContent = '';
-  if (panelId === 'panel-press' || panelId === 'panel-changes') {
+  if (['panel-press', 'panel-changes', 'panel-comps'].includes(panelId)) {
     const scope = document.querySelector('#' + panelId + ' .panel-head .scope');
     if (scope) scope.textContent = '';
   }
+  const headline = document.querySelector('#' + panelId + ' .comps-headline');
+  if (headline) headline.hidden = true;
   empty(panelId, 'This panel could not be rendered.');
 }
 
@@ -1793,17 +2001,17 @@ async function main() {
     console.warn('[holdco] filter failed to render:', err);
   }
   runPanel('panel-changes', renderChanges, ctx, data);
-  runPanel('panel-cards', renderCards, ctx, data);
+  runPanel('panel-comps', renderTable, ctx, data);
   runPanel('fold-guidance', renderGuidanceFold, ctx, data);
   runPanel('fold-history', renderKpis, ctx, data);
   runPanel('panel-quotes', renderQuotes, ctx, data);
   runPanel('panel-chart', renderChart, ctx, data);
   runPanel('panel-press', renderPress, ctx, data);
-  // Both folded sections print open (Q7). A link to a fold (#fold-guidance, e.g. What changed's
-  // link opened in a new tab) opens it.
+  // Both folded sections print open (Q7). A link to a fold or into one (#fold-guidance, or the
+  // table's #definitions, opened in a new tab) opens it.
   const openLinkedFold = () => {
-    const target = document.getElementById(location.hash.slice(1));
-    if (target?.matches('details.fold')) target.open = true;
+    const fold = document.getElementById(location.hash.slice(1))?.closest('details.fold');
+    if (fold) fold.open = true;
   };
   for (const fold of document.querySelectorAll('details.fold')) openForPrint(fold);
   openLinkedFold();

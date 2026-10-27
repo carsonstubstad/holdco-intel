@@ -33,6 +33,7 @@
   --fs-headline: 20px;
   --fs-h2: 22px;
   --fs-fig: 28px;
+  --fs-fig2: 17px;
   --fs-h1: 35px;
   --fw-regular: 400;
   --fw-medium: 500;
@@ -182,7 +183,7 @@ svg.mark { height: 0.62em; width: auto; vertical-align: -0.02em; }
 
 main { display: grid; gap: var(--gap); }
 
-/* A3: every section is a white panel; the scorecards and the chart are primary (2px ink). */
+/* A3: every section is a white panel; the peer table and the chart are primary (2px ink). */
 .panel {
   background: var(--panel);
   border: 1px solid var(--border-2);
@@ -210,55 +211,83 @@ main { display: grid; gap: var(--gap); }
 /* Warnings are ink at 600: red means direction only. */
 .warn { color: var(--ink); font-weight: var(--fw-strong); }
 
-/* Scorecards: ledger cards (K3, K4) until 20c. */
-.cards {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: var(--sp-4); row-gap: 0;
+/* C1: the peer table, one row per company, edge to edge inside the panel. Numeric columns sit
+   right, under right-aligned headers; the company and guidance columns sit left. */
+#panel-comps > .body { padding: 0 0 var(--sp-3); }
+#panel-comps > .body > .empty { padding: var(--sp-3) var(--pad) var(--sp-1); }
+/* C4: the headline sits on the title's row, where a scope line would. */
+.comps-headline {
+  margin: 0; font-size: var(--fs-headline); line-height: 1.25; letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums lining-nums;
 }
-/* The cards' own bottom margin closes the panel. */
-.panel > .body.cards { padding-bottom: 0; }
-.cards > .empty { grid-column: 1 / -1; margin-bottom: var(--sp-4); }
-/* Six rows per card on a subgrid, so each row lines up across a row of cards. A square box,
-   so the company-color top rule stays straight. */
-.card {
-  grid-row: span 6; display: grid; grid-template-rows: subgrid; row-gap: 0;
-  border: 1px solid var(--hairline); border-top: 3px solid var(--company, var(--border-2));
-  border-radius: 0; padding: 0 var(--sp-3);
-  margin-bottom: var(--sp-4); min-width: 0;
+.comps-headline strong { font-weight: var(--fw-strong); }
+.comps-wrap { overflow-x: auto; }
+/* A tab stop only while it scrolls (app.js); the ring stays inside the panel's border. */
+.comps-wrap:focus-visible { outline-offset: -2px; }
+table.comps { font-variant-numeric: tabular-nums lining-nums; }
+.comps th, .comps td { padding: 7px var(--sp-2); }
+/* Two header rows on the paper band: the group labels in ink at 600, then the column names. They
+   stay one line where there is room (C7 lets them wrap from 961 to 1100px). */
+.comps thead th {
+  padding-block: var(--sp-1) var(--sp-2); background: var(--paper); line-height: 1.3;
+  vertical-align: bottom; white-space: nowrap;
 }
-@media screen {
-  .card.is-off { display: none; }
+.comps thead th.group {
+  padding-block: 6px var(--sp-1); color: var(--ink); font-weight: var(--fw-strong);
+  vertical-align: top;
 }
-.card-head {
-  display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2);
-  padding: 6px 0;
+/* "See all ↓" beside the Guidance label, in link blue (the table's other links are ink). */
+.comps .see-all { margin-left: var(--sp-1); color: var(--link); font-weight: var(--fw-regular); }
+/* A hairline at the left of each group, from the header through the last row. */
+.comps colgroup + colgroup { border-left: 1px solid var(--hairline); }
+/* The panel's padding goes on the table's outer cells: the body rows and the group row. */
+.comps tbody > tr > :first-child, .comps tr.groups > :first-child { padding-left: var(--pad); }
+.comps tbody > tr > :last-child, .comps tr.groups > :last-child { padding-right: var(--pad); }
+.comps tbody tr { transition: background-color 150ms; }
+.comps tbody tr:hover { background: var(--hover); }
+/* The foot line's rule closes the table. */
+.comps tbody tr:last-child > * { border-bottom: 0; }
+.comps .num { text-align: right; }
+/* The company name in plain text: no code, no color. */
+.comps th[scope="row"] {
+  width: 150px; color: var(--ink); font-size: var(--fs-body); font-weight: var(--fw-strong);
 }
-.card-name { font-size: var(--fs-body); font-weight: var(--fw-strong); }
-.card-code { color: var(--ink-2); font-size: var(--fs-small); font-weight: var(--fw-strong); }
-.card-row {
-  border-top: 1px solid var(--hairline); padding: 6px 0;
-  min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums lining-nums;
+/* Figures, the change and its base never wrap; the margin basis and guidance text may. */
+.comps .fig1 {
+  display: block; font-size: var(--fs-fig); font-weight: var(--fw-medium); line-height: 1;
+  letter-spacing: -0.01em; white-space: nowrap;
 }
-.card-fig {
-  font-size: var(--fs-fig); font-weight: var(--fw-medium); line-height: 1; letter-spacing: -0.01em;
+.comps .fig2 {
+  display: block; font-size: var(--fs-fig2); font-weight: var(--fw-strong); line-height: 1.1;
+  white-space: nowrap;
 }
-.card-delta { font-size: var(--fs-small); font-weight: var(--fw-strong); }
-/* The delta sits beside the figure, and Next puts its date on the label's line, so the
-   first row of cards fits a 1440x900 window. */
-.card-growth, .card-next {
-  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--sp-2);
+.comps .fig3 { font-weight: var(--fw-strong); white-space: nowrap; }
+.comps .sub { display: block; margin-top: 3px; color: var(--ink-2); font-size: var(--fs-small); }
+.comps .sub a, .comps .g-status a { white-space: nowrap; }
+/* Inside the table links are ink, so green and red stay its only colors; each keeps its ↗. */
+.comps a { color: var(--ink-2); }
+.comps td.next a { color: var(--ink); }
+.comps a:focus-visible { text-decoration: underline; }
+.comps .delta { display: block; font-size: var(--fs-small); white-space: nowrap; }
+/* The change sits on the growth figure's line, and its base level with the period link. */
+.comps td.change .delta { line-height: var(--fs-fig); }
+.comps td.change .sub { white-space: nowrap; }
+.comps td.margin { min-width: 196px; }
+/* Guidance: the value at 600 on one line (two from 961 to 1100px; its full text in title and All
+   guidance), over the status line. These columns take the room the others leave. */
+.comps .g-value {
+  font-weight: var(--fw-strong);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden;
 }
-.card-growth .label { flex-basis: 100%; }
-/* Guidance: label | value (up to three lines) over status and date. */
-.cg-line { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); column-gap: var(--sp-2); }
-.cg-line + .cg-line { margin-top: var(--sp-1); }
-.cg-label { grid-row: span 2; color: var(--ink-2); font-size: var(--fs-small); }
-.cg-value {
-  grid-column: 2; font-weight: var(--fw-strong);
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+.comps .g-value .muted { font-weight: var(--fw-regular); }
+.comps .g-status { margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); }
+.comps .badge { line-height: inherit; }
+.comps td.next { white-space: nowrap; }
+/* C5: one small line under the table. */
+.comps-foot {
+  margin: var(--sp-3) var(--pad) 0; padding-top: var(--sp-2);
+  border-top: 1px solid var(--hairline); color: var(--ink-2); font-size: var(--fs-small);
 }
-.cg-value .muted { font-weight: var(--fw-regular); }
-.cg-meta { grid-column: 2; margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); }
 
 /* Status words in token colors, never color alone: the word is always there. */
 .badge, .chip {
@@ -541,12 +570,25 @@ details.err-full pre {
 /* On phones the GitHub link joins the footer (A2). */
 .foot-github { display: none; margin: var(--sp-1) 0 0; }
 
+/* C7: from 961 to 1100px every column fits without the table scrolling. */
+@media screen and (max-width: 1100px) {
+  .comps th, .comps td { padding-inline: 6px; }
+  .comps thead th { white-space: normal; }
+  .comps th[scope="row"] { width: 120px; }
+  /* Margin keeps room for its basis on two lines; the guidance columns give way. */
+  .comps td.margin { min-width: 140px; }
+  .comps .g-value { -webkit-line-clamp: 2; }
+  /* An estimate's "(est.) ↗" goes under the date; a confirmed "29 Oct ↗" stays one line. */
+  .comps .est { display: block; }
+}
+
 @media screen and (max-width: 960px) {
   /* The capsule stays one row: the "Showing…" words go (Reset stays) and the pills tighten. */
   .filter-count, .filter-sep { display: none; }
   .filter-pills button { padding: 0 var(--sp-3); }
   .c-cols { column-gap: var(--sp-5); }
-  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* The headline wraps under the title; the table scrolls inside its panel until 20d's blocks. */
+  .comps-headline { flex-basis: 100%; }
   /* Two columns: the attribution moves under the quote instead of being squeezed beside it. */
   .q-row { grid-template-columns: 7rem minmax(0, 1fr); row-gap: var(--sp-1); }
   .q-attr { grid-column: 2; }
@@ -595,19 +637,6 @@ details.err-full pre {
   .panel-controls { margin-left: 0; }
   /* Narrower segments keep the four theme labels on one line at 320px. */
   .track > button { padding: 0 clamp(6px, 2vw, 14px); }
-  /* K5: one swipe row inside the panel border; only the row scrolls sideways, never the page. */
-  .panel > .body.cards {
-    display: flex; gap: var(--sp-4); overflow-x: auto;
-    scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-    margin-inline: 0; padding: var(--sp-3) var(--pad) var(--sp-4);
-    scroll-padding-inline: var(--pad);
-  }
-  .card {
-    flex: 0 0 calc(100% - 16px); scroll-snap-align: start;
-    display: block; margin-bottom: 0;
-  }
-  .cards > .empty { margin-bottom: 0; }
-  .cg-line { grid-template-columns: 3.75rem minmax(0, 1fr); }
   #chart { height: 420px; }
   /* Dense flow puts status and date beside the label, above the full-width value. */
   ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
@@ -635,7 +664,7 @@ details.err-full pre {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #chart .scatterlayer .trace, .filter-pills button,
+  #chart .scatterlayer .trace, .filter-pills button, .comps tbody tr,
   .track > button, .bench-toggle, .show-more, details.fold > summary, .chev { transition: none; }
 }
 
@@ -651,12 +680,25 @@ details.err-full pre {
      clip-path, since overflow: hidden here made Chrome paginate the page into 10 sheets. */
   #panel-chart > .body { clip-path: inset(0); }
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
-  .card, ul.press li, ul.c-list li, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
+  ul.press li, ul.c-list li, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
   h2 { break-after: avoid; }
   /* Controls stay off paper: the show buttons and What changed's "See all guidance". */
   .show-more, .c-jump { display: none !important; }
   details.err-full { display: none; }
-  .cg-value { display: block; -webkit-line-clamp: none; overflow: visible; }
+  /* The peer table on an A4 line (703px): D6's table sizes (20d fits the rest of the page), the
+     tight widths, and guidance never clamped. */
+  .comps-wrap { overflow: visible; }
+  .comps th, .comps td { padding: 5px; font-size: 11px; }
+  .comps thead th { white-space: normal; }
+  .comps .sub, .comps .delta, .comps .g-status { font-size: 11px; }
+  .comps .fig1 { font-size: 18px; }
+  .comps td.change .delta { line-height: 18px; }
+  .comps .see-all { display: none; }
+  .comps .fig2 { font-size: 13px; }
+  .comps th[scope="row"] { width: 120px; }
+  .comps td.margin { min-width: 0; }
+  .comps .g-value { display: block; -webkit-line-clamp: none; overflow: visible; }
+  .comps .est { display: block; }
   /* Q7: the pressed theme for all six companies, its name kept on paper. */
   .q-themes { display: none !important; }
   .q-print-theme { display: block; margin: 0; padding: var(--sp-3) var(--pad) 0; }
