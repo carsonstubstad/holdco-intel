@@ -26,6 +26,8 @@ function el(tag, attrs, ...children) {
 }
 
 function safeUrl(u) {
+  // A missing URL is no link: new URL() would resolve "null" or "" against this page.
+  if (u === null || u === undefined || String(u).trim() === '') return null;
   try {
     const url = new URL(String(u), document.baseURI);
     return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
@@ -406,11 +408,33 @@ function renderFilter(ctx) {
   };
 }
 
-// ---------- What changed: coming up and guidance moves, following the capsule (B5) ----------
+// ---------- What’s new: a dated brief of the last 14 days, then the next dates (E1) ----------
 
-const CHANGES_ROWS = 3;
+const BRIEF_DAYS = 14;
+// 3, not 4: with four rows the 1440x900 table ended at 868px, past the 860px first screen
+// (DESIGN.md "First screen (20e)").
+const BRIEF_ROWS = 3;
 const COMING_WORD = {capital_markets_day: 'capital markets day', deal: 'deal'};
 const MOVE_STATUSES = ['raised', 'cut', 'new', 'withdrawn'];
+// On one day: results, then guidance, a capital markets day, a deal.
+const BRIEF_ORDER = ['results', 'guidance', 'capital_markets_day', 'deal'];
+// A results row's guidance word: the strongest status among the records set on its day.
+const DAY_GUIDANCE = [['cut', 'guidance cut'], ['raised', 'guidance raised'],
+  ['new', 'new guidance'], ['withdrawn', 'guidance withdrawn'], ['held', 'guidance held']];
+
+// E1's window, shared with E2's marker: from 14 days before today to yesterday (an event dated
+// today stays on the Next line).
+function inBrief(iso, today) {
+  const d = iso.slice(0, 10);
+  return d >= addDays(today, -BRIEF_DAYS) && d < today;
+}
+
+// E1 and E2's one record set: the results events in the window, each with its KPI row
+// (resultsRow; null while not on file, and always without kpis.json).
+function briefResults(events, kpiRows, kpisOk, today) {
+  return events.filter((e) => e && e.type === 'results' && isIsoDate(e.date)
+    && inBrief(e.date, today)).map((e) => ({e, kpi: kpisOk ? resultsRow(kpiRows, e) : null}));
+}
 
 // A link to a company document with its ↗; plain text (and no ↗) without a safe URL.
 function docLink(u, text) {
@@ -422,7 +446,7 @@ function docLink(u, text) {
 }
 
 // An in-page jump that opens All guidance and moves focus to its summary: link() opens a new
-// tab, and the URL keeps the selection's #PUB,WPP. Shared by What changed and the peer table.
+// tab, and the URL keeps the selection's #PUB,WPP. The peer table's foot line uses it (E3).
 function guidanceJump(text, ariaLabel) {
   const a = el('a', {href: '#fold-guidance', 'aria-label': ariaLabel}, text);
   a.addEventListener('click', (ev) => {
@@ -436,8 +460,30 @@ function guidanceJump(text, ariaLabel) {
   return a;
 }
 
-// Coming up: results, capital markets days and deals in the next 14 days. Guidance: moves set in
-// the last 30 days, then that window's reaffirmations on one line. Print shows all companies.
+// Hands keyboard focus to the capsule when a redraw took the focused link away: its first pressed
+// pill or, where the pills fold away, the opener.
+function focusFilter() {
+  document.querySelector(NARROW.matches ? '#filter .filter-opener'
+    : '#filter-pills [aria-pressed="true"]')?.focus();
+}
+
+// A title on one line, cut with "…" above 720px on screen (its full text in title) and wrapping on
+// phones and in print; the ↗ stays outside the cut. Linked through link(); plain text and no ↗
+// without a safe URL.
+function clipped(u, title, ...content) {
+  const clip = el('span', {className: 'c-clip'}, ...(content.length ? content : [title]));
+  const node = link(u, '');
+  if (node.nodeType !== Node.ELEMENT_NODE) return el('span', {className: 'c-clipped', title}, clip);
+  node.className = 'c-clipped';
+  node.title = title;
+  // The space shows where the title wraps (phones, print); one line, the flex gap stands in.
+  node.replaceChildren(clip, ' ', el('span', {'aria-hidden': 'true'}, '↗'));
+  return node;
+}
+
+// E1: the shown companies' results, guidance moves, capital markets days and deals of the last
+// 14 days, newest first, at most BRIEF_ROWS; then the next three dates on file. Print shows all
+// companies.
 function renderChanges(ctx, data) {
   const panel = 'panel-changes';
   const scope = document.querySelector('#' + panel + ' .panel-head .scope');
@@ -446,95 +492,154 @@ function renderChanges(ctx, data) {
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
 
   const year = ctx.today.slice(0, 4);
-  const since = addDays(ctx.today, -30);
   const order = new Map(allCodes(ctx).map((c, i) => [c, i]));
   const rank = (code) => order.get(code) ?? ctx.list.length;
-  const coming = upcomingEvents(data.events, ctx.today, 14)
-    .filter((e) => MARKER_TYPES.includes(e.type))
-    .sort((a, b) => a.date.slice(0, 10).localeCompare(b.date.slice(0, 10))
-      || rank(a.company) - rank(b.company));
-  // One record set for the moves and the Reaffirmed line: set in the last 30 days, up to today.
-  const recent = currentGuidance(data.guidance)
-    .filter((r) => isIsoDate(r.set_date) && r.set_date.slice(0, 10) >= since
-      && r.set_date.slice(0, 10) <= ctx.today);
+  const day = (iso) => iso.slice(0, 10);
+  const eventsOk = Array.isArray(data.events?.items);
+  const events = eventsOk ? data.events.items.filter((e) => e && isIsoDate(e.date)) : [];
+  const kpisOk = Array.isArray(data.kpis?.rows);
+  const kpiRows = kpisOk ? data.kpis.rows.filter((r) => r && typeof r.company === 'string') : [];
+  const series = data.prices?.series && typeof data.prices.series === 'object'
+    ? data.prices.series : {};
+  const guidance = currentGuidance(data.guidance);
+  const press = Array.isArray(data.press?.items) ? data.press.items : [];
   const body = bodyOf(panel);
-  const sep = () => el('span', {className: 'c-sep', 'aria-hidden': 'true'}, '·');
-  const column = (title, ...content) => el('div', {className: 'c-col'},
-    el('h3', {className: 'c-title'}, title), ...content);
-  const list = (rows) => (rows.length ? el('ul', {className: 'c-list'}, ...rows) : null);
+  // A "·" that opens a later part; a fold one shows only where a row folds onto two lines.
+  const sep = (fold) => el('span', {className: fold ? 'c-sep c-fold' : 'c-sep',
+    'aria-hidden': 'true'}, '·');
+  const muted = (text) => el('span', {className: 'muted'}, text);
 
-  const eventRow = (e) => {
-    const n = daysBetween(ctx.today, e.date);
-    const what = e.type === 'results' ? [titlePeriod(e.title), 'results'].filter(Boolean).join(' ')
+  // Date | company | kind | details; on phones "date · company · kind" over the details.
+  const row = (date, code, kind, ...details) => el('li', {className: 'c-row'},
+    el('span', {className: 'c-date'}, date),
+    el('span', {className: 'c-co'}, sep(true), companyName(ctx, code)),
+    el('span', {className: 'c-kind'}, sep(true), kind),
+    el('span', {className: 'c-detail'}, ...details.filter(Boolean)
+      .map((part, i) => (i ? el('span', {}, sep(), part) : part))));
+
+  // Results: a results event in the window that is confirmed or has its KPI row (an estimated
+  // date with no figures may not have happened).
+  const results = briefResults(events, kpiRows, kpisOk, ctx.today)
+    .filter(({e, kpi}) => e.confirmed === true || kpi);
+  const resultsOn = new Set(results.map(({e}) => e.company + ' ' + day(e.date)));
+
+  // "organic +7.2% ▲ +1.1 pp vs Q2 26" (or the dash and its reason, as C2), else why there is no
+  // figure: none in the row, the row not on file yet, or no KPI file.
+  const figures = (e, kpi) => {
+    if (!kpisOk) {
+      return el('span', {}, dashFor('Quarterly figures unavailable'), ' ',
+        muted('figures unavailable'));
+    }
+    if (!kpi) return muted('figures to come');
+    if (!isNum(kpi.organic_growth_pct)) {
+      return el('span', {}, dashFor(DASH_WHY.growth), ' ', muted('no organic figure'));
+    }
+    const change = growthChange(kpiRows.filter((r) => r.company === e.company), kpi);
+    return el('span', {}, el('span', {className: 'nowrap'}, 'organic ',
+      el('strong', {className: 'c-value'}, kpiText(kpi.organic_growth_pct))), ' ',
+    el('span', {className: 'chg nowrap', title: changeTitle(change)}, ...changeParts({change})));
+  };
+  // C3's two-day move; "pending" until the close after results day; left out without one.
+  const share = (e) => {
+    const mv = resultsMove(series[ctx.byCode[e.company]?.ticker], day(e.date));
+    if (mv.state === 'done') {
+      return el('span', {title: MOVE_TITLE}, el('span', {className: 'nowrap'}, 'share price ',
+        el('strong', {className: 'c-value'}, signedPct(mv.value))), ' on results day');
+    }
+    return mv.state === 'pending'
+      ? el('span', {title: MOVE_TITLE}, 'share price ', muted('pending')) : null;
+  };
+  // "= guidance held" when the company set records on its results day (curate.md dates them to
+  // the release).
+  const dayWord = (e) => {
+    const set = new Set(guidance.filter((r) => r.company === e.company && isIsoDate(r.set_date)
+      && day(r.set_date) === day(e.date)).map((r) => r.status));
+    const hit = DAY_GUIDANCE.find(([s]) => set.has(s));
+    return hit ? statusBadge(hit[0], statusLabel(hit[0], hit[1])) : null;
+  };
+
+  const items = [
+    ...results.map(({e, kpi}) => ({date: day(e.date), code: e.company, kind: 'results',
+      node: row(docLink(kpi && safeUrl(kpi.source_url) ? kpi.source_url : e.source_url,
+        fmtDayIn(e.date, year)), e.company,
+      [titlePeriod(e.title), 'results'].filter(Boolean).join(' '),
+      figures(e, kpi), share(e), dayWord(e))})),
+    // Guidance moved on a day its company has no results row (B5's row content).
+    ...guidance.filter((r) => MOVE_STATUSES.includes(r.status) && isIsoDate(r.set_date)
+      && inBrief(r.set_date, ctx.today) && !resultsOn.has(r.company + ' ' + day(r.set_date)))
+      .map((r) => {
+        const what = [metricLabel(r.metric), String(r.period ?? '').replace(/_/g, ' ')]
+          .filter(Boolean).join(' ');
+        const value = String(r.value ?? '');
+        return {date: day(r.set_date), code: r.company, kind: 'guidance',
+          node: row(docLink(r.source_url, fmtDayIn(r.set_date, year)), r.company,
+            statusBadge(r.status, statusLabel(r.status)),
+            clipped(null, `${what}: ${value}`, muted(what + ' '),
+              // As in the table: a withdrawn value is struck, its "× Withdrawn" is not.
+              el('strong', {className: 'c-value'},
+                r.status === 'withdrawn' ? el('s', {}, value) : value)))};
+      }),
+    ...events.filter((e) => e.type === 'capital_markets_day' && inBrief(e.date, ctx.today))
+      .map((e) => ({date: day(e.date), code: e.company, kind: e.type,
+        node: row(fmtDayIn(e.date, year), e.company, 'Capital markets day',
+          clipped(e.source_url, String(e.title ?? '')))})),
+    // Deals come from the press release; past deal events make no rows.
+    ...press.filter((p) => p && p.category === 'm_and_a' && isIsoDate(p.published)
+      && inBrief(p.published, ctx.today))
+      .map((p) => ({date: day(p.published), code: p.company, kind: 'deal',
+        node: row(fmtDayIn(p.published, year), p.company, 'Deal',
+          clipped(p.url, String(p.title ?? '')))})),
+  ].sort((a, b) => b.date.localeCompare(a.date)
+    || BRIEF_ORDER.indexOf(a.kind) - BRIEF_ORDER.indexOf(b.kind) || rank(a.code) - rank(b.code));
+
+  // The Next line: the next three dates with a results event, a capital markets day or a deal,
+  // from today through 14 days ahead; companies grouped by date in companies.json order. (The
+  // table's Next results column has no window.)
+  const coming = upcomingEvents(data.events, ctx.today, BRIEF_DAYS)
+    .filter((e) => MARKER_TYPES.includes(e.type));
+  const nextItem = (e) => {
+    const what = e.type === 'results' ? titlePeriod(e.title) ?? 'results'
       : COMING_WORD[e.type] ?? String(e.type).replace(/_/g, ' ');
-    const date = fmtDayIn(e.date, year) + (e.confirmed === true ? '' : ' (est.)');
+    const est = e.confirmed === true ? '' : ' (est.)';
     // "Reports today" fits results; a capital markets day or a deal is just "Today".
-    const onTheDay = e.type === 'results' ? 'Reports today' : 'Today';
-    return el('li', {},
-      el('span', {}, companyName(ctx, e.company) + ' ' + what),
-      el('span', {className: 'nowrap'}, sep(), docLink(e.source_url, date)),
-      n === 0 ? el('span', {}, sep(), el('span', {className: 'badge badge-today'}, onTheDay))
-        : el('span', {className: 'muted'}, sep(), n === 1 ? 'tomorrow' : `in ${n} days`));
+    const today = day(e.date) === ctx.today ? el('span', {className: 'badge badge-today'},
+      e.type === 'results' ? 'Reports today' : 'Today') : null;
+    return el('span', {className: 'nowrap'},
+      docLink(e.source_url, `${companyName(ctx, e.company)} ${what}${est}`),
+      today ? ' ' : null, today);
   };
-  const moveRow = (r) => {
-    const s = String(r.status);
-    const period = String(r.period ?? '').replace(/_/g, ' ');
-    const date = docLink(r.source_url, fmtDayIn(r.set_date, year));
-    return el('li', {},
-      statusBadge(s, statusLabel(s)),
-      el('span', {}, companyName(ctx, r.company)),
-      el('span', {className: 'muted'}, [metricLabel(r.metric), period].filter(Boolean).join(' ')),
-      el('strong', {className: 'c-value'}, String(r.value ?? '')),
-      el('span', {className: 'nowrap'}, sep(), date));
-  };
-
-  const jumpLink = (left) => guidanceJump('See all guidance'
-    + (left ? `, ${left} more ${left === 1 ? 'move' : 'moves'}` : ''));
 
   function draw(codes) {
     const links = () => [...body.querySelectorAll('a')];
     const focusAt = links().indexOf(document.activeElement);
     const want = new Set(codes);
     const everyone = allCodes(ctx).every((c) => want.has(c));
-    const mine = (x) => everyone || want.has(x.company);
+    const shown = items.filter((x) => everyone || want.has(x.code));
+    const rows = shown.slice(0, BRIEF_ROWS);
+    const next = coming.filter((e) => everyone || want.has(e.company));
+    const dates = [...new Set(next.map((e) => day(e.date)))].slice(0, 3);
+    // "Next 14 days", then the dates in one span, so a wrapped line hangs under the first date.
+    const nextLine = el('p', {className: 'c-next'},
+      el('span', {className: 'c-next-label'}, `Next ${BRIEF_DAYS} days`),
+      el('span', {className: 'c-next-dates'}, ...(!eventsOk ? [muted('Dates unavailable.')]
+        : !dates.length ? [muted('No dates on file.')]
+          : dates.map((d, i) => el('span', {}, i ? sep() : null, fmtDayIn(d, year) + ' ',
+            ...next.filter((e) => day(e.date) === d)
+              .sort((a, b) => rank(a.company) - rank(b.company))
+              .flatMap((e, j) => [j ? ', ' : null, nextItem(e)]))))));
 
-    const events = coming.filter(mine);
-    const comingCol = column('Coming up',
-      list(events.slice(0, CHANGES_ROWS).map(eventRow)),
-      events.length ? null : el('p', {className: 'empty'},
-        'No results, capital markets days or deals in the next 14 days.'),
-      events.length > CHANGES_ROWS
-        ? el('p', {className: 'c-note muted'}, `and ${events.length - CHANGES_ROWS} more`) : null);
-
-    const shownRecords = recent.filter(mine);
-    const setDate = (r) => r.set_date.slice(0, 10);
-    const moves = shownRecords.filter((r) => MOVE_STATUSES.includes(r.status))
-      .sort((a, b) => setDate(b).localeCompare(setDate(a)) || rank(a.company) - rank(b.company)
-        || String(a.metric).localeCompare(String(b.metric)));
-    // Each company once, at its newest held date, in companies.json order.
-    const heldAt = new Map();
-    for (const r of shownRecords.filter((x) => x.status === 'held')) {
-      const prev = heldAt.get(r.company);
-      if (!prev || setDate(r) > prev) heldAt.set(r.company, setDate(r));
-    }
-    // "Publicis Groupe 13 Oct" never splits across lines.
-    const held = [...heldAt.keys()].sort((a, b) => rank(a) - rank(b)).map((c) => el('span',
-      {className: 'nowrap'}, companyName(ctx, c) + ' ',
-      el('span', {className: 'muted'}, fmtDayIn(heldAt.get(c), year))));
-    const jump = jumpLink(Math.max(moves.length - CHANGES_ROWS, 0));
-    const guidanceCol = column('Guidance, last 30 days',
-      list(moves.slice(0, CHANGES_ROWS).map(moveRow)),
-      moves.length ? null : el('p', {className: 'empty'},
-        'No guidance raised, cut, set or withdrawn.'),
-      held.length ? el('p', {className: 'c-note'}, el('span', {className: 'muted'}, 'Reaffirmed '),
-        ...held.flatMap((span, i) => [i ? ', ' : null, span])) : null,
-      el('p', {className: 'c-jump'}, jump));
-
-    scope.textContent = scopeLabel(ctx, codes);
-    body.replaceChildren(el('div', {className: 'c-cols'}, comingCol, guidanceCol));
+    scope.textContent = `${scopeLabel(ctx, codes)} · last ${BRIEF_DAYS} days`
+      + (shown.length > rows.length ? `, latest ${rows.length} of ${shown.length} updates` : '');
+    body.replaceChildren(rows.length ? el('ul', {className: 'c-rows'}, ...rows.map((x) => x.node))
+      : el('p', {className: 'empty'}, `Nothing reported in the last ${BRIEF_DAYS} days.`),
+    nextLine);
     // Never leave keyboard focus on a link that was just replaced: the link in the same place,
-    // else "See all guidance".
-    if (focusAt >= 0) (links()[focusAt] || jump).focus();
+    // else the capsule.
+    if (focusAt >= 0) {
+      const same = links()[focusAt];
+      if (same) same.focus();
+      else focusFilter();
+    }
   }
 
   draw([...selected]);
@@ -597,7 +702,54 @@ function titlePeriod(title) {
   const t = String(title ?? '');
   const m = /\b(Q[1-4]|H[12]|FY)/.exec(t);
   if (m) return m[1];
+  // "Third Quarter 2026 Earnings Call" -> "Q3", so E1 and E2 can still match its KPI row.
+  const q = /\b(first|second|third|fourth) quarter\b/i.exec(t);
+  if (q) return 'Q' + (['first', 'second', 'third', 'fourth'].indexOf(q[1].toLowerCase()) + 1);
   return /\binterim\b|\bhalf[- ]year/i.test(t) ? 'H1' : null;
+}
+
+// The period an event title reports, with the title's own year: "Q3 FY2026 results" -> "Q3 2026".
+// The year never comes from the event's date, since Q4 and FY results come out the next year.
+// Null without both.
+function titlePeriodYear(title) {
+  const p = titlePeriod(title);
+  const y = /20\d{2}/.exec(String(title ?? ''));
+  return p && y ? p + ' ' + y[0] : null;
+}
+
+// E1 and E2's period match: the company's KPI row whose period ends where the event title's does,
+// the shorter period first (latestRow's tie rule), so Dentsu's "Q2 FY2026 results" finds its
+// H1 2026 row and Publicis's "H1 2026 results" its Q2 2026 row. A row with a null figure still
+// matches; null when none does or the title names no period.
+function resultsRow(rows, e) {
+  const span = periodSpan(titlePeriodYear(e.title));
+  if (!span) return null;
+  const hits = rows.filter((r) => r.company === e.company)
+    .map((r) => [r, periodSpan(r.period)])
+    .filter(([, s]) => s && s[0] === span[0])
+    .sort((a, b) => a[1][1] - b[1][1]);
+  return hits.length ? hits[0][0] : null;
+}
+
+// C3's two-day move: the close before results day to the close after it, from real closes only;
+// 'pending' until the close after exists, 'gap' without a close before.
+function resultsMove(series, day) {
+  const pts = nonNullPoints(series);
+  const before = pts.filter(([d]) => d < day).pop();
+  const after = pts.find(([d]) => d > day);
+  const value = before && after ? pct(after[1], before[1]) : null;
+  return {value: isNum(value) ? value : null,
+    state: isNum(value) ? 'done' : before && !after ? 'pending' : 'gap'};
+}
+
+// C2's change for a growth row: its quarter vs the quarter directly before, both quarterly
+// figures (12g's rule); a half-year or full-year figure has no quarter before it.
+function growthChange(rows, g) {
+  if (!g) return {delta: null, why: 'none'};
+  const [end, len] = periodSpan(g.period);
+  if (len > 1) return {delta: null, why: len === 2 ? 'half' : 'full'};
+  const delta = quarterDelta(quarterRows(rows), end);
+  return {delta, why: delta === null ? 'gap' : null, end, base: end - 1};
 }
 
 // One company's facts for its peer table row and its company block: numbers, raw periods, URLs
@@ -606,19 +758,7 @@ function peerFacts(ctx, c, src) {
   const rows = src.kpiRows.filter((r) => r.company === c.code);
   const g = latestRow(rows, 'organic_growth_pct');
   const m = latestRow(rows, 'margin_pct');
-
-  // The latest quarter vs the quarter directly before, both quarterly figures (12g's rule); a
-  // half-year or full-year figure has no quarter before it.
-  let change = {delta: null, why: 'none'};
-  if (g) {
-    const [end, len] = periodSpan(g.period);
-    if (len > 1) {
-      change = {delta: null, why: len === 2 ? 'half' : 'full'};
-    } else {
-      const delta = quarterDelta(quarterRows(rows), end);
-      change = {delta, why: delta === null ? 'gap' : null, end, base: end - 1};
-    }
-  }
+  const change = growthChange(rows, g);
 
   const records = src.guidance.filter((r) => r.company === c.code);
   const guidance = {onFile: records.length > 0};
@@ -628,25 +768,25 @@ function peerFacts(ctx, c, src) {
     guidance[slot] = main || other ? {record: main || other, fallback: !main} : null;
   }
 
-  // The move from the close before the latest results day (up to today) to the close after it,
-  // from the company's real closes only.
+  // The move around the latest results day, up to today.
   const ev = src.results.filter((e) => e.company === c.code)
     .sort((a, b) => b.date.localeCompare(a.date))[0];
-  let move = {state: 'none', period: null, value: null};
-  if (ev) {
-    const day = ev.date.slice(0, 10);
-    const pts = nonNullPoints(src.series[c.ticker]);
-    const before = pts.filter(([d]) => d < day).pop();
-    const after = pts.find(([d]) => d > day);
-    const value = before && after ? pct(after[1], before[1]) : null;
-    move = {period: titlePeriod(ev.title), value: isNum(value) ? value : null,
-      state: isNum(value) ? 'done' : before && !after ? 'pending' : 'gap'};
-  }
+  const move = ev ? {period: titlePeriod(ev.title), ...resultsMove(src.series[c.ticker],
+    ev.date.slice(0, 10))} : {state: 'none', period: null, value: null};
+
+  // E2: the newest confirmed results event in E1's window with no KPI row for its period yet;
+  // never without kpis.json.
+  const hit = src.brief.filter(({e: x}) => x.company === c.code && x.confirmed === true)
+    .sort((a, b) => b.e.date.localeCompare(a.e.date))[0];
+  const out = src.kpisOk && hit && !hit.kpi ? {period: titlePeriod(hit.e.title),
+    label: titlePeriodYear(hit.e.title), date: hit.e.date.slice(0, 10), url: hit.e.source_url}
+    : null;
 
   const e = src.upcoming.find((x) => x.company === c.code && x.type === 'results');
   return {
     code: c.code,
     name: String(c.name ?? c.code),
+    out,
     growth: g ? {value: g.organic_growth_pct, period: g.period, url: g.source_url} : null,
     change,
     margin: m ? {value: m.margin_pct, period: m.period, url: m.source_url,
@@ -708,23 +848,47 @@ function changeTitle(change) {
   return 'No organic growth figure to compare';
 }
 
-// The guidance value with a muted prefix naming a fallback metric ("Revenue", "EPS") or a period
-// that is not this year's FY ("H2 2026:"); the full text in title. Data text stays as written.
-function guidanceValue(slot, year) {
+// E3: the statuses a table guidance value shows, unlike MOVE_STATUSES no "new": Held and New show
+// none (a "New" can be months old; All guidance carries every record's status and E1 the last 14
+// days' moves).
+const TABLE_STATUSES = ['raised', 'cut', 'withdrawn'];
+
+// E3: the guidance value in full (CSS clamps it), led by its status only when it moved ("▲ Raised
+// · "; a withdrawn value struck through), with a muted prefix naming a fallback metric ("Revenue",
+// "EPS") or a period that is not this year's FY ("H2 2026:"). The title adds the status and date.
+// The ↗ to the record's source sits outside the clamped text, so a long value never hides it;
+// none without a safe URL. Data text stays as written.
+function guidanceValue(name, slot, year) {
   const r = slot.record;
+  const s = typeof r.status === 'string' ? r.status : 'unknown';
   const value = String(r.value ?? '');
   const period = String(r.period ?? '').replace(/_/g, ' ');
   const pre = [slot.fallback ? metricLabel(r.metric) : null,
     period && period !== 'FY ' + year ? period + ':' : null].filter(Boolean).join(' ');
-  return el('div', {className: 'g-value', title: pre ? pre + ' ' + value : value},
-    pre ? el('span', {className: 'muted'}, pre + ' ') : null, value);
+  const date = isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : null;
+  const moved = TABLE_STATUSES.includes(s);
+  const when = [capitalize(s), date].filter(Boolean).join(', ');
+  const full = (pre ? pre + ' ' : '') + value;
+  const text = el('span', {className: 'g-value', title: full + '\n' + when},
+    moved ? statusBadge(s, statusLabel(s)) : null, moved ? ' · ' : null,
+    pre ? el('span', {className: 'muted'}, pre + ' ') : null,
+    s === 'withdrawn' ? el('s', {}, value) : value);
+  const src = link(r.source_url, '↗');
+  if (src.nodeType !== Node.ELEMENT_NODE) return el('div', {className: 'g-line'}, text);
+  src.className = 'g-src';
+  src.setAttribute('aria-label',
+    `${name} ${metricLabel(r.metric)} guidance source${date ? ', ' + date : ''}`);
+  return el('div', {className: 'g-line'}, text, src);
 }
 
-// "= Held · 13 Oct ↗": the status glyph and word, then the set date linked to its source.
-function guidanceStatus(r, year) {
-  const s = typeof r.status === 'string' ? r.status : 'unknown';
-  return el('div', {className: 'g-status'}, statusBadge(s, statusLabel(s)), ' · ',
-    docLink(r.source_url, isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : 'source'));
+// E2: "Q3 out 22 Oct ↗" under the company's name, linked to the results event; null unless the
+// company's results are out and their figures are not on file yet.
+function outParts(f, year) {
+  if (!f.out) return null;
+  const when = fmtDayIn(f.out.date, year);
+  const what = f.out.label ? shortPeriod(f.out.label) + ' results' : 'Results';
+  return el('span', {className: 'sub out', title: `${what} out ${when}; figures not on file yet`},
+    docLink(f.out.url, `${f.out.period ?? 'Results'} out ${when}`));
 }
 
 // The next results date linked to its source: "29 Oct ↗", or "29 Oct (est.) ↗" with "(est.) ↗"
@@ -768,25 +932,32 @@ function changeParts(f) {
     subLine(changeBase(f.change))];
 }
 
-// "17.4%" and "H1 26 ↗, operating", with the stored wording as the title.
+// E3: the profit a margin is measured on: margin_metric without its trailing " margin", with
+// " profit" added where it would end in "operating" ("operating margin" -> "operating profit",
+// "adjusted EBITA margin" -> "adjusted EBITA").
+function marginBasis(metric) {
+  const basis = metric.replace(/ margin$/i, '');
+  return /\boperating$/i.test(basis) ? basis + ' profit' : basis;
+}
+
+// "17.4%" and "H1 26 ↗, operating profit", with the stored wording as the title.
 function marginParts(f) {
   if (!f.margin) return {nodes: [dashFor(DASH_WHY.margin)], title: null};
   const metric = f.margin.metric;
   return {
     nodes: [el('span', {className: 'fig2'}, plainPct(f.margin.value)),
-      subLine(periodLink(f.name, f.margin, 'margin'),
-        metric ? ', ' + metric.replace(/ margin$/i, '') : null)],
+      subLine(periodLink(f.name, f.margin, 'margin'), metric ? ', ' + marginBasis(metric) : null)],
     title: metric ? `${capitalize(metric)}, ${String(f.margin.period).replace(/_/g, ' ')}` : null,
   };
 }
 
-// The Top line or Profit value and its status line.
+// The Top line or Profit value with its ↗ (E3: no status line).
 function guidanceParts(f, slot, year) {
   if (!f.guidance.onFile && slot === 'topLine') {
     return [el('span', {className: 'muted'}, 'No guidance on file')];
   }
   const s = f.guidance[slot];
-  return s ? [guidanceValue(s, year), guidanceStatus(s.record, year)] : [dashFor(DASH_WHY.record)];
+  return s ? [guidanceValue(f.name, s, year)] : [dashFor(DASH_WHY.record)];
 }
 
 function ytdParts(f) {
@@ -816,18 +987,19 @@ function nextParts(f, year) {
   };
 }
 
-// One table row: the company name as the row header, then a cell per column.
+// One table row: the company name as the row header (E2's marker under it), then a cell per
+// column, each figure beside its guidance (E3).
 function peerRow(f, year) {
   const td = (className, ...content) => el('td', {className}, ...content);
   const m = marginParts(f);
   const mv = moveParts(f);
   const nx = nextParts(f, year);
-  return el('tr', {}, el('th', {scope: 'row'}, f.name),
+  return el('tr', {}, el('th', {scope: 'row'}, f.name, outParts(f, year)),
     td('num growth', ...growthParts(f)),
     el('td', {className: 'num change', title: changeTitle(f.change)}, ...changeParts(f)),
+    td('guid g-top', ...guidanceParts(f, 'topLine', year)),
     el('td', {className: 'num margin', title: m.title}, ...m.nodes),
-    td('guid', ...guidanceParts(f, 'topLine', year)),
-    td('guid', ...guidanceParts(f, 'profit', year)),
+    td('guid g-profit', ...guidanceParts(f, 'profit', year)),
     td('num', ytdParts(f)),
     el('td', {className: 'num', title: mv.title}, mv.node,
       f.move.period ? subLine(f.move.period) : null),
@@ -849,6 +1021,7 @@ function peerBlock(f, year) {
     ? el('span', {className: 'chg', title: changeTitle(f.change)}, ...changeParts(f)) : null;
   return el('div', {className: 'co-block'},
     el('h3', {className: 'co-name'}, f.name),
+    outParts(f, year),
     el('dl', {},
       ...pair(['Organic growth'], el('dd', {className: 'figs'}, ...growthParts(f), change)),
       ...pair([spoken('Top line '), 'Guidance'],
@@ -902,31 +1075,25 @@ function ytdByCode(ctx, prices) {
   return out;
 }
 
-// [group label, its column names (none: one column spanning both header rows), numeric].
-const TABLE_GROUPS = [['Company', null, false], ['Organic growth', ['Latest', 'Change'], true],
-  ['Margin', null, true], ['Guidance', ['Top line', 'Profit'], false],
-  ['Share price', ['YTD', 'Results day'], true], ['Next results', null, true]];
+// E3: [group label, its columns as [name, numeric] (none: one column spanning both header rows,
+// numeric as the third item says)]. Each figure sits beside its guidance.
+const TABLE_GROUPS = [['Company', null, false],
+  ['Top line', [['Organic growth', true], ['Change', true], ['Guidance', false]]],
+  ['Profit', [['Margin', true], ['Guidance', false]]],
+  ['Share price', [['YTD', true], ['Results day', true]]],
+  ['Next results', null, true]];
 
 // One <colgroup> per group (they carry the vertical rules), then two header rows: the group
-// labels, with Company, Margin and Next results spanning both, then the column names.
+// labels, with Company and Next results spanning both, then the column names. A group label sits
+// right only when all its columns are numeric.
 function tableHead() {
   const num = (on, extra) => [on ? 'num' : null, extra].filter(Boolean).join(' ') || null;
-  const groups = el('tr', {className: 'groups'}, ...TABLE_GROUPS.map(([label, cols, numeric]) => {
-    if (!cols) return el('th', {scope: 'col', rowspan: 2, className: num(numeric, 'group')}, label);
-    const th = el('th', {scope: 'colgroup', colspan: cols.length, className: num(numeric, 'group')},
-      label);
-    // Guidance's values clamp, so its label links to the full list; the header's own name stays
-    // "Guidance" for the cells it labels.
-    if (label === 'Guidance') {
-      th.setAttribute('aria-label', label);
-      const jump = guidanceJump('See all ↓', 'See all guidance');
-      jump.className = 'see-all';
-      th.append(' ', jump);
-    }
-    return th;
-  }));
-  const names = el('tr', {}, ...TABLE_GROUPS.flatMap(([, cols, numeric]) => (cols || [])
-    .map((name) => el('th', {scope: 'col', className: num(numeric)}, name))));
+  const groups = el('tr', {className: 'groups'}, ...TABLE_GROUPS.map(([label, cols, numeric]) => (
+    cols ? el('th', {scope: 'colgroup', colspan: cols.length,
+      className: num(cols.every(([, n]) => n), 'group')}, label)
+      : el('th', {scope: 'col', rowspan: 2, className: num(numeric, 'group')}, label))));
+  const names = el('tr', {}, ...TABLE_GROUPS.flatMap(([, cols]) => (cols || [])
+    .map(([name, numeric]) => el('th', {scope: 'col', className: num(numeric)}, name))));
   return [...TABLE_GROUPS.map(([, cols]) => el('colgroup', {span: cols ? cols.length : 1})),
     el('thead', {}, groups, names)];
 }
@@ -945,14 +1112,18 @@ function renderTable(ctx, data) {
 
   const year = Number(ctx.today.slice(0, 4));
   const items = Array.isArray(data.events?.items) ? data.events.items : [];
+  const kpisOk = Array.isArray(data.kpis?.rows);
+  const kpiRows = (kpisOk ? data.kpis.rows : []).filter((r) => r && typeof r.company === 'string');
   const src = {
     year,
     today: ctx.today,
-    kpiRows: (Array.isArray(data.kpis?.rows) ? data.kpis.rows : [])
-      .filter((r) => r && typeof r.company === 'string'),
+    kpisOk,
+    kpiRows,
     guidance: currentGuidance(data.guidance),
     results: items.filter((e) => e && e.type === 'results' && isIsoDate(e.date)
       && e.date.slice(0, 10) <= ctx.today),
+    // E2: results events in E1's window with their KPI rows.
+    brief: briefResults(items, kpiRows, kpisOk, ctx.today),
     upcoming: upcomingEvents(data.events, ctx.today, null),
     series: data.prices?.series && typeof data.prices.series === 'object' ? data.prices.series : {},
     ytd: ytdByCode(ctx, data.prices),
@@ -982,9 +1153,11 @@ function renderTable(ctx, data) {
   });
   const wrap = el('div', {className: 'comps-wrap'}, table);
   const blockList = el('div', {className: 'comps-blocks'});
+  // E3: "All guidance" opens the guidance fold; both jumps stay off paper.
   bodyOf(panel).replaceChildren(wrap, blockList,
     el('p', {className: 'comps-foot'}, 'Latest reported figures, as stated. Growth and margin as '
-      + 'each company defines them. ', defs));
+      + 'each company defines them. ', el('span', {className: 'comps-jumps'}, defs, ' · ',
+      guidanceJump('All guidance'))));
   // If the table ever scrolls sideways inside its panel (zoomed text from 961 to 1100px; below
   // that the blocks replace it), the wrapper is a named tab stop, so a keyboard can scroll it.
   // Both sizes are watched: the wrapper narrows with the window, the table changes with the rows.
@@ -1013,13 +1186,9 @@ function renderTable(ctx, data) {
     scope.textContent = parts ? '' : scopeLabel(ctx, shown);
     scope.hidden = Boolean(parts);
     if (!hadFocus) return;
-    // A link whose row or block stays keeps focus; one whose company left hands it to the
-    // capsule: its first pressed pill or, where the pills fold away, the opener.
+    // A link whose row or block stays keeps focus; one whose company left hands it to the capsule.
     if (had.isConnected) had.focus();
-    else {
-      document.querySelector(NARROW.matches ? '#filter .filter-opener'
-        : '#filter-pills [aria-pressed="true"]')?.focus();
-    }
+    else focusFilter();
   }
 
   draw([...selected]);

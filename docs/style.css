@@ -236,8 +236,6 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
   padding-block: 6px var(--sp-1); color: var(--ink); font-weight: var(--fw-strong);
   vertical-align: top;
 }
-/* "See all ↓" beside the Guidance label, in link blue (the table's other links are --ink-2). */
-.comps .see-all { margin-left: var(--sp-1); color: var(--link); font-weight: var(--fw-regular); }
 /* A hairline at the left of each group, from the header through the last row. */
 .comps colgroup + colgroup { border-left: 1px solid var(--hairline); }
 /* The panel's padding goes on the table's outer cells: the body rows and the group row. */
@@ -264,7 +262,10 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 }
 .comps .fig3, .co-block .fig3 { font-weight: var(--fw-strong); white-space: nowrap; }
 .comps .sub { display: block; margin-top: 3px; color: var(--ink-2); font-size: var(--fs-small); }
-.comps .sub a, .comps .g-status a, .co-block .sub a, .co-block .g-status a { white-space: nowrap; }
+.comps .sub a, .co-block .sub a { white-space: nowrap; }
+/* E2: "Q3 out 22 Oct ↗" fills the name's free second line (in a block, the line under the name). */
+.comps th .sub { font-weight: var(--fw-regular); }
+.co-block .sub.out { display: block; margin: -2px 0 var(--sp-1); }
 /* Inside the table and the blocks links are --ink-2 (the Next results date --ink), so green and
    red stay their only colors; each keeps its ↗. */
 .comps a, .co-block a { color: var(--ink-2); }
@@ -276,15 +277,30 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 .comps td.growth, .comps td.change { vertical-align: baseline; }
 .comps td.change .delta { line-height: 16px; }
 .comps td.change .sub { white-space: nowrap; }
-.comps td.margin { min-width: 196px; }
-/* Guidance: the value at 600 on one line (two from 961 to 1100px; its full text in title and All
-   guidance), over the status line. These columns take the room the others leave. */
+/* E3: the period and basis stay on one line ("H1 26 ↗, headline operating profit"); the margin
+   column takes that width from the guidance columns (it may wrap from 961 to 1100px). */
+.comps td.margin .sub { white-space: nowrap; }
+/* E3: guidance in full: the value at 600 on up to two lines (three from 961 to 1279px; its full
+   text in title and All guidance), its ↗ outside the clamped text so a long value never hides
+   it: in the table at the cell's top right, in a block after the value. These columns take the
+   room the others leave; at full width each keeps 184px, so WPP's Top line shows whole and
+   Publicis's Profit reads "slight operating margin improvement…". */
+.comps .g-line, .co-block .g-line { display: flex; gap: var(--sp-1); }
+.comps .g-line { align-items: flex-start; }
+.co-block .g-line { align-items: flex-end; }
+.comps .g-value, .co-block .g-value { min-width: 0; font-weight: var(--fw-strong); }
 .comps .g-value {
-  font-weight: var(--fw-strong);
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden;
+  flex: 1 1 auto;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
 }
+.comps td.g-top, .comps td.g-profit { min-width: 184px; }
+.g-src { flex: none; }
 .comps .g-value .muted, .co-block .g-value .muted { font-weight: var(--fw-regular); }
-.comps .g-status { margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); }
+/* A withdrawn value is struck through; its "× Withdrawn" stays readable (the table and What
+   changed). The status takes the value's size, so it is never larger than its value (11px cells
+   in print). */
+.g-value .status-withdrawn, .c-rows .status-withdrawn { text-decoration: none; }
+.g-value .badge { font-size: inherit; }
 .comps .badge, .co-block .badge { line-height: inherit; }
 .comps td.next { white-space: nowrap; }
 /* C5: one small line under the table. */
@@ -312,13 +328,9 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 /* "▲ +0.2 pp vs Q2 26" never splits. */
 .co-block .chg { white-space: nowrap; }
 .co-block .chg .sub { margin-left: var(--sp-1); }
-/* Guidance: the value and its status line run on together; Profit stops at three lines, its full
-   text in title and All guidance. */
-.co-block .g-value { display: inline; font-weight: var(--fw-strong); }
-.co-block .g-status {
-  display: inline; margin-left: 6px; color: var(--ink-2); font-size: var(--fs-small);
-}
-.co-block .clamp3 {
+/* Guidance: the value with its ↗ beside it; Profit's value stops at three lines (its full text in
+   title and All guidance), the ↗ outside the clamp. */
+.co-block .clamp3 .g-value {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
 }
 
@@ -418,31 +430,56 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 .footnote { margin: var(--sp-2) 0 0; color: var(--ink-2); font-size: var(--fs-small); }
 #panel-chart > .footnote { margin: 0; padding: 0 var(--pad) var(--sp-4); }
 
-/* B5: What changed in two columns (one at 720px and below), following the capsule. */
-.c-cols {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3) var(--sp-7);
+/* E1: What’s new, a dated brief following the capsule: one row per update in aligned columns
+   (date, company, kind, details) above 720px, two lines each at 720px and below; then the Next
+   line. */
+ul.c-rows {
+  display: grid; grid-template-columns: repeat(3, max-content) minmax(0, 1fr);
+  column-gap: var(--sp-4); margin: 0; padding: 0; list-style: none;
 }
-.c-title {
-  margin: 0 0 var(--sp-1); font-size: var(--fs-small); font-weight: var(--fw-strong);
-  color: var(--ink-2);
+li.c-row {
+  display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: baseline;
+  padding: 2px 0;
 }
-ul.c-list { list-style: none; margin: 0; padding: 0; }
+.c-date {
+  color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums lining-nums;
+}
+.c-co { font-weight: var(--fw-strong); white-space: nowrap; }
+.c-kind { color: var(--ink-2); white-space: nowrap; }
+.c-rows .badge { font-size: inherit; line-height: inherit; }
+/* Links follow the table's rule: titles and names in ink, dates in --ink-2, every ↗ in --ink-2,
+   underlined on hover and focus. */
+#panel-changes a { color: var(--ink); }
+#panel-changes .c-date a, #panel-changes a > [aria-hidden="true"] { color: var(--ink-2); }
+#panel-changes a:focus-visible { text-decoration: underline; }
 /* A "·" opens each later part and fills the gap before it (--c-sep sets both). A part that wraps
-   to a new line takes its "·" past the row's left edge, where it is clipped (the 4px pad keeps
-   focus rings), so no line starts or ends with one. */
-ul.c-list li {
+   to a new line takes its "·" past the left edge, where it is clipped (the 4px pad keeps focus
+   rings), so no line starts or ends with one. */
+.c-detail, .c-next-dates {
   --c-sep: var(--sp-3);
-  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--c-sep);
-  margin-left: -4px; padding: 2px 0 2px 4px; overflow-wrap: anywhere;
+  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--c-sep);
+  min-width: 0; margin-left: -4px; padding-left: 4px; overflow-wrap: anywhere;
   clip-path: inset(-4px -4px -4px 0);
 }
 .c-sep {
   display: inline-block; width: var(--c-sep); margin-left: calc(-1 * var(--c-sep));
   text-align: center; color: var(--ink-2);
 }
+/* The "·" between date, company and kind shows only where a row folds onto two lines. */
+.c-sep.c-fold { display: none; }
 .c-value { font-weight: var(--fw-strong); font-variant-numeric: tabular-nums lining-nums; }
-.c-note, .c-jump { margin: 2px 0 0; }
-.c-jump { font-size: var(--fs-small); }
+.c-detail .delta { font-variant-numeric: tabular-nums lining-nums; }
+.c-detail .chg .sub { margin-left: var(--sp-1); color: var(--ink-2); }
+/* Deal titles and guidance values stay on one line above 720px on screen (the full text in
+   title); the ↗ stays outside the cut. */
+.c-clipped { display: flex; align-items: baseline; gap: var(--sp-1); min-width: 0; }
+.c-clip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* "Next", then the dates; a wrapped line hangs under the first date. */
+.c-next {
+  display: flex; align-items: baseline; column-gap: var(--sp-3); margin: var(--sp-2) 0 0;
+}
+.c-next-label { flex: none; font-weight: var(--fw-strong); }
+.c-next-dates { flex: 1 1 auto; }
 
 /* Shared tables */
 .table-wrap { overflow-x: auto; }
@@ -618,6 +655,16 @@ details.err-full pre {
 /* On phones the GitHub link joins the footer (A2). */
 .foot-github { display: none; margin: var(--sp-1) 0 0; }
 
+/* E3: below the full 1280px column the margin line may wrap onto a second line (196px keeps it to
+   two), so the table never scrolls: at 1101px the one-line basis pushed it 6px wide. */
+@media screen and (max-width: 1279px) {
+  .comps td.margin { min-width: 196px; }
+  .comps td.margin .sub { white-space: normal; }
+  /* Guidance takes three lines here, and no fixed width. */
+  .comps td.g-top, .comps td.g-profit { min-width: 0; }
+  .comps .g-value { -webkit-line-clamp: 3; }
+}
+
 /* C7: from 961 to 1100px every column fits without the table scrolling. */
 @media screen and (max-width: 1100px) {
   .comps th, .comps td { padding-inline: 6px; }
@@ -625,7 +672,6 @@ details.err-full pre {
   .comps th[scope="row"] { width: 120px; }
   /* Margin keeps room for its basis on two lines; the guidance columns give way. */
   .comps td.margin { min-width: 140px; }
-  .comps .g-value { -webkit-line-clamp: 2; }
   /* An estimate's "(est.) ↗" goes under the date; a confirmed "29 Oct ↗" stays one line. */
   .comps .est { display: block; }
 }
@@ -634,7 +680,6 @@ details.err-full pre {
   /* The capsule stays one row: the "Showing…" words go (Reset stays) and the pills tighten. */
   .filter-count, .filter-sep { display: none; }
   .filter-pills button { padding: 0 var(--sp-3); }
-  .c-cols { column-gap: var(--sp-5); }
   /* The headline wraps under the title. */
   .comps-headline { flex-basis: 100%; }
   /* D1: the blocks replace the table, two to a row with hairlines between; a lone or odd last
@@ -703,10 +748,23 @@ details.err-full pre {
   /* Dense flow puts status and date beside the label, above the full-width value. */
   ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
   .g-rec-value, .g-quote { grid-column: 1 / -1; }
-  /* What changed: one column, no separators. */
-  .c-cols { grid-template-columns: minmax(0, 1fr); }
-  .c-sep { display: none; }
-  ul.c-list li { gap: 2px var(--sp-2); }
+  /* E1: each row on two lines, "date · company · kind", then the details; titles and values
+     wrap. */
+  ul.c-rows { display: block; }
+  li.c-row {
+    --c-sep: var(--sp-3);
+    display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--c-sep);
+    margin-left: -4px; padding: 3px 0 3px 4px; clip-path: inset(-4px -4px -4px 0);
+  }
+  .c-sep.c-fold { display: inline-block; }
+  .c-detail { flex-basis: 100%; }
+  /* The Next line: wrapped dates hang under the first date, not under "Next". */
+  .c-next {
+    display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: var(--sp-2);
+  }
+  /* A wrapped title runs on, its ↗ after the last word. */
+  .c-clipped { display: block; }
+  .c-clip { white-space: normal; }
   /* One block to a row. */
   .comps-blocks { grid-template-columns: minmax(0, 1fr); }
   .co-block:nth-child(2) { border-top: 1px solid var(--hairline); }
@@ -746,22 +804,26 @@ details.err-full pre {
      clip-path, since overflow: hidden here made Chrome paginate the page into 10 sheets. */
   #panel-chart > .body { clip-path: inset(0); }
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
-  ul.press li, ul.c-list li, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
+  ul.press li, li.c-row, ul.g-records li, .q-row, tr, #chart { break-inside: avoid; }
   h2 { break-after: avoid; }
-  /* Controls stay off paper: the show buttons and What changed's "See all guidance". */
-  .show-more, .c-jump { display: none !important; }
+  /* Controls stay off paper: the show buttons and the table's "Definitions · All guidance" (D6's
+     rule for Definitions, brought forward with E3's All guidance). */
+  .show-more, .comps-jumps { display: none !important; }
+  /* E1: deal titles and guidance values wrap (a title never prints). */
+  .c-clipped { display: block; }
+  .c-clip { white-space: normal; }
   details.err-full { display: none; }
   /* The peer table on an A4 line (703px): D6's table sizes (20f fits the rest of the page), the
      tight widths, and guidance never clamped. */
   .comps-wrap { overflow: visible; }
   .comps th, .comps td { padding: 5px; font-size: 11px; }
   .comps thead th { white-space: normal; }
-  .comps .sub, .comps .delta, .comps .g-status { font-size: 11px; }
+  .comps .sub, .comps .delta { font-size: 11px; }
   .comps .fig1 { font-size: 18px; }
-  .comps .see-all { display: none; }
   .comps .fig2 { font-size: 13px; }
   .comps th[scope="row"] { width: 120px; }
-  .comps td.margin { min-width: 0; }
+  .comps td.margin, .comps td.g-top, .comps td.g-profit { min-width: 0; }
+  .comps td.margin .sub { white-space: normal; }
   .comps .g-value { display: block; -webkit-line-clamp: none; overflow: visible; }
   .comps .est { display: block; }
   /* Q7: the pressed theme for all six companies, its name kept on paper. */

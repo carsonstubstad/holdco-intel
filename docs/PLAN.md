@@ -547,7 +547,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   `endLabelAnnotations`); print page 1 now also holds the chart and ends on In their words'
   title, until D6's page break after the table.
 
-- [ ] **20e What changed and the table.** E1 to E3: What changed as a dated brief (the last
+- [x] **20e What changed and the table.** E1 to E3: What changed as a dated brief (the last
   14 days, then the next dates), a marker for results out but not yet on file, and the
   table with each figure beside its guidance, guidance in full and the margin basis naming
   the profit. Acceptance: each E check; the rows match a hand check on the build day; with
