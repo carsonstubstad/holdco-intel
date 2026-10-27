@@ -532,6 +532,20 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   the Peer table. Acceptance: each D1 to D3 and D8 check; at 375×812 the capsule and the
   first company's growth figure are on the first screen. Commit: `step 20d: phone blocks
   and chart`.
+  Built 2026-10-27 with two maintainer-approved polish rounds. First: the YTD ticks show day
+  and month while the window is under 92 days (no "Jan, Jan, Jan" in January); dragging the
+  chart no longer zooms (the window track is the only time control, and a swipe over the
+  chart scrolls the page); the headline drops the S&P 500 figure while its line is off;
+  every end code sits 16px right of its line's end, one column; the right margin is 72px (a
+  moved DENTSU code was cut at 64). Second (maintainer, at the build check: the phone chart
+  read tall and narrow, as the mockup's did): at 720px and below the chart is 280px tall and
+  the plot takes the panel's full width (plot 223×232 at 375, was 199×372). Last row at
+  1440×900: 834px; the chart panel's top: 902px. Page height at 1440: 3,288px (3,127
+  before), /#WPP 2,457 (2,295); at 375: 6,332px (5,469), /#WPP 3,703 (3,706); the 375×812
+  first screen ends Publicis Groupe's growth figure at 592px. Left for 20f: two YTD codes
+  sit 11px apart at 1440 and 840 (leader offsets rounded to whole pixels; a one-line fix in
+  `endLabelAnnotations`); print page 1 now also holds the chart and ends on In their words'
+  title, until D6's page break after the table.
 
 - [ ] **20e What changed and the table.** E1 to E3: What changed as a dated brief (the last
   14 days, then the next dates), a marker for results out but not yet on file, and the

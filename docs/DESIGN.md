@@ -142,9 +142,9 @@ Every item is a Must. Each names its files, the mockup it comes from (in `prompt
 
 - **D1 Company blocks** (app.js, style.css; 960px and below). Replaces K5's swipe row. Inside the Peer table panel, one block per selected company with hairlines between: two columns from 721 to 960px, one at 720px and below. Each block: the name at 600, then a `dl` with a 92px label column, in E3's order (each figure beside its guidance): Organic growth, Guidance, Margin, Guidance, Share price, Next results; each "Guidance" label carries a visually hidden "Top line " or "Profit " before it, so a screen reader hears "Top line guidance" and "Profit guidance". Organic growth: the figure at 26px, the period link, then the change and its base kept together ("▲ +0.2 pp vs Q2 26"). Margin: figure, period link, basis. Top line and Profit: the value with its status line inline (E3 changes the status rule in 20e through the shared builders); Profit clamps at three lines with the full text in `title`. Share price: "YTD +12.9% · Q3 results +1.3%", each pair kept on one line. Next results: "Q3, 29 Oct (est.) ↗". The foot line under the last block. Mockup: top-375.png, top-840.png, full-375.png.
   - Check: at 375×812 the capsule and Publicis Groupe's growth figure are on the first screen; `document.documentElement.scrollWidth` is 375 (320 at 320).
-- **D2 Chart frame and key** (index.html, app.js `drawChart`, style.css). The header row: "Share price", its scope line, then the window track and the S&P 500 pill at the right. Under it the headline (22/600, today's rule, the benchmark figure muted at 14px: "YTD: Stagwell leads +86.7%, Omnicom trails 0.0% S&P 500 +13.1%"; one company: "YTD: WPP +15.1%"). Then an HTML key (`<ul>`): an 18px line swatch in the company color (through `safeColor`) and the full name for each shown company, the dashed benchmark swatch with its name, and, when a subset is shown, "▾ Results, capital markets days and deals" in `--ink-2`. Names via `textContent`. Plotly's legend is off. The plot is 440px tall (400 from 721 to 960px, 420 at 720px and below); the footnote stays under it. Mockup: scrolled-1440.png.
+- **D2 Chart frame and key** (index.html, app.js `drawChart`, style.css). The header row: "Share price", its scope line, then the window track and the S&P 500 pill at the right. Under it the headline (22/600, today's rule, the benchmark figure muted at 14px and left out while its line is off: "YTD: Stagwell leads +86.7%, Omnicom trails 0.0% S&P 500 +13.1%"; one company: "YTD: WPP +15.1%"). Then an HTML key (`<ul>`): an 18px line swatch in the company color (through `safeColor`) and the full name for each shown company, the dashed benchmark swatch with its name while its line shows, and, when a subset is shown, "▾ Results, capital markets days and deals" in `--ink-2`. Names via `textContent`. Plotly's legend is off. The plot is 440px tall (400 from 721 to 960px; 280 at 720px and below, where the plot also takes the panel's full width, with 8px kept between the longest code and the panel's edge: 20d polish, maintainer 2026-10-27, since 420 read tall and narrow on a phone); the height comes from `#chart`'s CSS through Plotly's responsive autosizing. Dragging the plot does not zoom (20d polish): the window track is the only time control, and a swipe over the chart scrolls the page. The footnote stays under it. Mockup: scrolled-1440.png (its phone version, scrolled-375.png, has the tall plot this replaces).
   - Check: with all six the key lists six names and the S&P 500; with `#WPP` it shows WPP, the S&P 500 and the event line.
-- **D3 Chart marks** (app.js `drawChart`, `placeEndLabels`; section 7). Lines 2px in the company colors; the benchmark 1.5px dashed #6b7a8f. At each line's last point, an 8px dot in the company color with a 2px white ring, and the code in `--ink` beside it, codes at least 12px apart. When spacing moves a code off its line's end, a 1px leader in the company color joins the dot to the code (an annotation with `showarrow: true, arrowhead: 0`). X-axis ticks by window: 1M and 3M "%-d %b", YTD "%b", 1Y and 2Y "%b %Y". Every company name, benchmark name, title and code that reaches hover text or an annotation goes through `escapeHtml`, including a trace's `meta`. Event markers only for a subset, as today. Mockup: scrolled-1440.png, plus the leaders.
+- **D3 Chart marks** (app.js `drawChart`, `placeEndLabels`; section 7). Lines 2px in the company colors; the benchmark 1.5px dashed #6b7a8f. At each line's last point, an 8px dot in the company color with a 2px white ring, and the code in `--ink` 16px right of the line's end, codes at least 12px apart. When spacing moves a code off its line's end, a 1px leader in the company color joins the dot to the code (an annotation with `showarrow: true, arrowhead: 0`); moved and unmoved codes start 16px right of the line's end, so they form one column (20d polish). X-axis ticks by window: 1M and 3M "%-d %b", YTD "%b" ("%-d %b" while the YTD window is under 92 days, so January to March never repeat "Jan"; 20d polish), 1Y and 2Y "%b %Y". Every company name, benchmark name, title and code that reaches hover text or an annotation goes through `escapeHtml`, including a trace's `meta`. Event markers only for a subset, as today. Mockup: scrolled-1440.png, plus the leaders.
   - Check: at 1440 YTD the bunched WPP, PUB and DENTSU codes each join their own line end; the 2Y ticks read "Jan 2025"; in a grayscale screenshot every code still leads to its line.
 - **D8 Page order** (index.html; style.css only if spacing needs it; built in 20d). Header, capsule, What changed, Peer table, Share price, In their words, Press releases, All guidance, Quarterly history, data health. In 20d In their words and Press releases stay open panels (they fold in 20f, F1). Tab order and print order follow the page order (print page 1 unchanged). C5's "Definitions" still opens Quarterly history wherever it sits.
   - Check: at 1440 the chart's panel starts 16px under the Peer table's; Tab from the table's foot line's last link lands in the chart's window track.
@@ -204,7 +204,7 @@ D4, D5, D6 and D7 above are built in this session, with F1.
 - **G1, G3** survive inside All guidance.
 - **M5 Focus ring,** amended: 2px `--focus` (#1d4ed8) with a 2px offset on white and paper, #ffd166 on the capsule, white inside a pressed track segment. B1's `scroll-padding-top` keeps focus clear of the capsule.
 - **M6 Print,** amended by D6. `print-color-adjust: exact`; `@page { margin: 12mm }`; no mode bar to hide (`displayModeBar: false`).
-- **M7 Chart legibility,** amended: at 720px and below the key wraps to at most 3 rows and the x-axis shows at most 4 ticks; heights as D2.
+- **M7 Chart legibility,** amended: at 720px and below the key wraps to at most 3 rows (at 320 a five-company subset takes 4, with the event line; accepted at the 20d build check) and the x-axis shows at most 4 ticks; heights as D2.
 - **M8 Color-blind safety,** amended: brand hex values unchanged, lines 2px, and the end dot, the code in `--ink` and the leader carry identity. PUB and OMC are close (ΔE 3.3 for color-blind readers, 12.1 for normal vision), so their codes and the key carry them.
 - **R2 End labels do not overlap,** over shown lines only, now with leaders (D3).
 - **R6 One Esc handler,** amended by B6.
@@ -230,20 +230,26 @@ config {displaylogo:false, responsive:true, displayModeBar:false}
 company trace {type:'scatter', mode:'lines', name:escapeHtml(name), meta:escapeHtml(name), line:{width:2, color:safeColor(<company>)},
   hovertemplate:'%{meta}: %{y:.1f}<extra></extra>'}
 benchmark {line:{width:1.5, color:'#6b7a8f', dash:'dash'}, same hovertemplate}
-end dots {mode:'markers', showlegend:false, hoverinfo:'skip', marker:{size:8, color:<company>, line:{color:'#ffffff', width:2}}}
+end dots {mode:'markers', showlegend:false, hoverinfo:'skip', cliponaxis:false (the last point sits on the plot's edge),
+  marker:{size:8, color:<company>, line:{color:'#ffffff', width:2}}}
 events (subset only): lines {line:{color:'#8a97a8', width:1, dash:'dot'}, hoverinfo:'skip'};
   markers {marker:{symbol:'triangle-down', size:8, color:'#8a97a8'}, hovertext escaped, one per date}
-layout {height:440 (400 from 721 to 960px, 420 at 720px and below; 260 in print),
-  margin:{l:44, r:64, t:12, b:36}, hovermode:'x unified', showlegend:false,
+layout {no height: #chart's CSS sets 440 (400 from 721 to 960px, 280 at 720px and below) and responsive
+  autosizing follows it, so a breakpoint needs no redraw; 260 in print (D6),
+  margin:{l:44, r:72 (64 cut a moved DENTSU code by 5px; 20d), t:12, b:36}, hovermode:'x unified', showlegend:false,
+  dragmode:false (no zoom: a swipe over the chart scrolls the page; 20d polish),
   hoverlabel:{bgcolor:'#ffffff', bordercolor:'#c9d3dd', font:{size:12, family:<sans>, color:'#1b2a41'}},
-  xaxis:{type:'date', showgrid:false, showline:true, linecolor:'#c9d3dd', ticks:'outside', ticklen:4,
-    tickcolor:'#c9d3dd', tickformat: 1M/3M '%-d %b', YTD '%b', 1Y/2Y '%b %Y', automargin:true,
+  xaxis:{type:'date', fixedrange:true, showgrid:false, showline:true, linecolor:'#c9d3dd', ticks:'outside', ticklen:4,
+    tickcolor:'#c9d3dd', tickformat: 1M/3M '%-d %b', YTD '%b' ('%-d %b' under 92 days), 1Y/2Y '%b %Y',
+    hoverformat:'%-d %b %Y' (the hover's date keeps its day and year), automargin:true,
     nticks: 11 (4 at 720px and below), tickfont:{size:12, color:'#4f5f74'}},
-  yaxis:{gridcolor:'#e6ebf1', zeroline:false, ticksuffix:' ', automargin:true, nticks:7, tickfont:{size:12, color:'#4f5f74'}},
+  yaxis:{fixedrange:true, gridcolor:'#e6ebf1', zeroline:false, ticksuffix:' ', automargin:true, nticks:7, tickfont:{size:12, color:'#4f5f74'}},
+  yaxis2 (the event marks):{overlaying:'y', range:[0,1.04], visible:false, fixedrange:true},
   shapes: baseline at 100 {line:{color:'#c9d3dd', width:1}},
-  annotations: per shown line {x, y at the line's last point, text:escapeHtml(code), font:{color:'#1b2a41', size:12}, xanchor:'left',
-    in place: showarrow:false, xshift:8;
-    moved: showarrow:true, arrowhead:0, arrowwidth:1, arrowcolor:<company>, ax:16, ay:<the move in px>, no xshift},
+  annotations: per shown line {x, text:escapeHtml(code), font:{color:'#1b2a41', size:12}, xanchor:'left', yanchor:'middle',
+    in place (moved under 3px): y at its spaced place, showarrow:false, xshift:16 (one column with the moved codes; 20d polish);
+    moved: y at the line's last point, showarrow:true, arrowhead:0, arrowwidth:1, arrowcolor:<company>, ax:16,
+      ay:<the move in px, up negative>, no xshift},
   paper_bgcolor:'#ffffff', plot_bgcolor:'#ffffff', font:{family:<sans>, size:12, color:'#1b2a41'}}
 no layout.transition (with one, Plotly.react froze the y range after a selection change)
 ```
