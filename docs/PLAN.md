@@ -314,7 +314,7 @@ the same day. The page becomes three main panels, in this order: compare chips w
 scorecard per company, "In their words" (verbatim management quotes by theme), then the
 share price chart. What changed, Press releases and Data health stay. Commentary gains
 sources beyond results releases. Step prompts are in `prompts/v2.0/`.
-- Order: 15a, 15b, 16, 17, 18, 19, 20 (built as 20a to 20d), 21, in number order. Q3
+- Order: 15a, 15b, 16, 17, 18, 19, 20 (built as 20a to 20f, 20g if print splits off), 21, in number order. Q3
   `/curate` runs happen between steps, never during one (expected, last year plus 364
   days: OMC about 20 Oct,
   WPP about 29 Oct, STGW about 5 Nov, DENTSU about 13 Nov).
@@ -464,15 +464,21 @@ by design-reviewer and written into docs/DESIGN.md by `plan: v2.0 final design`.
 dotted paper with white panels; a dark filter capsule pinned while scrolling, where one
 click shows one company; one peer table instead of six cards; a quotes grid; one big
 chart with a key; print as a handout with all six companies. It replaces the one-session
-plan: the design work grew into four executor sessions of about 90 minutes, in order,
+plan: the design work grew into six executor sessions of about 90 minutes, in order,
 each from its own prompt in `prompts/v2.0/` and ticking its own box. Site only
-(docs/index.html, app.js, style.css; 20d also ARCHITECTURE.md section 7): no new panel,
+(docs/index.html, app.js, style.css; 20f also ARCHITECTURE.md section 7): no new panel,
 data field, schema, pipeline change or dependency; anything bigger goes to the Backlog.
-"Neither page taller than before" is replaced by first-screen checks (in 20c and 20d).
+"Neither page taller than before" is replaced by first-screen checks (in 20c to 20e).
 Every part: its DESIGN.md checks pass; `make check` green; zero console errors or CSP
 violations; no sideways scroll at 375 and 320px; before and after screenshots at 1440
 and 375px with page heights noted. Each part commits locally; the maintainer pushes after
-20d, so the live page changes once.
+the last part, so the live page changes once.
+Re-split 2026-10-27 (maintainer, after 20c): Share price under the Peer table, In their
+words and Press releases as closed folds, What changed as a dated brief, a marker for
+results out but not yet on file, and a tidier table (each figure beside its guidance,
+guidance in full). 20d to 20f replace the old 20d (DESIGN.md section 8). Still one push,
+after the last part (maintainer): /curate runs in between, such as WPP's and Stagwell's Q3
+on 29 Oct, commit locally and reach the live site with that push.
 Absorbed from the Backlog (lines dated 2026-10-15): the unclear company filter (step 19
 build check: B1 to B4), a quick way to show one company (B2), the dark chips' weight
 (B1), the phone header and What changed height (A2, B5, D1), a shorter What changed with
@@ -521,15 +527,27 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   Page height at 1440: 3,101px (3,420 before), /#WPP 2,269 (2,482); at 375: 5,507px
   (5,157), /#WPP 3,745 (3,853), taller until D1's company blocks replace the scrolling table.
 
-- [ ] **20d Phone, chart, quotes, press, print.** D1 to D7: company blocks at 960px and
-  below, the chart key and end-code leaders, the quotes grid, press rows, the A4 and
-  Letter handout, ARCHITECTURE.md section 7. Acceptance: each D check; at 375×812 the
-  capsule and the first company's growth figure are on the first screen; at 1440 with all
-  six the page is at most 3,390px (today 3,080); print is at most 4 pages on A4 and on
-  Letter with page 1 holding the header, What changed and all six table rows; every
-  printed end code is whole; no company color outside the chart. If it runs long, the
-  phone press cap (D5) is cut first; if D1 to D3 alone fill the session, D4 and D5 become
-  20e. Commit: `step 20d: phone, chart, quotes, press and print`.
+- [ ] **20d Phone blocks and chart.** D1 to D3 and D8: company blocks at 960px and below
+  (each figure beside its guidance), the chart key and end-code leaders, Share price under
+  the Peer table. Acceptance: each D1 to D3 and D8 check; at 375×812 the capsule and the
+  first company's growth figure are on the first screen. Commit: `step 20d: phone blocks
+  and chart`.
+
+- [ ] **20e What changed and the table.** E1 to E3: What changed as a dated brief (the last
+  14 days, then the next dates), a marker for results out but not yet on file, and the
+  table with each figure beside its guidance, guidance in full and the margin basis naming
+  the profit. Acceptance: each E check; the rows match a hand check on the build day; with
+  the marker on two rows the 1440×900 last row is at or above 860px and the 375×812 check
+  passes. Commit: `step 20e: what changed and the table`.
+
+- [ ] **20f Quotes, press, folds and print.** D4, D5, F1, D6, D7: the quotes grid and press
+  rows inside closed folds, the A4 and Letter handout, ARCHITECTURE.md section 7.
+  Acceptance: each check; at 1440 with all six the page is at most 3,390px; print is at
+  most 4 pages on A4 and on Letter with page 1 holding the header, What changed and all six
+  table rows; every printed end code is whole; no company color outside the chart. If it
+  runs long, the phone press cap (D5) is cut first; if D4, D5 and F1 fill the session, D6
+  and D7 become 20g, and their checks (heights, print, end codes) move with them. Commit:
+  `step 20f: quotes, press, folds and print`.
 
 - [ ] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
   line describe the final v2.0 page. `pipeline/stats.py` (computed numbers from
@@ -638,3 +656,4 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   "between +2.0% and…"); the full text is on hover and in All guidance. Two lines no longer
   fit the 860px first screen. Options: a short curated value per record (a schema and
   /curate change, with the `metric_label` line), or more width for the guidance columns.
+  2026-10-27: moved into 20e (E3: the status line goes, so the value takes two lines).
