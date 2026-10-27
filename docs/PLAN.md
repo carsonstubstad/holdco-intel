@@ -314,7 +314,7 @@ the same day. The page becomes three main panels, in this order: compare chips w
 scorecard per company, "In their words" (verbatim management quotes by theme), then the
 share price chart. What changed, Press releases and Data health stay. Commentary gains
 sources beyond results releases. Step prompts are in `prompts/v2.0/`.
-- Order: 15a, 15b, 16, 17, 18, 19, 20 (built as 20a to 20f, 20g if print splits off), 21, in number order. Q3
+- Order: 15a, 15b, 16, 17, 18, 19, 20 (built as 20a to 20f, then 20g-1 and 20g-2), 21, in number order. Q3
   `/curate` runs happen between steps, never during one (expected, last year plus 364
   days: OMC about 20 Oct,
   WPP about 29 Oct, STGW about 5 Nov, DENTSU about 13 Nov).
@@ -464,9 +464,9 @@ by design-reviewer and written into docs/DESIGN.md by `plan: v2.0 final design`.
 dotted paper with white panels; a dark filter capsule pinned while scrolling, where one
 click shows one company; one peer table instead of six cards; a quotes grid; one big
 chart with a key; print as a handout with all six companies. It replaces the one-session
-plan: the design work grew into six executor sessions of about 90 minutes, in order,
+plan: the design work grew into six executor sessions of about 90 minutes (then two more, 20g-1 and 20g-2), in order,
 each from its own prompt in `prompts/v2.0/` and ticking its own box. Site only
-(docs/index.html, app.js, style.css; 20f also ARCHITECTURE.md section 7): no new panel,
+(docs/index.html, app.js, style.css; 20f and 20g-2 also ARCHITECTURE.md section 7): no new panel,
 data field, schema, pipeline change or dependency; anything bigger goes to the Backlog.
 "Neither page taller than before" is replaced by first-screen checks (in 20c to 20e).
 Every part: its DESIGN.md checks pass; `make check` green; zero console errors or CSP
@@ -479,6 +479,8 @@ results out but not yet on file, and a tidier table (each figure beside its guid
 guidance in full). 20d to 20f replace the old 20d (DESIGN.md section 8). Still one push,
 after the last part (maintainer): /curate runs in between, such as WPP's and Stagwell's Q3
 on 29 Oct, commit locally and reach the live site with that push.
+Extended 2026-10-27 (maintainer, final design review after 20f): 20g-1 and 20g-2 polish the
+built page before step 21 (DESIGN.md J1 to J6 and L1 to L4). The one push follows 20g-2.
 Absorbed from the Backlog (lines dated 2026-10-15): the unclear company filter (step 19
 build check: B1 to B4), a quick way to show one company (B2), the dark chips' weight
 (B1), the phone header and What changed height (A2, B5, D1), a shorter What changed with
@@ -593,6 +595,31 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   before; 3,080 at the v2.0 start), /#WPP 1,593 (2,444); at 375: 3,381px (6,337; 4,357 at the
   v2.0 start), /#WPP 1,908 (3,650).
 
+- [ ] **20g-1 Table, colors and arrows.** J1 to J6: the share price move on results named as
+  the two-day move it is ("On results" over "Q3 · 2 days"), YTD and that move in green or red
+  with ▲/▼, one quiet ↗ on every link to a company document (All guidance's and Quarterly
+  history's no longer blue), guidance with only its figures bold, the table's group labels at
+  the left, and phone blocks spaced in pairs. Files: docs/app.js and docs/style.css.
+  Acceptance: each J check; at 1024 and 1101 the table does not scroll; at 1440×900 the last
+  row ends at or above 860px; at 375×812 the capsule and the first company's growth figure
+  are on the first screen; every table guidance value listed as it reads at 1440 and 1101;
+  print at most 5 pages on A4 and on Letter, page 1 ending with the table's foot line; no
+  company color outside the chart. If it runs long, J6 goes first, then J5. Commit:
+  `step 20g-1: table colors, arrows and labels`.
+
+- [ ] **20g-2 Clean tops and takeaways.** L1 to L4: every panel's top holds only its title
+  and its controls (the scope and count lines go; what still matters moves to the bottom),
+  the peer table and the chart each end with a computed Key takeaway (who grows fastest and
+  slowest and whether growth is speeding up; the share price leader, laggard and how many are
+  ahead of the benchmark), What’s new keeps results first when it leaves rows out, and
+  ARCHITECTURE.md section 7 follows. Files: docs/index.html, docs/app.js, docs/style.css and
+  docs/ARCHITECTURE.md. Acceptance: each L check; at 1440×900 the last table row ends at or
+  above 860px and the table's takeaway at or above 900px; print at most 5 pages on A4 and on
+  Letter, page 1 ending with the table's foot line and page 2 holding the chart and all the
+  quotes; the whole-page checks in DESIGN.md section 8. Commit: `step 20g-2: clean panel
+  tops and takeaways`. Then the one push of step 20 (maintainer): `git pull --rebase && git
+  push`, and the live page shows What’s new, the peer table and both takeaways.
+
 - [ ] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
   line describe the final v2.0 page. `pipeline/stats.py` (computed numbers from
   runs.jsonl, status.json history and git log, "n/a" rather than estimates). README
@@ -706,6 +733,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-27 (20e build check): What’s new shows three rows, newest first, so on 27 Oct two
   deals push Havas's and Publicis's Q3 results out. Option: list results before deals when
   rows are left out. Look again once a results week has gone through.
+  2026-10-27 (final review after 20f): moved into 20g-2 (DESIGN.md L3: results, then
+  guidance, then capital markets days, then deals, when rows are left out).
 - 2026-10-27 (20f build check): the four folds' titles are spans inside `<summary>`, not
   headings, so heading navigation skips In their words and Press releases (h2s before 20f),
   All guidance and Quarterly history. Option: an h2 inside each summary (HTML allows one),
