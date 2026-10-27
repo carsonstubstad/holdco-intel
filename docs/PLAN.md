@@ -553,11 +553,26 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   the profit. Acceptance: each E check; the rows match a hand check on the build day; with
   the marker on two rows the 1440×900 last row is at or above 860px and the 375×812 check
   passes. Commit: `step 20e: what changed and the table`.
+  Built 2026-10-27 with one planned polish round and two small ones at the maintainer's call.
+  What changed is now "What’s new": three rows (with four the table ended at 868px), then
+  "Next 14 days", the dates in the next two weeks only (the table's Next results column keeps
+  every date); its titles and links are dark like the table's. In the table each guidance
+  column is at least 184px wide at 1280px and up and takes three lines from 961 to 1279px
+  (two cut five figures at 1101); every guidance ↗ sits at its cell's top right; the margin
+  line may wrap below 1280px (one line pushed the table 6px wide at 1101); a withdrawn value
+  is struck through, its word not. Accepted: Publicis's Profit guidance cut before "18.2%";
+  newest first at three rows (on 27 Oct two deals push Havas's and Publicis's Q3 results out).
+  "Definitions" is hidden in print from now, with "All guidance" (D6's rule, brought
+  forward). Last row at 1440×900: 844px, the same with the marker on Publicis and Omnicom
+  (889px at 1200×900; the 860px line is checked at 1440 only). At 375×812 Publicis Groupe's
+  growth figure ends at 702px (741 with both marked, before the 14-day Next line took 20px
+  off). Page height at 1440: 3,298px (3,288 before), /#WPP 2,444 (2,457); at 375: 6,337px
+  (6,332), /#WPP 3,650 (3,703).
 
 - [ ] **20f Quotes, press, folds and print.** D4, D5, F1, D6, D7: the quotes grid and press
   rows inside closed folds, the A4 and Letter handout, ARCHITECTURE.md section 7.
   Acceptance: each check; at 1440 with all six the page is at most 3,390px; print is at
-  most 4 pages on A4 and on Letter with page 1 holding the header, What changed and all six
+  most 4 pages on A4 and on Letter with page 1 holding the header, What’s new and all six
   table rows; every printed end code is whole; no company color outside the chart. If it
   runs long, the phone press cap (D5) is cut first; if D4, D5 and F1 fill the session, D6
   and D7 become 20g, and their checks (heights, print, end codes) move with them. Commit:
@@ -671,3 +686,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   fit the 860px first screen. Options: a short curated value per record (a schema and
   /curate change, with the `metric_label` line), or more width for the guidance columns.
   2026-10-27: moved into 20e (E3: the status line goes, so the value takes two lines).
+  2026-10-27 (20e): closed. Every guidance figure shows at 1440 except Publicis's "18.2%"
+  (accepted); a short curated value stays an option with the `metric_label` line.
+- 2026-10-27 (20e build check): What’s new shows three rows, newest first, so on 27 Oct two
+  deals push Havas's and Publicis's Q3 results out. Option: list results before deals when
+  rows are left out. Look again once a results week has gone through.
