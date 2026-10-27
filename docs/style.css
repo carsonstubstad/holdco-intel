@@ -236,7 +236,7 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
   padding-block: 6px var(--sp-1); color: var(--ink); font-weight: var(--fw-strong);
   vertical-align: top;
 }
-/* "See all ↓" beside the Guidance label, in link blue (the table's other links are ink). */
+/* "See all ↓" beside the Guidance label, in link blue (the table's other links are --ink-2). */
 .comps .see-all { margin-left: var(--sp-1); color: var(--link); font-weight: var(--fw-regular); }
 /* A hairline at the left of each group, from the header through the last row. */
 .comps colgroup + colgroup { border-left: 1px solid var(--hairline); }
@@ -252,25 +252,29 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 .comps th[scope="row"] {
   width: 150px; color: var(--ink); font-size: var(--fs-body); font-weight: var(--fw-strong);
 }
-/* Figures, the change and its base never wrap; the margin basis and guidance text may. */
-.comps .fig1 {
+/* Figures, the change and its base never wrap; the margin basis and guidance text may. The
+   company blocks (D1) share the figure sizes and the link rule. */
+.comps .fig1, .co-block .fig1 {
   display: block; font-size: var(--fs-fig); font-weight: var(--fw-medium); line-height: 1;
   letter-spacing: -0.01em; white-space: nowrap;
 }
-.comps .fig2 {
+.comps .fig2, .co-block .fig2 {
   display: block; font-size: var(--fs-fig2); font-weight: var(--fw-strong); line-height: 1.1;
   white-space: nowrap;
 }
-.comps .fig3 { font-weight: var(--fw-strong); white-space: nowrap; }
+.comps .fig3, .co-block .fig3 { font-weight: var(--fw-strong); white-space: nowrap; }
 .comps .sub { display: block; margin-top: 3px; color: var(--ink-2); font-size: var(--fs-small); }
-.comps .sub a, .comps .g-status a { white-space: nowrap; }
-/* Inside the table links are ink, so green and red stay its only colors; each keeps its ↗. */
-.comps a { color: var(--ink-2); }
-.comps td.next a { color: var(--ink); }
-.comps a:focus-visible { text-decoration: underline; }
+.comps .sub a, .comps .g-status a, .co-block .sub a, .co-block .g-status a { white-space: nowrap; }
+/* Inside the table and the blocks links are --ink-2 (the Next results date --ink), so green and
+   red stay their only colors; each keeps its ↗. */
+.comps a, .co-block a { color: var(--ink-2); }
+.comps td.next a, .co-block .next a { color: var(--ink); }
+.comps a:focus-visible, .co-block a:focus-visible { text-decoration: underline; }
 .comps .delta { display: block; font-size: var(--fs-small); white-space: nowrap; }
-/* The change sits on the growth figure's line, and its base level with the period link. */
-.comps td.change .delta { line-height: var(--fs-fig); }
+/* The change sits on the growth figure's baseline, and its base level with the period link; a
+   16px line keeps that base from pushing the row taller. */
+.comps td.growth, .comps td.change { vertical-align: baseline; }
+.comps td.change .delta { line-height: 16px; }
 .comps td.change .sub { white-space: nowrap; }
 .comps td.margin { min-width: 196px; }
 /* Guidance: the value at 600 on one line (two from 961 to 1100px; its full text in title and All
@@ -279,14 +283,43 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
   font-weight: var(--fw-strong);
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden;
 }
-.comps .g-value .muted { font-weight: var(--fw-regular); }
+.comps .g-value .muted, .co-block .g-value .muted { font-weight: var(--fw-regular); }
 .comps .g-status { margin-top: 2px; color: var(--ink-2); font-size: var(--fs-small); }
-.comps .badge { line-height: inherit; }
+.comps .badge, .co-block .badge { line-height: inherit; }
 .comps td.next { white-space: nowrap; }
 /* C5: one small line under the table. */
 .comps-foot {
   margin: var(--sp-3) var(--pad) 0; padding-top: var(--sp-2);
   border-top: 1px solid var(--hairline); color: var(--ink-2); font-size: var(--fs-small);
+}
+
+/* D1: at 960px and below each company is a block inside the table's panel, its labels in a 92px
+   column; above 960px and on paper the table shows instead. */
+.comps-blocks { display: none; }
+.co-block { padding: var(--sp-3) var(--pad); border-top: 1px solid var(--hairline); }
+.co-name { margin-bottom: var(--sp-1); font-size: var(--fs-body); font-weight: var(--fw-strong); }
+.co-block dl {
+  display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: var(--sp-1) var(--sp-2);
+  align-items: baseline; margin: 0; font-variant-numeric: tabular-nums lining-nums;
+}
+.co-block dt { color: var(--ink-2); font-size: var(--fs-small); }
+.co-block dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+/* A figure, its period link and, for growth, the change, on one line where they fit. */
+.co-block dd.figs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--sp-2); }
+.co-block .fig1 { font-size: 26px; }
+.co-block .sub { color: var(--ink-2); font-size: var(--fs-small); }
+.co-block .delta { font-size: var(--fs-small); }
+/* "▲ +0.2 pp vs Q2 26" never splits. */
+.co-block .chg { white-space: nowrap; }
+.co-block .chg .sub { margin-left: var(--sp-1); }
+/* Guidance: the value and its status line run on together; Profit stops at three lines, its full
+   text in title and All guidance. */
+.co-block .g-value { display: inline; font-weight: var(--fw-strong); }
+.co-block .g-status {
+  display: inline; margin-left: 6px; color: var(--ink-2); font-size: var(--fs-small);
+}
+.co-block .clamp3 {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
 }
 
 /* Status words in token colors, never color alone: the word is always there. */
@@ -306,7 +339,7 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
   border: 1px solid var(--ink); border-radius: var(--radius-pill);
 }
 
-/* The company chip keeps its colored edge until quotes and press (20d). */
+/* The company chip keeps its colored edge until quotes and press (20f). */
 .chip.company {
   padding: 0 var(--sp-2) 0 6px; color: var(--ink); font-weight: var(--fw-strong);
   border-left: 4px solid var(--border-2); border-radius: 0;
@@ -356,16 +389,31 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 .bench-toggle { gap: 6px; min-height: calc(var(--tap) + 2px); }
 .bench-toggle[hidden] { display: none; }
 .bench-toggle::before { content: ""; width: 14px; border-top: 1.5px dashed currentColor; }
-#chart .scatterlayer .trace { transition: opacity 150ms ease; }
-/* B4: the legend is a key; Plotly styles its entries with an inline pointer cursor. */
-#chart .legendtoggle { cursor: default !important; }
-#chart { width: 100%; height: 300px; }
+/* D2: Plotly takes this height through responsive autosizing (400px from 721 to 960px, 280px at
+   720px and below). */
+#chart { width: 100%; height: 440px; }
 .chart-headline {
   margin: 0; padding: var(--sp-3) var(--pad) 0;
-  font-size: var(--fs-headline); font-weight: var(--fw-strong);
-  font-variant-numeric: tabular-nums lining-nums;
+  font-size: var(--fs-h2); font-weight: var(--fw-strong); line-height: 1.15;
+  letter-spacing: -0.01em; font-variant-numeric: tabular-nums lining-nums;
 }
-.chart-headline:not([hidden]) + .body { padding-top: var(--sp-1); }
+/* The benchmark's figure, muted after the lead and trail. */
+.chart-bench {
+  font-size: var(--fs-body); font-weight: var(--fw-regular); letter-spacing: 0; color: var(--ink-2);
+}
+/* D2: a key, not a control: a swatch and the full name for each drawn line, the dashed
+   benchmark, and for a subset the event markers. */
+.chart-key {
+  display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4);
+  margin: 0; padding: var(--sp-2) var(--pad) 0; list-style: none; font-size: var(--fs-small);
+}
+.chart-key[hidden] { display: none; }
+.chart-key li { display: inline-flex; align-items: center; gap: 6px; }
+.key-line { flex: none; width: 18px; border-top: 2px solid var(--ink); }
+/* The benchmark's swatch is dashed; app.js gives it the line's color. */
+.key-line.bench { border-top-width: 1.5px; border-top-style: dashed; }
+.key-events { color: var(--ink-2); }
+.chart-key:not([hidden]) + .body { padding-top: var(--sp-1); }
 #panel-chart > .body { padding-bottom: var(--sp-2); }
 .footnote { margin: var(--sp-2) 0 0; color: var(--ink-2); font-size: var(--fs-small); }
 #panel-chart > .footnote { margin: 0; padding: 0 var(--pad) var(--sp-4); }
@@ -454,7 +502,7 @@ details.fold[open] .chev { transform: rotate(45deg); }
 .fold-cue::before { content: "Show"; }
 details.fold[open] .fold-cue::before { content: "Hide"; }
 
-/* In their words (Q2): the theme track sits in the header row; quote rows until 20d. */
+/* In their words (Q2): the theme track sits in the header row; quote rows until 20f. */
 .q-print-theme { display: none; }
 ul.quotes { list-style: none; margin: 0; padding: 0; }
 ul.quotes[hidden], .q-missing[hidden] { display: none; }
@@ -587,8 +635,18 @@ details.err-full pre {
   .filter-count, .filter-sep { display: none; }
   .filter-pills button { padding: 0 var(--sp-3); }
   .c-cols { column-gap: var(--sp-5); }
-  /* The headline wraps under the title; the table scrolls inside its panel until 20d's blocks. */
+  /* The headline wraps under the title. */
   .comps-headline { flex-basis: 100%; }
+  /* D1: the blocks replace the table, two to a row with hairlines between; a lone or odd last
+     block has none at its right. */
+  .comps-wrap { display: none; }
+  .comps-blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .co-block:nth-child(-n + 2) { border-top: 0; }
+  .co-block:nth-child(odd) { border-right: 1px solid var(--hairline); }
+  .co-block:nth-child(odd):last-child { border-right: 0; }
+  .co-block:only-child { grid-column: 1 / -1; }
+  .comps-foot { margin-top: 0; }
+  #chart { height: 400px; }
   /* Two columns: the attribution moves under the quote instead of being squeezed beside it. */
   .q-row { grid-template-columns: 7rem minmax(0, 1fr); row-gap: var(--sp-1); }
   .q-attr { grid-column: 2; }
@@ -637,7 +695,11 @@ details.err-full pre {
   .panel-controls { margin-left: 0; }
   /* Narrower segments keep the four theme labels on one line at 320px. */
   .track > button { padding: 0 clamp(6px, 2vw, 14px); }
-  #chart { height: 420px; }
+  /* A near-square plot on phones: 280px tall across the panel's full width. The 8px at the right
+     keeps the longest code clear of the panel's edge; the headline, key and footnote keep their
+     padding. */
+  #chart { height: 280px; }
+  #panel-chart > .body { padding-left: 0; padding-right: var(--sp-2); }
   /* Dense flow puts status and date beside the label, above the full-width value. */
   ul.g-records li { grid-template-columns: minmax(0, 1fr) auto; grid-auto-flow: row dense; }
   .g-rec-value, .g-quote { grid-column: 1 / -1; }
@@ -645,6 +707,10 @@ details.err-full pre {
   .c-cols { grid-template-columns: minmax(0, 1fr); }
   .c-sep { display: none; }
   ul.c-list li { gap: 2px var(--sp-2); }
+  /* One block to a row. */
+  .comps-blocks { grid-template-columns: minmax(0, 1fr); }
+  .co-block:nth-child(2) { border-top: 1px solid var(--hairline); }
+  .co-block:nth-child(odd) { border-right: 0; }
 }
 
 /* Phones and paper (an A4 page is about 703px wide): each quote stacks, chip, quote at full
@@ -664,7 +730,7 @@ details.err-full pre {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #chart .scatterlayer .trace, .filter-pills button, .comps tbody tr,
+  .filter-pills button, .comps tbody tr,
   .track > button, .bench-toggle, .show-more, details.fold > summary, .chev { transition: none; }
 }
 
@@ -675,8 +741,8 @@ details.err-full pre {
   :root { --gutter: 0px; --pad: 12px; }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .band { display: none; }
-  .chart-controls, .modebar { display: none !important; }
-  /* The chart keeps its screen width on paper (D6 redraws it in 20d); clip it inside its panel.
+  .chart-controls { display: none !important; }
+  /* The chart keeps its screen width on paper (D6 redraws it in 20f); clip it inside its panel.
      clip-path, since overflow: hidden here made Chrome paginate the page into 10 sheets. */
   #panel-chart > .body { clip-path: inset(0); }
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
@@ -685,14 +751,13 @@ details.err-full pre {
   /* Controls stay off paper: the show buttons and What changed's "See all guidance". */
   .show-more, .c-jump { display: none !important; }
   details.err-full { display: none; }
-  /* The peer table on an A4 line (703px): D6's table sizes (20d fits the rest of the page), the
+  /* The peer table on an A4 line (703px): D6's table sizes (20f fits the rest of the page), the
      tight widths, and guidance never clamped. */
   .comps-wrap { overflow: visible; }
   .comps th, .comps td { padding: 5px; font-size: 11px; }
   .comps thead th { white-space: normal; }
   .comps .sub, .comps .delta, .comps .g-status { font-size: 11px; }
   .comps .fig1 { font-size: 18px; }
-  .comps td.change .delta { line-height: 18px; }
   .comps .see-all { display: none; }
   .comps .fig2 { font-size: 13px; }
   .comps th[scope="row"] { width: 120px; }

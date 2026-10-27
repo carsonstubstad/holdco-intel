@@ -527,7 +527,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   Page height at 1440: 3,101px (3,420 before), /#WPP 2,269 (2,482); at 375: 5,507px
   (5,157), /#WPP 3,745 (3,853), taller until D1's company blocks replace the scrolling table.
 
-- [ ] **20d Phone blocks and chart.** D1 to D3 and D8: company blocks at 960px and below
+- [x] **20d Phone blocks and chart.** D1 to D3 and D8: company blocks at 960px and below
   (each figure beside its guidance), the chart key and end-code leaders, Share price under
   the Peer table. Acceptance: each D1 to D3 and D8 check; at 375×812 the capsule and the
   first company's growth figure are on the first screen. Commit: `step 20d: phone blocks

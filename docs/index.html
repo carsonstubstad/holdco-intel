@@ -52,26 +52,6 @@
       <div class="body"><p class="empty">Loading…</p></div>
     </section>
 
-    <details id="fold-guidance" class="panel fold">
-      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">All guidance</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
-      <div class="body"><p class="empty">Loading…</p></div>
-    </details>
-
-    <details id="fold-history" class="panel fold">
-      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">Quarterly history</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
-      <div class="body"><p class="empty">Loading…</p></div>
-    </details>
-
-    <section id="panel-quotes" class="panel" aria-labelledby="h-quotes">
-      <div class="panel-head">
-        <h2 id="h-quotes" tabindex="-1">In their words</h2>
-        <p class="scope">Verbatim from company documents</p>
-        <div class="q-themes track panel-controls" role="group" aria-label="Theme" hidden></div>
-      </div>
-      <p class="q-print-theme label"></p>
-      <div class="body"><p class="empty">Loading…</p></div>
-    </section>
-
     <section id="panel-chart" class="panel primary" aria-labelledby="h-chart">
       <div class="panel-head">
         <h2 id="h-chart">Share price</h2>
@@ -88,8 +68,19 @@
         </div>
       </div>
       <p id="chart-headline" class="chart-headline" aria-live="polite" hidden></p>
+      <ul id="chart-key" class="chart-key" aria-label="Chart key" hidden></ul>
       <div class="body"><p class="empty">Loading…</p></div>
       <p class="footnote">Each line is rebased to 100 at the start of the window, in its own trading currency, price only (no dividends). The <span class="bench-name">S&amp;P 500</span> is a US-dollar reference; for the European and Japanese stocks it is a rough market comparison, not a currency-matched one.</p>
+    </section>
+
+    <section id="panel-quotes" class="panel" aria-labelledby="h-quotes">
+      <div class="panel-head">
+        <h2 id="h-quotes" tabindex="-1">In their words</h2>
+        <p class="scope">Verbatim from company documents</p>
+        <div class="q-themes track panel-controls" role="group" aria-label="Theme" hidden></div>
+      </div>
+      <p class="q-print-theme label"></p>
+      <div class="body"><p class="empty">Loading…</p></div>
     </section>
 
     <section id="panel-press" class="panel" aria-labelledby="h-press">
@@ -99,6 +90,16 @@
       </div>
       <div class="body"><p class="empty">Loading…</p></div>
     </section>
+
+    <details id="fold-guidance" class="panel fold">
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">All guidance</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <div class="body"><p class="empty">Loading…</p></div>
+    </details>
+
+    <details id="fold-history" class="panel fold">
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">Quarterly history</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <div class="body"><p class="empty">Loading…</p></div>
+    </details>
   </main>
 
   <footer id="panel-health" class="health" aria-labelledby="h-health">

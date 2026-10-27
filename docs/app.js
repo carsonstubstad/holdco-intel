@@ -321,7 +321,7 @@ function pickCompany(ctx, code) {
     : [...selected, code]);
 }
 
-// Shows or hides the benchmark line; the toggle button and the legend entry stay in sync.
+// Shows or hides the benchmark line; the toggle button and the chart key stay in sync.
 function setBenchmarkVisible(on) {
   benchVisible = on;
   document.querySelector('#panel-chart .bench-toggle')?.setAttribute('aria-pressed', String(on));
@@ -600,8 +600,8 @@ function titlePeriod(title) {
   return /\binterim\b|\bhalf[- ]year/i.test(t) ? 'H1' : null;
 }
 
-// One company's facts for the peer table and, from 20d, its company block: numbers, raw periods,
-// URLs and reason codes, never display words (the helpers below word them).
+// One company's facts for its peer table row and its company block: numbers, raw periods, URLs
+// and reason codes, never display words (the helpers below word them).
 function peerFacts(ctx, c, src) {
   const rows = src.kpiRows.filter((r) => r.company === c.code);
   const g = latestRow(rows, 'organic_growth_pct');
@@ -741,65 +741,127 @@ function nextDate(next, year) {
   return node;
 }
 
-// One table row: the company name as the row header, then a cell per column. Every dash carries
-// its reason in title.
+// The parts both layouts show, the table row (peerRow) and, at 960px and below, the company block
+// (peerBlock, D1): worded by the helpers above, so a rule changes in one place for both. Every
+// dash carries its reason in title.
+function dashFor(why) {
+  return el('span', {className: 'muted', title: why}, '–');
+}
+
+// The small --ink-2 line: under a figure in the table, beside it in a block.
+function subLine(...content) {
+  return el('span', {className: 'sub'}, ...content);
+}
+
+// "+5%" and "Q3 26 ↗".
+function growthParts(f) {
+  return f.growth ? [el('span', {className: 'fig1'}, kpiText(f.growth.value)),
+    subLine(periodLink(f.name, f.growth))] : [dashFor(DASH_WHY.growth)];
+}
+
+// "▲ +0.2 pp" and "vs Q2 26". The figure is hidden from screen readers; the spoken words stand in
+// for it, then the base. The caller adds changeTitle() as the title.
+function changeParts(f) {
+  const fig = changeFigure(f.change);
+  return [el('span', {className: 'delta ' + fig.className, 'aria-hidden': 'true'}, fig.text),
+    el('span', {className: 'visually-hidden'}, changeSpoken(f.change) + ' '),
+    subLine(changeBase(f.change))];
+}
+
+// "17.4%" and "H1 26 ↗, operating", with the stored wording as the title.
+function marginParts(f) {
+  if (!f.margin) return {nodes: [dashFor(DASH_WHY.margin)], title: null};
+  const metric = f.margin.metric;
+  return {
+    nodes: [el('span', {className: 'fig2'}, plainPct(f.margin.value)),
+      subLine(periodLink(f.name, f.margin, 'margin'),
+        metric ? ', ' + metric.replace(/ margin$/i, '') : null)],
+    title: metric ? `${capitalize(metric)}, ${String(f.margin.period).replace(/_/g, ' ')}` : null,
+  };
+}
+
+// The Top line or Profit value and its status line.
+function guidanceParts(f, slot, year) {
+  if (!f.guidance.onFile && slot === 'topLine') {
+    return [el('span', {className: 'muted'}, 'No guidance on file')];
+  }
+  const s = f.guidance[slot];
+  return s ? [guidanceValue(s, year), guidanceStatus(s.record, year)] : [dashFor(DASH_WHY.record)];
+}
+
+function ytdParts(f) {
+  return isNum(f.ytd) ? el('span', {className: 'fig3'}, signedPct(f.ytd)) : dashFor(DASH_WHY.ytd);
+}
+
+// The results-day move, "pending" or a dash; each layout places f.move.period itself.
+function moveParts(f) {
+  const mv = f.move;
+  if (mv.state === 'done') {
+    return {node: el('span', {className: 'fig3'}, signedPct(mv.value)), title: MOVE_TITLE};
+  }
+  if (mv.state === 'pending') {
+    return {node: el('span', {className: 'muted'}, 'pending'), title: MOVE_TITLE};
+  }
+  return {node: dashFor(DASH_WHY[mv.state]), title: null};
+}
+
+// The next results date ("29 Oct (est.) ↗", else "No date yet"), its period and, on the day, the
+// "Reports today" pill.
+function nextParts(f, year) {
+  const nx = f.next;
+  return {
+    date: nx ? nextDate(nx, year) : el('span', {className: 'muted'}, 'No date yet'),
+    period: nx?.period ?? null,
+    today: nx?.today ? el('span', {className: 'badge badge-today'}, 'Reports today') : null,
+  };
+}
+
+// One table row: the company name as the row header, then a cell per column.
 function peerRow(f, year) {
   const td = (className, ...content) => el('td', {className}, ...content);
-  const dash = (why) => el('span', {className: 'muted', title: why}, '–');
-  const sub = (...content) => el('span', {className: 'sub'}, ...content);
+  const m = marginParts(f);
+  const mv = moveParts(f);
+  const nx = nextParts(f, year);
+  return el('tr', {}, el('th', {scope: 'row'}, f.name),
+    td('num growth', ...growthParts(f)),
+    el('td', {className: 'num change', title: changeTitle(f.change)}, ...changeParts(f)),
+    el('td', {className: 'num margin', title: m.title}, ...m.nodes),
+    td('guid', ...guidanceParts(f, 'topLine', year)),
+    td('guid', ...guidanceParts(f, 'profit', year)),
+    td('num', ytdParts(f)),
+    el('td', {className: 'num', title: mv.title}, mv.node,
+      f.move.period ? subLine(f.move.period) : null),
+    td('num next', nx.date,
+      nx.period || nx.today ? subLine(nx.period, nx.period && nx.today ? ' ' : null, nx.today)
+        : null));
+}
 
-  const growth = f.growth
-    ? td('num', el('span', {className: 'fig1'}, kpiText(f.growth.value)),
-      sub(periodLink(f.name, f.growth)))
-    : td('num', dash(DASH_WHY.growth));
-
-  // The figure is hidden from screen readers; the spoken words stand in for it, then the base.
-  const fig = changeFigure(f.change);
-  const change = el('td', {className: 'num change', title: changeTitle(f.change)},
-    el('span', {className: 'delta ' + fig.className, 'aria-hidden': 'true'}, fig.text),
-    el('span', {className: 'visually-hidden'}, changeSpoken(f.change) + ' '),
-    sub(changeBase(f.change)));
-
-  const metric = f.margin?.metric;
-  const margin = f.margin
-    ? el('td', {className: 'num margin',
-      title: metric ? `${capitalize(metric)}, ${String(f.margin.period).replace(/_/g, ' ')}` : null},
-    el('span', {className: 'fig2'}, plainPct(f.margin.value)),
-    sub(periodLink(f.name, f.margin, 'margin'),
-      metric ? ', ' + metric.replace(/ margin$/i, '') : null))
-    : td('num margin', dash(DASH_WHY.margin));
-
-  const guidanceCell = (slot) => {
-    if (!f.guidance.onFile && slot === 'topLine') {
-      return td('guid', el('span', {className: 'muted'}, 'No guidance on file'));
-    }
-    const s = f.guidance[slot];
-    return s ? td('guid', guidanceValue(s, year), guidanceStatus(s.record, year))
-      : td('guid', dash(DASH_WHY.record));
-  };
-
-  const ytd = isNum(f.ytd) ? td('num', el('span', {className: 'fig3'}, signedPct(f.ytd)))
-    : td('num', dash(DASH_WHY.ytd));
-
-  const mv = f.move;
-  const movePeriod = mv.period ? sub(mv.period) : null;
-  const move = mv.state === 'done'
-    ? el('td', {className: 'num', title: MOVE_TITLE},
-      el('span', {className: 'fig3'}, signedPct(mv.value)), movePeriod)
-    : mv.state === 'pending'
-      ? el('td', {className: 'num', title: MOVE_TITLE}, el('span', {className: 'muted'}, 'pending'),
-        movePeriod)
-      : td('num', dash(DASH_WHY[mv.state]), movePeriod);
-
-  const nx = f.next;
-  const today = nx?.today ? el('span', {className: 'badge badge-today'}, 'Reports today') : null;
-  const next = nx
-    ? td('num next', nextDate(nx, year),
-      nx.period || today ? sub(nx.period, nx.period && today ? ' ' : null, today) : null)
-    : td('num next', el('span', {className: 'muted'}, 'No date yet'));
-
-  return el('tr', {}, el('th', {scope: 'row'}, f.name), growth, change, margin,
-    guidanceCell('topLine'), guidanceCell('profit'), ytd, move, next);
+// D1: one company as a block, in E3's order with each figure beside its guidance; each
+// "Guidance" label is read as "Top line guidance" or "Profit guidance".
+function peerBlock(f, year) {
+  const pair = (label, dd) => [el('dt', {}, ...label), dd];
+  const spoken = (text) => el('span', {className: 'visually-hidden'}, text);
+  const m = marginParts(f);
+  const mv = moveParts(f);
+  const nx = nextParts(f, year);
+  // "▲ +0.2 pp vs Q2 26" stays together; without a growth figure its dash says why alone.
+  const change = f.growth
+    ? el('span', {className: 'chg', title: changeTitle(f.change)}, ...changeParts(f)) : null;
+  return el('div', {className: 'co-block'},
+    el('h3', {className: 'co-name'}, f.name),
+    el('dl', {},
+      ...pair(['Organic growth'], el('dd', {className: 'figs'}, ...growthParts(f), change)),
+      ...pair([spoken('Top line '), 'Guidance'],
+        el('dd', {}, ...guidanceParts(f, 'topLine', year))),
+      ...pair(['Margin'], el('dd', {className: 'figs', title: m.title}, ...m.nodes)),
+      ...pair([spoken('Profit '), 'Guidance'],
+        el('dd', {className: 'clamp3'}, ...guidanceParts(f, 'profit', year))),
+      ...pair(['Share price'], el('dd', {},
+        el('span', {className: 'nowrap'}, 'YTD ', ytdParts(f)), NBSP + '· ',
+        el('span', {className: 'nowrap', title: mv.title},
+          (f.move.period ? f.move.period + ' results' : 'Results') + ' ', mv.node))),
+      ...pair(['Next results'], el('dd', {className: 'next'},
+        nx.period ? nx.period + ', ' : null, nx.date, nx.today ? ' ' : null, nx.today))));
 }
 
 // C4: who grows fastest and slowest among the given companies with a growth figure, each with
@@ -870,7 +932,8 @@ function tableHead() {
 }
 
 // C1: one row per shown company in companies.json order, the headline (C4) on the title's row and
-// the foot line (C5). Print shows all six.
+// the foot line (C5); at 960px and below the same companies as blocks (D1). Print shows all six,
+// always as the table.
 function renderTable(ctx, data) {
   const panel = 'panel-comps';
   const scope = document.querySelector('#' + panel + ' .panel-head .scope');
@@ -896,6 +959,7 @@ function renderTable(ctx, data) {
   };
   const facts = new Map(ctx.list.map((c) => [c.code, peerFacts(ctx, c, src)]));
   const rows = new Map([...facts].map(([code, f]) => [code, peerRow(f, year)]));
+  const blocks = new Map([...facts].map(([code, f]) => [code, peerBlock(f, year)]));
 
   const tbody = el('tbody');
   const table = el('table', {className: 'comps'},
@@ -917,12 +981,13 @@ function renderTable(ctx, data) {
     target?.focus({preventScroll: true});
   });
   const wrap = el('div', {className: 'comps-wrap'}, table);
-  bodyOf(panel).replaceChildren(wrap,
+  const blockList = el('div', {className: 'comps-blocks'});
+  bodyOf(panel).replaceChildren(wrap, blockList,
     el('p', {className: 'comps-foot'}, 'Latest reported figures, as stated. Growth and margin as '
       + 'each company defines them. ', defs));
-  // While the table scrolls sideways inside its panel (narrow screens, until 20d's blocks), the
-  // wrapper is a named tab stop, so a keyboard can scroll it. Both sizes are watched: the wrapper
-  // narrows with the window, the table changes with the shown rows.
+  // If the table ever scrolls sideways inside its panel (zoomed text from 961 to 1100px; below
+  // that the blocks replace it), the wrapper is a named tab stop, so a keyboard can scroll it.
+  // Both sizes are watched: the wrapper narrows with the window, the table changes with the rows.
   const scrollStop = new ResizeObserver(() => {
     const scrolls = wrap.scrollWidth > wrap.clientWidth;
     for (const [k, v] of [['tabindex', '0'], ['role', 'region'],
@@ -936,10 +1001,11 @@ function renderTable(ctx, data) {
 
   function draw(codes) {
     const had = document.activeElement;
-    const hadFocus = tbody.contains(had);
+    const hadFocus = tbody.contains(had) || blockList.contains(had);
     const want = new Set(codes);
     const shown = allCodes(ctx).filter((c) => want.has(c));
     tbody.replaceChildren(...shown.map((c) => rows.get(c)));
+    blockList.replaceChildren(...shown.map((c) => blocks.get(c)));
     // With fewer than two growth figures the headline hides and the scope line names the shown.
     const parts = tableHeadline(shown.map((c) => facts.get(c)), year);
     headline.replaceChildren(...(parts || []));
@@ -947,8 +1013,8 @@ function renderTable(ctx, data) {
     scope.textContent = parts ? '' : scopeLabel(ctx, shown);
     scope.hidden = Boolean(parts);
     if (!hadFocus) return;
-    // A link whose row stays keeps focus; one whose row left hands it to the capsule: its first
-    // pressed pill or, where the pills fold away, the opener.
+    // A link whose row or block stays keeps focus; one whose company left hands it to the
+    // capsule: its first pressed pill or, where the pills fold away, the opener.
     if (had.isConnected) had.focus();
     else {
       document.querySelector(NARROW.matches ? '#filter .filter-opener'
@@ -1156,26 +1222,46 @@ function rebased(vals) {
   return vals.map((v) => (v === null || base === null ? null : (100 * v) / base));
 }
 
-// At 720px and below the legend shows company codes, so it wraps to at most 3 lines.
+// At 720px and below the x axis keeps at most 4 ticks and the chart headline names codes.
 const NARROW = window.matchMedia('(max-width: 720px)');
 const END_LABEL_GAP_PX = 12;
+const LEADER_MIN_PX = 3; // a code moved less than this stays beside its dot, with no leader
+const INK = '#1b2a41'; // chart text and codes; the one fallback for a company color
+const BENCH_COLOR = '#6b7a8f'; // the benchmark's dashed line and its key swatch
+// X-axis ticks by window (D3): the day on short windows, the year on long ones.
+const TICK_FORMAT = {'1M': '%-d %b', '3M': '%-d %b', YTD: '%b', '1Y': '%b %Y', '2Y': '%b %Y'};
+const YTD_SHORT_DAYS = 92; // a YTD window shorter than this shows days, like 1M and 3M
 
-let endLabels = []; // per shown company line in the last draw: {code, color, x, y}
+// The tick format for a window from first to last; from January to March YTD shows days, so a
+// month never repeats along the axis.
+function tickFormat(win, first, last) {
+  if (win === 'YTD' && daysBetween(first, last) < YTD_SHORT_DAYS) return TICK_FORMAT['1M'];
+  return TICK_FORMAT[win] || '%b %Y';
+}
+
+let endLabels = []; // per shown company line in the last draw: {code, name, color, x, y}
 let endAnnotations = []; // the last placed end labels, reused so a redraw never drops them
 
-// Company-code annotations at the right end of each line, pushed at least 12px apart.
+// D3: each line's company code in ink at its right end, pushed at least 12px apart. Every code
+// starts 16px right of its line's end, in one column; one the spacing moved points back at that
+// end with a 1px leader in the company color.
 function endLabelAnnotations(ymin, ymax, h) {
-  const gap = (END_LABEL_GAP_PX * (ymax - ymin)) / Math.max(h, 1);
+  const perPx = (ymax - ymin) / Math.max(h, 1);
+  const gap = END_LABEL_GAP_PX * perPx;
   const sorted = [...endLabels].sort((a, b) => a.y - b.y);
   const ys = sorted.map((l) => l.y);
   for (let i = 1; i < ys.length; i++) ys[i] = Math.max(ys[i], ys[i - 1] + gap);
   if (ys.length) ys[ys.length - 1] = Math.min(ys[ys.length - 1], ymax);
   for (let i = ys.length - 2; i >= 0; i--) ys[i] = Math.min(ys[i], ys[i + 1] - gap);
-  return sorted.map((l, i) => ({
-    x: l.x, y: ys[i], xref: 'x', yref: 'y', text: escapeHtml(l.code),
-    showarrow: false, xanchor: 'left', yanchor: 'middle', xshift: 4,
-    font: {color: l.color, size: 12},
-  }));
+  return sorted.map((l, i) => {
+    const label = {x: l.x, xref: 'x', yref: 'y', text: escapeHtml(l.code), xanchor: 'left',
+      yanchor: 'middle', font: {color: INK, size: 12}};
+    // The code's offset from its line's end in pixels; up the screen is negative.
+    const ay = perPx > 0 ? -Math.round((ys[i] - l.y) / perPx) : 0;
+    if (Math.abs(ay) < LEADER_MIN_PX) return {...label, y: ys[i], showarrow: false, xshift: 16};
+    return {...label, y: l.y, showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: l.color,
+      ax: 16, ay};
+  });
 }
 
 // Re-spaces the end labels with the drawn y range and plot height.
@@ -1197,32 +1283,34 @@ function drawChart(ctx, data, aligned, win) {
   let b = union.findIndex((d) => d >= start);
   if (b < 0) b = 0;
   const x = union.slice(b);
+  const subset = selected.size < ctx.list.length;
 
-  // B4: only the shown companies are drawn; the legend is a key, and the capsule the control.
+  // B4: only the shown companies are drawn; the key is a key, and the capsule the control.
   const shownSeries = series.filter((s) => selected.has(s.company.code));
   const companyTraces = [];
   endLabels = [];
   for (const s of shownSeries) {
     const code = s.company.code;
     const rank = ctx.list.indexOf(s.company);
-    const color = safeColor(s.company.color);
+    // One checked color per company: its line, end dot, leader and key swatch.
+    const color = safeColor(s.company.color) || INK;
     const fullName = escapeHtml(s.company.name ?? code);
     const y = rebased(s.filled.slice(b));
     companyTraces.push({
       type: 'scatter',
       mode: 'lines',
       uid: 'co' + rank,
-      name: NARROW.matches ? escapeHtml(code) : fullName,
+      name: fullName,
       meta: fullName,
-      legendrank: rank + 1,
       x,
       y,
-      line: {width: 2.5, color: color || undefined},
+      line: {width: 2, color},
       hovertemplate: '%{meta}: %{y:.1f}<extra></extra>',
     });
     const lastIdx = y.findLastIndex((v) => v !== null);
     if (lastIdx >= 0) {
-      endLabels.push({code, color: color || '#1f2328', x: x[lastIdx], y: y[lastIdx]});
+      endLabels.push({code, name: String(s.company.name ?? code), color, x: x[lastIdx],
+        y: y[lastIdx]});
     }
   }
   const traces = [...companyTraces];
@@ -1237,14 +1325,27 @@ function drawChart(ctx, data, aligned, win) {
       uid: 'bench',
       name,
       meta: name,
-      legendrank: 2000,
-      visible: benchVisible ? true : 'legendonly',
+      visible: benchVisible,
       x,
       y: benchY,
-      line: {width: 1.5, color: '#5f6368', dash: 'dash'},
+      line: {width: 1.5, color: BENCH_COLOR, dash: 'dash'},
       hovertemplate: '%{meta}: %{y:.1f}<extra></extra>',
     });
   }
+
+  // D3: an 8px dot with a white ring at each line's last point, over every line, and not clipped
+  // at the plot's right edge, where that point sits.
+  traces.push({
+    type: 'scatter',
+    mode: 'markers',
+    uid: 'ends',
+    x: endLabels.map((l) => l.x),
+    y: endLabels.map((l) => l.y),
+    showlegend: false,
+    hoverinfo: 'skip',
+    cliponaxis: false,
+    marker: {size: 8, color: endLabels.map((l) => l.color), line: {color: '#ffffff', width: 2}},
+  });
 
   const first = x[0];
   const last = x[x.length - 1];
@@ -1252,7 +1353,7 @@ function drawChart(ctx, data, aligned, win) {
   const marks = items.filter((e) => e && isIsoDate(e.date) && MARKER_TYPES.includes(e.type)
     && e.date.slice(0, 10) >= first && e.date.slice(0, 10) <= last
     // Markers only for a subset, and only the shown companies' events (K6).
-    && selected.size < ctx.list.length && selected.has(e.company));
+    && subset && selected.has(e.company));
   // Events on one date share one line and one marker; the hover lists each (P1).
   const byDate = new Map();
   for (const e of marks) {
@@ -1264,36 +1365,29 @@ function drawChart(ctx, data, aligned, win) {
 
   const shapes = [{
     type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: 100, y1: 100,
-    line: {color: '#d8dee4', width: 1},
+    line: {color: '#c9d3dd', width: 1},
   }];
   if (dates.length) {
-    // Vertical event lines as one trace of null-separated segments, grouped with the markers
-    // under the one Events key entry.
+    // Vertical event lines as one trace of null-separated segments.
     traces.push({
       type: 'scatter',
       mode: 'lines',
       uid: 'ev-lines',
-      name: 'Events',
-      legendgroup: 'events',
-      showlegend: false,
       hoverinfo: 'skip',
       x: dates.flatMap((d) => [d, d, null]),
       y: dates.flatMap(() => [0, 1.04, null]),
       yaxis: 'y2',
-      line: {color: '#c4c8cc', width: 1, dash: 'dot'},
+      line: {color: '#8a97a8', width: 1, dash: 'dot'},
     });
     // One small marker per date at the top of the plot carries the hover text.
     traces.push({
       type: 'scatter',
       mode: 'markers',
       uid: 'ev-marks',
-      name: 'Events',
-      legendgroup: 'events',
-      legendrank: 3000,
       x: dates,
       y: dates.map(() => 1),
       yaxis: 'y2',
-      marker: {symbol: 'triangle-down', size: 7, color: '#80868b'},
+      marker: {symbol: 'triangle-down', size: 8, color: '#8a97a8'},
       hovertext: dates.map((d) => byDate.get(d).map((e) => [companyName(ctx, e.company),
         capitalize(String(e.type ?? '').replace(/_/g, ' ')), String(e.title ?? '')]
         .map(escapeHtml).join(' · ')).join(HOVER_BR)),
@@ -1303,7 +1397,7 @@ function drawChart(ctx, data, aligned, win) {
 
   // The headline reads the same rebased lines, for the shown companies only.
   const lastOf = (ys) => ys.findLast((v) => v !== null);
-  // Codes on narrow screens, like the legend; raw strings, never the escaped Plotly names.
+  // Codes on narrow screens; raw strings, never the escaped Plotly names.
   const ends = shownSeries.map((s, i) => ({code: s.company.code,
     name: NARROW.matches ? String(s.company.code) : String(s.company.name ?? s.company.code),
     v: lastOf(companyTraces[i].y)})).filter((e) => isNum(e.v));
@@ -1318,15 +1412,42 @@ function drawChart(ctx, data, aligned, win) {
       text = `${win}: ${lead.name} leads${NBSP}${signedPct(lead.v - 100)}, `
         + `${trail.name} trails${NBSP}${signedPct(trail.v - 100)}`;
     }
+    // D2: the benchmark's figure follows, muted and smaller, while its line is drawn; a hidden
+    // ". " makes a screen reader end the trail phrase before it.
     const benchEnd = lastOf(benchY);
-    if (bench && isNum(benchEnd)) text += ` · ${bench.name}${NBSP}${signedPct(benchEnd - 100)}`;
+    const benchText = bench && benchVisible && isNum(benchEnd)
+      ? `${bench.name}${NBSP}${signedPct(benchEnd - 100)}` : '';
+    const parts = benchText ? [text, el('span', {className: 'visually-hidden'}, '. '), ' ',
+      el('span', {className: 'chart-bench'}, benchText)] : [text];
     // Set only on change, so a redraw with the same numbers does not re-announce it.
-    if (headline.textContent !== text) headline.textContent = text;
+    const want = parts.map((p) => (typeof p === 'string' ? p : p.textContent)).join('');
+    if (headline.textContent !== want) headline.replaceChildren(...parts);
     headline.hidden = false;
   } else if (headline) {
     // No company has a value in this window: never leave the last window's text up.
     headline.textContent = '';
     headline.hidden = true;
+  }
+
+  // D2: the key lists what is drawn, by full name as text: each company line, the benchmark
+  // while it shows, and for a subset the event markers. With nothing drawn it hides.
+  const key = document.getElementById('chart-key');
+  if (key) {
+    const swatch = (color, className = 'key-line') => {
+      const line = el('span', {className, 'aria-hidden': 'true'});
+      line.style.borderTopColor = color;
+      return line;
+    };
+    const entries = endLabels.map((l) => el('li', {}, swatch(l.color), l.name));
+    if (bench && benchVisible && benchY.some(isNum)) {
+      entries.push(el('li', {}, swatch(BENCH_COLOR, 'key-line bench'), bench.name));
+    }
+    if (subset && entries.length) {
+      entries.push(el('li', {className: 'key-events'}, el('span', {'aria-hidden': 'true'}, '▾'),
+        ' Results, capital markets days and deals'));
+    }
+    key.replaceChildren(...entries);
+    key.hidden = !entries.length;
   }
 
   // Place the end labels before drawing with an estimated range (5% padding, the last plot
@@ -1340,18 +1461,27 @@ function drawChart(ctx, data, aligned, win) {
   const h = gd._fullLayout?._size?.h || gd.clientHeight - 60;
   endAnnotations = endLabelAnnotations(lo - pad, hi + pad, h);
 
+  // Section 7. No layout.height: #chart's CSS height reaches Plotly through responsive
+  // autosizing, so a breakpoint resizes the plot without a redraw. The right margin is 72, not
+  // 64: a moved DENTSU code (16px out, then its text) measured 5px past 64.
+  const sans = getComputedStyle(document.body).fontFamily;
   const layout = {
-    margin: {l: 48, r: 56, t: 24, b: 36},
+    margin: {l: 44, r: 72, t: 12, b: 36},
     hovermode: 'x unified',
-    hoverlabel: {bgcolor: 'rgba(255,255,255,0.95)', bordercolor: '#d8dee4', font: {size: 12}},
-    showlegend: true,
-    // A key, not a control (B4): clicks on it change nothing.
-    legend: {orientation: 'h', x: 0, y: 1.08, yanchor: 'bottom', font: {size: 12},
-      itemclick: false, itemdoubleclick: false},
-    // Fewer x ticks on narrow screens keep the dates horizontal, so the plot keeps its height.
-    xaxis: {type: 'date', range: [first, last], showgrid: false, ticks: 'outside', ticklen: 4,
-      tickformat: '%b %Y', automargin: true, nticks: NARROW.matches ? 3 : undefined},
-    yaxis: {gridcolor: '#eef0f2', zeroline: false, ticksuffix: ' ', automargin: true, nticks: 8},
+    hoverlabel: {bgcolor: '#ffffff', bordercolor: '#c9d3dd',
+      font: {size: 12, family: sans, color: INK}},
+    showlegend: false,
+    // No drag-to-zoom: the window track is the only time control. fixedrange alone still let
+    // Plotly's touch handler swallow a swipe; with dragmode false a swipe over the chart scrolls.
+    dragmode: false,
+    // Fewer x ticks on narrow screens keep the dates horizontal. The hover's date header keeps
+    // the day and year whatever the tick format.
+    xaxis: {type: 'date', range: [first, last], fixedrange: true, showgrid: false, showline: true,
+      linecolor: '#c9d3dd', ticks: 'outside', ticklen: 4, tickcolor: '#c9d3dd',
+      tickformat: tickFormat(win, first, last), hoverformat: '%-d %b %Y', automargin: true,
+      nticks: NARROW.matches ? 4 : 11, tickfont: {size: 12, color: '#4f5f74'}},
+    yaxis: {fixedrange: true, gridcolor: '#e6ebf1', zeroline: false, ticksuffix: ' ',
+      automargin: true, nticks: 7, tickfont: {size: 12, color: '#4f5f74'}},
     yaxis2: {overlaying: 'y', range: [0, 1.04], visible: false, fixedrange: true},
     shapes,
     annotations: endAnnotations,
@@ -1359,20 +1489,19 @@ function drawChart(ctx, data, aligned, win) {
     // lines turn visible at once (seen in step 17). Without one, redraws are instant anyway.
     paper_bgcolor: '#ffffff',
     plot_bgcolor: '#ffffff',
-    font: {family: getComputedStyle(document.body).fontFamily, size: 12},
+    font: {family: sans, size: 12, color: INK},
   };
-  return Plotly.react(gd, traces, layout, {
-    displaylogo: false,
-    responsive: true,
-    modeBarButtonsToRemove: ['lasso2d', 'select2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d'],
-  });
+  return Plotly.react(gd, traces, layout, {displaylogo: false, responsive: true,
+    displayModeBar: false});
 }
 
 function hideChartControls() {
   const controls = document.querySelector('#panel-chart .chart-controls');
   if (controls) controls.hidden = true;
-  const headline = document.getElementById('chart-headline');
-  if (headline) headline.hidden = true;
+  for (const id of ['chart-headline', 'chart-key']) {
+    const node = document.getElementById(id);
+    if (node) node.hidden = true;
+  }
 }
 
 function renderChart(ctx, data) {
