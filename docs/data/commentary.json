@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-26T00:34:37Z",
+ "as_of": "2026-10-27T01:34:54Z",
  "headlines": [
   {
    "company": "PUB",
@@ -16,6 +16,14 @@
    "headline_by": "curator",
    "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
    "curated_at": "2026-10-15T02:52:34Z"
+  },
+  {
+   "company": "OMC",
+   "release_date": "2026-10-22",
+   "headline": "Omnicom reports Q3 2026 Core Operations organic revenue growth of 7.2% and says it is on track to deliver $900 million in cost-reduction synergies in 2026.",
+   "headline_by": "curator",
+   "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
+   "curated_at": "2026-10-26T17:07:35Z"
   },
   {
    "company": "WPP",
@@ -117,6 +125,19 @@
    "verified": true
   },
   {
+   "id": "omc-ai_and_data-2026-10-22-1",
+   "company": "OMC",
+   "theme": "ai_and_data",
+   "quote": "We'll continue investing in our people and agentic technology to drive measurable business outcomes for our clients.",
+   "speaker": "John Wren, Chairman and CEO",
+   "release_date": "2026-10-22",
+   "period": "Q3 2026",
+   "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
+   "source_type": "results_release",
+   "curated_at": "2026-10-26T17:07:35Z",
+   "verified": true
+  },
+  {
    "id": "omc-capital_allocation-2026-03-12-1",
    "company": "OMC",
    "theme": "capital_allocation",
@@ -181,6 +202,19 @@
    "verified": true
   },
   {
+   "id": "omc-outlook-2026-10-22-1",
+   "company": "OMC",
+   "theme": "outlook",
+   "quote": "We've strengthened our competitive position and are on track to deliver $900 million in cost-reduction synergies in 2026 resulting in stronger organic revenue growth, operating margins, and earnings per share",
+   "speaker": "John Wren, Chairman and CEO",
+   "release_date": "2026-10-22",
+   "period": "Q3 2026",
+   "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
+   "source_type": "results_release",
+   "curated_at": "2026-10-26T17:07:35Z",
+   "verified": true
+  },
+  {
    "id": "omc-performance-2026-07-28-1",
    "company": "OMC",
    "theme": "performance",
@@ -190,6 +224,19 @@
    "period": "Q2 2026",
    "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "omc-performance-2026-10-22-1",
+   "company": "OMC",
+   "theme": "performance",
+   "quote": "As we approach the one-year anniversary of the Interpublic acquisition, we continue to deliver the expected benefits of the combination.",
+   "speaker": "John Wren, Chairman and CEO",
+   "release_date": "2026-10-22",
+   "period": "Q3 2026",
+   "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
+   "source_type": "results_release",
+   "curated_at": "2026-10-26T17:07:35Z",
    "verified": true
   },
   {
@@ -215,6 +262,19 @@
    "period": "Q2 2026",
    "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
    "curated_at": "2026-10-15T02:52:34Z",
+   "verified": true
+  },
+  {
+   "id": "omc-strategy-2026-10-22-1",
+   "company": "OMC",
+   "theme": "strategy",
+   "quote": "With our integration nearly complete and our portfolio of companies and operations streamlined, we're focused on high-demand services and are well positioned to pursue future growth.",
+   "speaker": "John Wren, Chairman and CEO",
+   "release_date": "2026-10-22",
+   "period": "Q3 2026",
+   "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
+   "source_type": "results_release",
+   "curated_at": "2026-10-26T17:07:35Z",
    "verified": true
   },
   {

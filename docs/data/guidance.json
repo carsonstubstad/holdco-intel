@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-26T00:34:37Z",
+ "as_of": "2026-10-27T01:34:54Z",
  "records": [
   {
    "id": "pub-organic_growth-fy2026-2026-07-16",
@@ -344,6 +344,36 @@
    "quote": "The Group is also confirming its medium-term financial targets for fiscal year 2028: Adjusted EBIT margin of between 14.0% and 15.0%",
    "source_url": "https://www.havas.com/press_release/havas-reports-solid-net-revenue-growth-of-7-2-in-q3-2026-driven-by-organic-growth-and-contribution-from-acquisitions/",
    "curated_at": "2026-10-15T02:39:20Z",
+   "verified": true
+  },
+  {
+   "id": "omc-revenue-fy2026-2026-03-12",
+   "company": "OMC",
+   "metric": "revenue",
+   "value": "approximately 4% on a constant currency basis",
+   "unit": "pct",
+   "period": "FY 2026",
+   "set_date": "2026-03-12",
+   "status": "new",
+   "supersedes": null,
+   "quote": "In 2026, we expect this revenue base to grow approximately 4% on a constant currency basis.",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "curated_at": "2026-10-26T17:16:28Z",
+   "verified": true
+  },
+  {
+   "id": "omc-eps-fy2026-2026-03-12",
+   "company": "OMC",
+   "metric": "eps",
+   "value": "double-digit growth",
+   "unit": "text",
+   "period": "FY 2026",
+   "set_date": "2026-03-12",
+   "status": "new",
+   "supersedes": null,
+   "quote": "Together, with the expected reduction in diluted shares outstanding from our share repurchases, we expect double-digit growth in fully diluted non-GAAP adjusted EPS for full year 2026.",
+   "source_url": "https://investor.omc.com/files/doc_events/2026/03/OMC-03-12-26-Investor-Day-transcript.pdf",
+   "curated_at": "2026-10-26T17:16:28Z",
    "verified": true
   }
  ]

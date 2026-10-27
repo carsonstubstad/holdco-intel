@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-26T00:34:37Z",
+ "as_of": "2026-10-27T01:34:54Z",
  "definitions": {
   "PUB": "Organic growth: net revenue growth at constant scope and FX. Margin: operating margin on net revenue.",
   "OMC": "Organic growth: revenue growth excluding acquisitions, disposals and FX. Margin: adjusted EBITA margin. Not comparable across the IPG close (Nov 2025).",
@@ -239,6 +239,17 @@
    "margin_pct": 17.2,
    "source_url": "https://investor.omc.com/news/news-details/2026/Omnicom-Reports-Second-Quarter-2026-Results/default.aspx",
    "note": "post-IPG; not comparable. Core Operations organic; consolidated revenue and margin. Core Operations margin 17.8%."
+  },
+  {
+   "company": "OMC",
+   "period": "Q3 2026",
+   "organic_growth_pct": 7.2,
+   "revenue_local_m": 6422.8,
+   "currency": "USD",
+   "margin_metric": "adjusted EBITA margin",
+   "margin_pct": 17.6,
+   "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
+   "note": "post-IPG; not comparable. Core Operations organic; consolidated revenue and margin. Core Operations margin 18.2%."
   },
   {
    "company": "STGW",
