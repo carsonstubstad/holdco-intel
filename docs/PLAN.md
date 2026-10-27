@@ -513,6 +513,13 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   hand check against kpis, guidance, events and prices (including the two-day move); at
   1440×900 the whole table is on the first screen (last row at or above 860px); at 1024
   no column is cut. Commit: `step 20c: peer table`.
+  Built 2026-10-27 with a maintainer-approved polish round: the columns grouped under
+  Organic growth, Margin, Guidance, Share price and Next results, with thin rules between
+  the groups; guidance on one line with "See all ↓" to All guidance; links inside the table
+  grey, so green and red are its only colors; the change on the growth figure's line. The
+  margin basis stays in full ("headline operating profit"). Last row at 1440×900: 834px.
+  Page height at 1440: 3,101px (3,420 before), /#WPP 2,269 (2,482); at 375: 5,507px
+  (5,157), /#WPP 3,745 (3,853), taller until D1's company blocks replace the scrolling table.
 
 - [ ] **20d Phone, chart, quotes, press, print.** D1 to D7: company blocks at 960px and
   below, the chart key and end-code leaders, the quotes grid, press rows, the A4 and
@@ -620,3 +627,14 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   table's title are not built yet). Look again at 20c's build check; if the secondary edges
   still feel weak, the lever is a darker `--border-2` (one token), not ink, since a 1px ink
   outline is the tracks' and pills' control style.
+  2026-10-27 (20c build check): closed. With the table built, the 1px `--border-2` panels
+  read clearly as panels and the 2px ink table as the main one; no change.
+- 2026-10-27 (20c build check): the WPP release "WPP Enterprise Solutions named a Strong
+  Performer in Loyalty Services, Q4 2026 Evaluation…" (27 Oct) is labelled Results and
+  flagged key: the results rule matches "Q4 2026". A press label rule fix (config, tests);
+  decide with the Financing line.
+- 2026-10-27 (20c polish): one-line guidance in the peer table cuts the figure in three
+  top-line values at 1440 (Omnicom "Revenue approximatel…", WPP "decline low …", Havas
+  "between +2.0% and…"); the full text is on hover and in All guidance. Two lines no longer
+  fit the 860px first screen. Options: a short curated value per record (a schema and
+  /curate change, with the `metric_label` line), or more width for the guidance columns.
