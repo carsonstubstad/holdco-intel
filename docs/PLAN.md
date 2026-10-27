@@ -577,6 +577,21 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   runs long, the phone press cap (D5) is cut first; if D4, D5 and F1 fill the session, D6
   and D7 become 20g, and their checks (heights, print, end codes) move with them. Commit:
   `step 20f: quotes, press, folds and print`.
+  Built 2026-10-27 in one session with one maintainer-approved polish round. Print is 5 pages
+  on A4 and on Letter, not 4 (maintainer, at the build check): the 4-page print before 20f
+  was Chrome shrinking an oversized page, and at true size (11px text, every release) the
+  first build printed 6 on A4 and 7 on Letter, with Letter's foot line alone on page 2; a
+  print-only spacing pass brought both to 5, keeping D6's sizes (4 needed 10px text and key
+  releases only). Page 1 holds the header, What’s new and the whole table with its foot line
+  (123px to spare on A4, 88 on Letter); page 2 the chart and all the quotes, three across on
+  paper (two across ran onto page 3); All guidance prints one record per line. The printed
+  chart is all six at 677×260 in the pressed window with the benchmark as toggled, and the
+  screen chart comes back at once afterwards. End codes sit on whole pixel rows, at least 12px
+  apart in every window, on screen and in print. One company's quote count is out of the six
+  themes its grid lists ("WPP: quoted on 6 of 6 themes"). Last row at 1440×900: 844px; at
+  375×812 Publicis Groupe's growth figure ends at 702px. Page height at 1440: 1,963px (3,298
+  before; 3,080 at the v2.0 start), /#WPP 1,593 (2,444); at 375: 3,381px (6,337; 4,357 at the
+  v2.0 start), /#WPP 1,908 (3,650).
 
 - [ ] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
   line describe the final v2.0 page. `pipeline/stats.py` (computed numbers from
@@ -691,3 +706,7 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-27 (20e build check): What’s new shows three rows, newest first, so on 27 Oct two
   deals push Havas's and Publicis's Q3 results out. Option: list results before deals when
   rows are left out. Look again once a results week has gone through.
+- 2026-10-27 (20f build check): the four folds' titles are spans inside `<summary>`, not
+  headings, so heading navigation skips In their words and Press releases (h2s before 20f),
+  All guidance and Quarterly history. Option: an h2 inside each summary (HTML allows one),
+  checked with VoiceOver so the summary keeps its button role.
