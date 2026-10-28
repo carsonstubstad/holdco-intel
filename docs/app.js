@@ -428,14 +428,18 @@ function briefResults(events, kpiRows, kpisOk, today) {
     && inBrief(e.date, today)).map((e) => ({e, kpi: kpisOk ? resultsRow(kpiRows, e) : null}));
 }
 
-// A link to a company document with its ↗; plain text (and no ↗) without a safe URL. A no-break
-// space inside the ↗'s span keeps the ↗ with the last word, and goes with it on paper, which
-// hides the ↗ ("H1 26, operating profit").
+// J3: the one ↗ every link to a company document ends in: 0.85em in --border-2 whatever the link's
+// color, hidden from screen readers. After text on the same line a no-break space inside its span
+// keeps it with the last word, and goes with it on paper, which hides the ↗; bare where a flex
+// gap stands in (clipped) or the ↗ is the whole link (the guidance source).
+function docArrow(bare) {
+  return el('span', {className: 'doc-arrow', 'aria-hidden': 'true'}, (bare ? '' : NBSP) + '↗');
+}
+
+// A link to a company document with its ↗; plain text (and no ↗) without a safe URL.
 function docLink(u, text) {
   const node = link(u, text);
-  if (node.nodeType === Node.ELEMENT_NODE) {
-    node.append(el('span', {'aria-hidden': 'true'}, NBSP + '↗'));
-  }
+  if (node.nodeType === Node.ELEMENT_NODE) node.append(docArrow());
   return node;
 }
 
@@ -471,7 +475,7 @@ function clipped(u, title, ...content) {
   node.className = 'c-clipped';
   node.title = title;
   // The space shows where the title wraps (phones, print); one line, the flex gap stands in.
-  node.replaceChildren(clip, ' ', el('span', {'aria-hidden': 'true'}, '↗'));
+  node.replaceChildren(clip, ' ', docArrow(true));
   return node;
 }
 
@@ -533,12 +537,13 @@ function renderChanges(ctx, data) {
       el('strong', {className: 'c-value'}, kpiText(kpi.organic_growth_pct))), ' ',
     el('span', {className: 'chg nowrap', title: changeTitle(change)}, ...changeParts({change})));
   };
-  // C3's two-day move; "pending" until the close after results day; left out without one.
+  // C3's two-day move, "share price ▲ +2.7% on results (2 days)" (J1, J2); "pending" until the
+  // close after results day; left out without one.
   const share = (e) => {
     const mv = resultsMove(series[ctx.byCode[e.company]?.ticker], day(e.date));
     if (mv.state === 'done') {
       return el('span', {title: MOVE_TITLE}, el('span', {className: 'nowrap'}, 'share price ',
-        el('strong', {className: 'c-value'}, signedPct(mv.value))), ' on results day');
+        el('strong', {className: 'c-value'}, shareFigure(mv.value))), ` on results (${MOVE_DAYS})`);
     }
     return mv.state === 'pending'
       ? el('span', {title: MOVE_TITLE}, 'share price ', muted('pending')) : null;
@@ -568,10 +573,11 @@ function renderChanges(ctx, data) {
         return {date: day(r.set_date), code: r.company, kind: 'guidance',
           node: row(docLink(r.source_url, fmtDayIn(r.set_date, year)), r.company,
             statusBadge(r.status, statusLabel(r.status)),
+            // Its figures bold (J4). As in the table: a withdrawn value is struck, its
+            // "× Withdrawn" is not.
             clipped(null, `${what}: ${value}`, muted(what + ' '),
-              // As in the table: a withdrawn value is struck, its "× Withdrawn" is not.
-              el('strong', {className: 'c-value'},
-                r.status === 'withdrawn' ? el('s', {}, value) : value)))};
+              ...(r.status === 'withdrawn' ? [el('s', {}, ...guidanceText(value))]
+                : guidanceText(value))))};
       }),
     ...events.filter((e) => e.type === 'capital_markets_day' && inBrief(e.date, ctx.today))
       .map((e) => ({date: day(e.date), code: e.company, kind: e.type,
@@ -653,6 +659,8 @@ function statusLabel(s, word = capitalize(s)) {
 }
 
 const MOVE_TITLE = 'close before results day to close after it';
+// J1: the move's window as built, results day and the day after ("H1 · 2 days", "(2 days)").
+const MOVE_DAYS = '2' + NBSP + 'days';
 // [slot, metric, fallback metric]: Top line is organic growth, else revenue; Profit is operating
 // margin, else EPS (G2, as K4 had it).
 const PEER_GUIDANCE = [['topLine', 'organic_growth', 'revenue'],
@@ -847,6 +855,34 @@ function changeTitle(change) {
 // days' moves).
 const TABLE_STATUSES = ['raised', 'cut', 'withdrawn'];
 
+// J4: a figure in a guidance value: a number (thousands separators included) with a sign, a
+// currency before it or a unit after it, taken whole ("+4.5%", "€2.2 billion", "£800m",
+// "$1,500 million"). Group 1 is the character before it, 3 the currency, 4 the unit.
+const GUIDANCE_FIGURE = new RegExp(String.raw`(^|[^\w.,])((?:[+${MINUS}]|-(?=\d))?([€$£¥])?`
+  + String.raw`\d+(?:[.,]\d+)*(%|\s?pp|bn|m|\s?(?:million|billion))?)(?!\w)`, 'g');
+
+// J4: a guidance value as text with only its figures bold (strong.g-fig). A bare number, such as a
+// year, stays regular, and a hyphen is a sign only at the start or after a space. Text nodes only:
+// the value's text never changes.
+function guidanceText(value) {
+  const out = [];
+  let at = 0;
+  for (const m of value.matchAll(GUIDANCE_FIGURE)) {
+    let fig = m[2];
+    let start = m.index + m[1].length;
+    if (fig[0] === '-' && m[1] && !/\s/.test(m[1])) {
+      fig = fig.slice(1);
+      start += 1;
+    }
+    if (!['+', '-', MINUS].includes(fig[0]) && !m[3] && !m[4]) continue;
+    if (start > at) out.push(value.slice(at, start));
+    out.push(el('strong', {className: 'g-fig'}, fig));
+    at = start + fig.length;
+  }
+  if (at < value.length) out.push(value.slice(at));
+  return out;
+}
+
 // E3: the guidance value in full (CSS clamps it), led by its status only when it moved ("▲ Raised
 // · "; a withdrawn value struck through), with a muted prefix naming a fallback metric ("Revenue",
 // "EPS") or a period that is not this year's FY ("H2 2026:"). The title adds the status and date.
@@ -866,9 +902,11 @@ function guidanceValue(name, slot, year) {
   const text = el('span', {className: 'g-value', title: full + '\n' + when},
     moved ? statusBadge(s, statusLabel(s)) : null, moved ? ' · ' : null,
     pre ? el('span', {className: 'muted'}, pre + ' ') : null,
-    s === 'withdrawn' ? el('s', {}, value) : value);
-  const src = link(r.source_url, '↗');
+    ...(s === 'withdrawn' ? [el('s', {}, ...guidanceText(value))] : guidanceText(value)));
+  // The ↗ is the whole link; its aria-label names it.
+  const src = link(r.source_url, '');
   if (src.nodeType !== Node.ELEMENT_NODE) return el('div', {className: 'g-line'}, text);
+  src.append(docArrow(true));
   src.className = 'g-src';
   src.setAttribute('aria-label',
     `${name} ${metricLabel(r.metric)} guidance source${date ? ', ' + date : ''}`);
@@ -890,12 +928,14 @@ function outParts(f, year) {
 function nextDate(next, year) {
   const node = link(next.url, fmtDayIn(next.date, year));
   const linked = node.nodeType === Node.ELEMENT_NODE;
-  const arrow = linked ? el('span', {'aria-hidden': 'true'}, '↗') : null;
-  const tail = next.confirmed ? arrow
-    : el('span', {className: 'est'}, '(est.)', arrow ? ' ' : null, arrow);
-  if (!tail) return node;
-  if (!linked) return el('span', {}, node, ' ', tail);
-  node.append(' ', tail);
+  const arrow = linked ? docArrow() : null;
+  if (next.confirmed) {
+    if (arrow) node.append(arrow);
+    return node;
+  }
+  const est = el('span', {className: 'est'}, '(est.)', arrow);
+  if (!linked) return el('span', {}, node, ' ', est);
+  node.append(' ', est);
   return node;
 }
 
@@ -954,15 +994,27 @@ function guidanceParts(f, slot, year) {
   return s ? [guidanceValue(f.name, s, year)] : [dashFor(DASH_WHY.record)];
 }
 
-function ytdParts(f) {
-  return isNum(f.ytd) ? el('span', {className: 'fig3'}, signedPct(f.ytd)) : dashFor(DASH_WHY.ytd);
+// J2: a share move read like the Change column, through glyphSigned: "▲ +13.8%" in --up,
+// "▼ −1.1%" in --down, and "0.0%" with no glyph in --ink-2 for a figure that rounds to zero (the
+// color comes from the rounded figure too). The glyph is hidden: a screen reader hears "+13.8%".
+function shareFigure(p) {
+  const r = Number(p.toFixed(1));
+  const parts = glyphSigned(p).split(/\s/);
+  return el('span', {className: r > 0 ? 'up' : r < 0 ? 'down' : 'flat'},
+    parts.length > 1 ? el('span', {'aria-hidden': 'true'}, parts[0] + ' ') : null,
+    parts[parts.length - 1] + '%');
 }
 
-// The results-day move, "pending" or a dash; each layout places f.move.period itself.
+function ytdParts(f) {
+  return isNum(f.ytd) ? el('span', {className: 'fig3'}, shareFigure(f.ytd))
+    : dashFor(DASH_WHY.ytd);
+}
+
+// The two-day move on results, "pending" or a dash; each layout places f.move.period itself.
 function moveParts(f) {
   const mv = f.move;
   if (mv.state === 'done') {
-    return {node: el('span', {className: 'fig3'}, signedPct(mv.value)), title: MOVE_TITLE};
+    return {node: el('span', {className: 'fig3'}, shareFigure(mv.value)), title: MOVE_TITLE};
   }
   if (mv.state === 'pending') {
     return {node: el('span', {className: 'muted'}, 'pending'), title: MOVE_TITLE};
@@ -988,6 +1040,10 @@ function peerRow(f, year) {
   const m = marginParts(f);
   const mv = moveParts(f);
   const nx = nextParts(f, year);
+  // J1: "H1 · 2 days" under a figure or "pending" ("2 days" with no period); under a dash, the
+  // period only.
+  const moveSub = ['done', 'pending'].includes(f.move.state)
+    ? [f.move.period, MOVE_DAYS].filter(Boolean).join(' · ') : f.move.period;
   return el('tr', {}, el('th', {scope: 'row'}, f.name, outParts(f, year)),
     td('num growth', ...growthParts(f)),
     el('td', {className: 'num change', title: changeTitle(f.change)}, ...changeParts(f)),
@@ -995,8 +1051,7 @@ function peerRow(f, year) {
     el('td', {className: 'num margin', title: m.title}, ...m.nodes),
     td('guid g-profit', ...guidanceParts(f, 'profit', year)),
     td('num', ytdParts(f)),
-    el('td', {className: 'num', title: mv.title}, mv.node,
-      f.move.period ? subLine(f.move.period) : null),
+    el('td', {className: 'num move', title: mv.title}, mv.node, moveSub ? subLine(moveSub) : null),
     td('num next', nx.date,
       nx.period || nx.today ? subLine(nx.period, nx.period && nx.today ? ' ' : null, nx.today)
         : null));
@@ -1023,10 +1078,16 @@ function peerBlock(f, year) {
       ...pair(['Margin'], el('dd', {className: 'figs', title: m.title}, ...m.nodes)),
       ...pair([spoken('Profit '), 'Guidance'],
         el('dd', {className: 'clamp3'}, ...guidanceParts(f, 'profit', year))),
-      ...pair(['Share price'], el('dd', {},
-        el('span', {className: 'nowrap'}, 'YTD ', ytdParts(f)), NBSP + '· ',
-        el('span', {className: 'nowrap', title: mv.title},
-          (f.move.period ? f.move.period + ' results' : 'Results') + ' ', mv.node))),
+      // J1: "YTD ▲ +13.8% · on Q3 results ▲ +1.3% (2 days)". The move pair drops to the next line
+      // whole, its "·" clipped at the left edge as in What’s new; "(2 days)" goes under its figure
+      // only where the pair is wider than the column.
+      ...pair(['Share price'], el('dd', {className: 'share'},
+        el('span', {className: 'nowrap'}, 'YTD ', ytdParts(f)),
+        el('span', {className: 'move-pair', title: mv.title},
+          el('span', {className: 'c-sep', 'aria-hidden': 'true'}, '·'),
+          el('span', {className: 'nowrap'},
+            `on ${f.move.period ? f.move.period + ' ' : ''}results `, mv.node),
+          f.move.state === 'done' ? ` (${MOVE_DAYS})` : null))),
       ...pair(['Next results'], el('dd', {className: 'next'},
         nx.period ? nx.period + ', ' : null, nx.date, nx.today ? ' ' : null, nx.today))));
 }
@@ -1074,17 +1135,17 @@ function ytdByCode(ctx, prices) {
 const TABLE_GROUPS = [['Company', null, false],
   ['Top line', [['Organic growth', true], ['Change', true], ['Guidance', false]]],
   ['Profit', [['Margin', true], ['Guidance', false]]],
-  ['Share price', [['YTD', true], ['Results day', true]]],
+  ['Share price', [['YTD', true], ['On results', true]]],
   ['Next results', null, true]];
 
 // One <colgroup> per group (they carry the vertical rules), then two header rows: the group
-// labels, with Company and Next results spanning both, then the column names. A group label sits
-// right only when all its columns are numeric.
+// labels, with Company and Next results spanning both, then the column names. A label over two or
+// more columns sits at its group's left edge (J5); Company and Next results, single columns, sit
+// like their figures.
 function tableHead() {
   const num = (on, extra) => [on ? 'num' : null, extra].filter(Boolean).join(' ') || null;
   const groups = el('tr', {className: 'groups'}, ...TABLE_GROUPS.map(([label, cols, numeric]) => (
-    cols ? el('th', {scope: 'colgroup', colspan: cols.length,
-      className: num(cols.every(([, n]) => n), 'group')}, label)
+    cols ? el('th', {scope: 'colgroup', colspan: cols.length, className: 'group'}, label)
       : el('th', {scope: 'col', rowspan: 2, className: num(numeric, 'group')}, label))));
   const names = el('tr', {}, ...TABLE_GROUPS.flatMap(([, cols]) => (cols || [])
     .map(([name, numeric]) => el('th', {scope: 'col', className: num(numeric)}, name))));
@@ -1855,7 +1916,7 @@ function renderKpis(ctx, data) {
     detail.replaceChildren(
       el('strong', {}, companyName(ctx, r.company)), ' · ', String(r.period), ' · ',
       isNum(r.organic_growth_pct) ? kpiText(r.organic_growth_pct) : 'not stated',
-      r.note ? ' · ' + String(r.note) : '', ' · ', link(r.source_url, 'source'));
+      r.note ? ' · ' + String(r.note) : '', ' · ', docLink(r.source_url, 'source'));
   };
   const pin = (info, btn) => {
     if (pressed) pressed.setAttribute('aria-pressed', 'false');
@@ -2041,10 +2102,12 @@ function guidanceRecordLines(records, year) {
     return el('li', {},
       el('span', {className: 'g-label'}, metricLabel(r.metric),
         el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' '))),
-      el('strong', {className: 'g-rec-value'}, value),
-      // The set date links to the source; without a valid date the link reads "source".
+      // The value at 400 with its figures bold (J4).
+      el('span', {className: 'g-rec-value'}, ...guidanceText(value)),
+      // The set date links to the source with its ↗ (J3); without a valid date the link reads
+      // "source".
       el('span', {className: 'g-meta muted'}, statusBadge(s, statusLabel(s)), ' · ',
-        link(r.source_url, isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : 'source')),
+        docLink(r.source_url, isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : 'source')),
       showQuote ? el('span', {className: 'g-quote'}, quote) : null);
   });
 }

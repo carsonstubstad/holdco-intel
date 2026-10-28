@@ -84,6 +84,9 @@ body {
 
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; }
+/* J3: the one ↗ on every link to a company document, whatever the link's color (app.js
+   docArrow). */
+.doc-arrow { font-size: 0.85em; color: var(--border-2); }
 
 h1, h2, h3 { margin: 0; }
 /* Panel titles; a fold's title is its summary's text, set the same. */
@@ -267,7 +270,7 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 .comps th .sub { font-weight: var(--fw-regular); }
 .co-block .sub.out { display: block; margin: -2px 0 var(--sp-1); }
 /* Inside the table and the blocks links are --ink-2 (the Next results date --ink), so green and
-   red stay their only colors; each keeps its ↗. */
+   red stay their only colors; each ↗ is the page's one quiet ↗ (J3). */
 .comps a, .co-block a { color: var(--ink-2); }
 .comps td.next a, .co-block .next a { color: var(--ink); }
 .comps a:focus-visible, .co-block a:focus-visible { text-decoration: underline; }
@@ -276,26 +279,31 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
    16px line keeps that base from pushing the row taller. */
 .comps td.growth, .comps td.change { vertical-align: baseline; }
 .comps td.change .delta { line-height: 16px; }
-.comps td.change .sub { white-space: nowrap; }
+/* "vs Q2 26" and the move's "H1 · 2 days" (J1) never split. */
+.comps td.change .sub, .comps td.move .sub { white-space: nowrap; }
 /* E3: the period and basis stay on one line ("H1 26 ↗, headline operating profit"); the margin
    column takes that width from the guidance columns (it may wrap from 961 to 1100px). */
 .comps td.margin .sub { white-space: nowrap; }
-/* E3: guidance in full: the value at 600 on up to two lines (three from 961 to 1279px; its full
-   text in title and All guidance), its ↗ outside the clamped text so a long value never hides
-   it: in the table at the cell's top right, in a block after the value. These columns take the
-   room the others leave; at full width each keeps 184px, so WPP's Top line shows whole and
-   Publicis's Profit reads "slight operating margin improvement…". */
+/* E3: guidance in full: the value at 400 with its figures at 600 (J4) on up to two lines (three
+   from 961 to 1279px; its full text in title and All guidance), its ↗ outside the clamped text so
+   a long value never hides it: in the table at the cell's top right, in a block after the value.
+   These columns take the room the others leave; at full width each keeps 184px, so WPP's Top line
+   shows whole and Publicis's Profit reads "slight operating margin improvement…". */
 .comps .g-line, .co-block .g-line { display: flex; gap: var(--sp-1); }
 .comps .g-line { align-items: flex-start; }
 .co-block .g-line { align-items: flex-end; }
-.comps .g-value, .co-block .g-value { min-width: 0; font-weight: var(--fw-strong); }
+.comps .g-value, .co-block .g-value { min-width: 0; }
 .comps .g-value {
   flex: 1 1 auto;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
 }
 .comps td.g-top, .comps td.g-profit { min-width: 184px; }
-.g-src { flex: none; }
-.comps .g-value .muted, .co-block .g-value .muted { font-weight: var(--fw-regular); }
+/* The ↗ is this link's whole content: the box keeps the width the full-size ↗ had (10.6px at
+   14px), so the 0.85em ↗ (J3) is no smaller a target. */
+.g-src { flex: none; min-width: 0.76em; text-align: center; }
+/* J4: a guidance value's figures, wherever guidance shows (table, blocks, What’s new, All
+   guidance), in tabular figures like the rest of the page's figures. */
+.g-fig { font-weight: var(--fw-strong); font-variant-numeric: tabular-nums lining-nums; }
 /* A withdrawn value is struck through; its "× Withdrawn" stays readable (the table and What
    changed). The status takes the value's size, so it is never larger than its value (11px cells
    in print). */
@@ -328,6 +336,20 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 /* "▲ +0.2 pp vs Q2 26" never splits. */
 .co-block .chg { white-space: nowrap; }
 .co-block .chg .sub { margin-left: var(--sp-1); }
+/* J1: "on Q3 results ▲ +1.3% (2 days)" moves to the next line whole, taking its "·" past the
+   left edge, where it is clipped as in What’s new; "(2 days)" goes under its figure only where the
+   pair is wider than the column (320 to 366px, 721 to 747px; a wide figure, such as WPP's +34.0%,
+   up to 375px and 764px). */
+.co-block dd.share {
+  --c-sep: var(--sp-3);
+  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--c-sep);
+  margin-left: -4px; padding-left: 4px; clip-path: inset(-4px -4px -4px 0);
+}
+/* J6: each figure sits with its guidance: 4px within a pair, 12px before Margin, Share price and
+   Next results. */
+.co-block dt:nth-of-type(3), .co-block dd:nth-of-type(3),
+.co-block dt:nth-of-type(5), .co-block dd:nth-of-type(5),
+.co-block dt:nth-of-type(6), .co-block dd:nth-of-type(6) { margin-top: var(--sp-2); }
 /* Guidance: the value with its ↗ beside it; Profit's value stops at three lines (its full text in
    title and All guidance), the ↗ outside the clamp. */
 .co-block .clamp3 .g-value {
@@ -443,10 +465,10 @@ li.c-row {
 .c-co { font-weight: var(--fw-strong); white-space: nowrap; }
 .c-kind { color: var(--ink-2); white-space: nowrap; }
 .c-rows .badge { font-size: inherit; line-height: inherit; }
-/* Links follow the table's rule: titles and names in ink, dates in --ink-2, every ↗ in --ink-2,
-   underlined on hover and focus. */
+/* Links follow the table's rule: titles and names in ink, dates in --ink-2, underlined on hover
+   and focus; every ↗ is the page's one quiet ↗ (J3). */
 #panel-changes a { color: var(--ink); }
-#panel-changes .c-date a, #panel-changes a > [aria-hidden="true"] { color: var(--ink-2); }
+#panel-changes .c-date a { color: var(--ink-2); }
 #panel-changes a:focus-visible { text-decoration: underline; }
 /* A "·" opens each later part and fills the gap before it (--c-sep sets both). A part that wraps
    to a new line takes its "·" past the left edge, where it is clipped (the 4px pad keeps focus
@@ -508,6 +530,10 @@ ul.g-records li:last-child { border-bottom: 0; }
 .g-label .date { display: block; }
 .g-rec-value { font-variant-numeric: tabular-nums lining-nums; }
 ul.g-records .g-meta { margin-top: 0; white-space: nowrap; }
+/* J3: All guidance's set dates and the history detail's "source" are company documents: --ink-2
+   with the ↗, like the table's, not blue. */
+.g-meta a, .kpi-detail a { color: var(--ink-2); }
+.g-meta a:focus-visible, .kpi-detail a:focus-visible { text-decoration: underline; }
 /* Management's words are never cut short (principle 3). */
 .g-quote { grid-column: 2 / -1; color: var(--ink-2); font-size: var(--fs-small); }
 
@@ -632,9 +658,9 @@ ul.press li:last-child { border-bottom: 0; }
 .pr-co { font-size: var(--fs-small); font-weight: var(--fw-strong); }
 ul.press li .chip { justify-self: start; }
 ul.press li .title { grid-column: 4; min-width: 0; }
-/* Titles in ink (other releases' in --ink-2), each ↗ in --ink-2, underlined on hover and focus. */
+/* Titles in ink (other releases' in --ink-2), underlined on hover and focus; the ↗ as J3. */
 ul.press .title a { color: var(--ink); }
-ul.press li.rest .title a, ul.press .title a > [aria-hidden="true"] { color: var(--ink-2); }
+ul.press li.rest .title a { color: var(--ink-2); }
 ul.press .title a:focus-visible { text-decoration: underline; }
 ul.press li[hidden] { display: none; }
 ul.press li:has(+ li[hidden]) { border-bottom: 0; }

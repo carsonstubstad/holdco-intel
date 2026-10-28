@@ -595,7 +595,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   before; 3,080 at the v2.0 start), /#WPP 1,593 (2,444); at 375: 3,381px (6,337; 4,357 at the
   v2.0 start), /#WPP 1,908 (3,650).
 
-- [ ] **20g-1 Table, colors and arrows.** J1 to J6: the share price move on results named as
+- [x] **20g-1 Table, colors and arrows.** J1 to J6: the share price move on results named as
   the two-day move it is ("On results" over "Q3 · 2 days"), YTD and that move in green or red
   with ▲/▼, one quiet ↗ on every link to a company document (All guidance's and Quarterly
   history's no longer blue), guidance with only its figures bold, the table's group labels at
