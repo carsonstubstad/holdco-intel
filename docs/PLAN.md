@@ -635,6 +635,24 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   quotes; the whole-page checks in DESIGN.md section 8. Commit: `step 20g-2: clean panel
   tops and takeaways`. Then the one push of step 20 (maintainer): `git pull --rebase && git
   push`, and the live page shows What’s new, the peer table and both takeaways.
+  Built 2026-10-28 in one session with one maintainer-approved polish round: no-break spaces in
+  both takeaways ("the S&P 500 (+12.1%)", "3 companies"), "Show" never alone under a wrapped
+  fold title on phones, and the chart's takeaway set close under the plot. The table's takeaway
+  needed neither 16px nor the short form: at 1440×900 it is one line ending at 876px, the same
+  with Publicis Groupe forced to the lead; the last row ends at 844px. With the Next line at its
+  longest (three dates, two companies on most; forced), What’s new's note takes its own line at
+  1440, the last row ends at 861px and the takeaway at 894px (accepted). The first build printed
+  6 pages on Letter (page 1 grew 75px: 44 from the table's takeaway, 31 from results rows that
+  wrap on paper where the deals they replace did not); a print-only pass (table cells 4px, 12px
+  between panels, quote cells 8px) brought it back to 5. Print is 5 pages on A4 and on Letter:
+  page 1 ends with the foot line, 64px to spare on A4 (123 before) and 28 on Letter (56; 44 with
+  the results-out marker on two rows); page 2 holds the chart, its takeaway and every quote,
+  ending with the theme and "Verbatim from company documents", 83px to spare on A4 and 16 on
+  Letter; each takeaway prints on two lines. At 375×812 Publicis Groupe's growth figure ends at
+  686px (702). Page height at 1440: 1,999px (1,963 before; 3,080 at the v2.0 start), /#WPP
+  1,629 (1,593); at 375: 3,671px (3,647; 4,357 at the v2.0 start), /#WPP 1,942 (1,953). DESIGN.md
+  section 8's whole-page checks pass. Measured on 27 Oct's data; from 28 Oct Publicis's 13 Oct
+  results leave the 14-day window, so What’s new shows Stagwell's deal third ("3 of 4 shown").
 
 - [ ] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
   line describe the final v2.0 page. `pipeline/stats.py` (computed numbers from
@@ -751,6 +769,7 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   rows are left out. Look again once a results week has gone through.
   2026-10-27 (final review after 20f): moved into 20g-2 (DESIGN.md L3: results, then
   guidance, then capital markets days, then deals, when rows are left out).
+  2026-10-28 (20g-2): closed. On 27 Oct What’s new showed the three Q3 results.
 - 2026-10-27 (20f build check): the four folds' titles are spans inside `<summary>`, not
   headings, so heading navigation skips In their words and Press releases (h2s before 20f),
   All guidance and Quarterly history. Option: an h2 inside each summary (HTML allows one),
