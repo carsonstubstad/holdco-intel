@@ -684,6 +684,34 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   in the phone list; the mark stays inline twice; Quarterly history gains "Organic growth" and
   "Q/Q change"; "About and sources" does not print.
 
+- [ ] **22 Data audit.** Executor, plan mode, read only. One sweep of every data input and
+  output before the v2.0 link is shared, from the data as of the commit it starts from
+  (WPP's and Stagwell's Q3 results of 29 Oct are out of scope). (1) Every KPI row, guidance
+  record and quote against its source document, and HAVAS's share count. (2) The numbers the
+  page computes, recomputed from `docs/data/`. (3) Every `source_url` in `data/` and the press
+  links of the last 30 days: opens, sits on the company's own domain, matches its title and
+  date. (4) Each gap (Quarterly history blanks, companies without guidance, Dentsu's single
+  quote): what the company published, where, and the next action. (5) Source health from the
+  status.json history. (6) Upcoming dates against the company's own announcement. Company
+  documents only through `verify_quote --company CODE`, each URL once; throwaway scripts in
+  the executor's scratchpad, no LLM. Findings go in a local report,
+  `prompts/audit/audit-2026-10.md` (gitignored); fixes are sorted at its gate into /curate
+  runs, hand edits, tweaks or a 22b, never made in this step. Files: `docs/FAILURES.md` (rows
+  for sources that misbehaved), `docs/PLAN.md` (the tick) and, only with the maintainer's text
+  verbatim, README.md's "Data sources and their limits". Never `data/`, `docs/data/`,
+  `config/`, `schemas/`, code or `.github/`.
+  Acceptance: the report names its starting commit and opens with counts (figures checked and
+  matched, links checked and broken or off-domain, gaps by next action, sources with
+  failures), then one line per finding with what the page shows, what the source says and the
+  URL; "not in the document" and "could not read the document" are separate findings;
+  `make check` and `make validate` green.
+  Commit: `step 22: data audit`.
+  From the Backlog (2026-10-28, maintainer, before step 21 was built): a full data audit
+  before the link is shared: every figure traced to the document it cites, every link
+  checked, each gap (Dentsu half-years only, Stagwell's organic growth "not stated" in 5 of 8
+  quarters) filled from the company's own site or stated as a limit, and source health over
+  time (Dentsu's press feed failed in 6 of 32 snapshots).
+
 ## Parked (later, after v2.0)
 
 Renamed from "Parked (v2)" on 2026-10-15, so it is not confused with the v2.0 steps.
@@ -793,11 +821,6 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   headings, so heading navigation skips In their words and Press releases (h2s before 20f),
   All guidance and Quarterly history. Option: an h2 inside each summary (HTML allows one),
   checked with VoiceOver so the summary keeps its button role.
-- 2026-10-28 (maintainer, before step 21 was built): a full data audit before the link is
-  shared: every figure traced to the document it cites, every link checked, each gap (Dentsu
-  half-years only, Stagwell's organic growth "not stated" in 5 of 8 quarters) filled from the
-  company's own site or stated as a limit, and source health over time (Dentsu's press feed
-  failed in 6 of 32 snapshots). Its own step after 21, with its own planning chat.
 - 2026-10-28 (21 build check): print the live site address on the handout's page 1, so a
   reader holding the paper can find the page (Letter's page 1 has 65px to spare).
 - 2026-10-28 (21 plan): a test that keeps index.html's og:url and og:image in step with
