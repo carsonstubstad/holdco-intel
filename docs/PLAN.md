@@ -711,6 +711,27 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   checked, each gap (Dentsu half-years only, Stagwell's organic growth "not stated" in 5 of 8
   quarters) filled from the company's own site or stated as a limit, and source health over
   time (Dentsu's press feed failed in 6 of 32 snapshots).
+  Built 2026-10-28 in one session with one closing round, from 4e367fc's data (the 28 Oct
+  15:37 UTC run); the report stays local (prompts/audit/audit-2026-10.md). 108 reads of 103
+  URLs, none read twice. Figures: 135 of 135 in the 56 KPI rows match their documents (group
+  level, own period, own domain); guidance 25 of 25 (value, period, date); quotes 77 of 77
+  verbatim; the page's computed numbers 37 of 37 against DESIGN.md (C2, C3, J1, L2, S3).
+  Links: 94 checked, 92 open on the company's own domain (one through Omnicom's IR file host),
+  0 broken, 2 off-domain (brand-site posts in Dentsu's feed). Quarterly history's 12 blanks: 3
+  fillable from Dentsu's own annual Financial Reports (a quarterly organic table, now read in
+  `--from` chunks), 6 limits as the releases stand (Stagwell's 5, Omnicom Q4 2025), 3 not yet
+  published (WPP, Stagwell and Dentsu Q3 2026). After the audit the maintainer found that
+  Stagwell's earnings decks give the group organic figure its releases leave out (Q1 2026
+  1.6%, read by the planning chat), so its 5 become fillable too. One wrong word on the page:
+  WPP's £800m to £900m cash flow guidance shows "New", though WPP first gave it on 26 Feb.
+  Sources: 2 of 17 failed in 32 snapshots (Dentsu's press feed, HTTP 503 on 22 to 27 Oct;
+  Omnicom's old RSS path once, 6 Oct). Share counts (market cap only, not on the page): HAVAS
+  consistent; DENTSU 262.0 against 260.5 issued less treasury; STGW 262.0 against 244.4 (Q2
+  call). The planning chat spot-checked three findings against their documents (Omnicom Q3
+  2026, a Stagwell press dateline, Dentsu's quarterly table): all held. Verdict: fit to share
+  as it stands. Dentsu's results host (ssl4.eir-parts.net) stays out under its robots.txt, so
+  Dentsu's 2026 quarters wait for its FY2026 report. FAILURES.md: two new Dentsu rows and
+  update notes on the HAVAS, Stagwell and Dentsu rows.
 
 ## Parked (later, after v2.0)
 
@@ -746,6 +767,9 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-15 (15a): `/curate` document mode could also draft guidance and KPI rows from
   slides or transcripts when the results release lacks them (e.g. Dentsu FY rows, guidance
   given only on the call). Decide after 15b shows what the documents yield.
+  2026-10-28 (22): evidence for yes: Stagwell's earnings decks give the group organic growth
+  its releases leave out (Q1 2026 1.6%), and Dentsu's annual Financial Reports give quarterly
+  organic growth. Until then, hand entry (the 22b line below).
 - 2026-10-15 (15a review): verify_quote checks robots.txt on a redirect's final host only
   after the download; checking each hop before following it needs a change to
   `core/util.fetch()`.
@@ -830,3 +854,31 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-28 (21 plan): og-image.png's subtitle is the old tagline and its hyphen renders
   spaced ("public - source"); a redraw is a tweak. `twitter:card` is left out, so X shows a
   small card.
+- 2026-10-28 (22, needs a yes): hand entry as step 22b, filling the audit's fillable gaps.
+  Stagwell's Q1 2025 to Q1 2026 rows from their earnings decks on stagwellglobal.com (each
+  row's source_url becomes its deck and every figure comes from it; Q1 2026: organic 1.6%,
+  net revenue $585M, adjusted EBITDA margin 15.3%). Dentsu's Q4 2024 to Q4 2025 organic-only
+  rows and FY 2024 and FY 2025 rows from FY2025_finance.pdf and 2025_finance.pdf. WPP's £800m
+  to £900m cash flow guidance from new to held. Omnicom's definitions line names Core
+  Operations organic growth from Q1 2026 (revenue and margin consolidated). DENTSU
+  shares_outstanding_m 260.5 (issued less treasury, 30 Jun 2026). README's limits paragraph
+  rewritten once (its Dentsu sentence becomes untrue). Decide there how Dentsu's Q/Q cell
+  reads once its newest quarter is a year old ("▼ 0.5", Q4 25 vs Q3 25, base on hover only).
+  CLAUDE.md rule 4's list of hand-entry steps gains 22b.
+- 2026-10-28 (22): Dentsu's feed carries brand-site posts off dentsu.com (www.carat.com,
+  www.dentsucreative.com) that the site lists in Press releases. Option: drop or mark items
+  off the company's registered domain in the Dentsu adapter. A tweak.
+- 2026-10-28 (22): curate.md's status rule gives "new" when no earlier record exists, even
+  where the release names the earlier figure ("continue to anticipate", "compared to c. 2.1
+  billion euros previously"). Option: take the status from the release's own comparison when
+  it names the earlier figure. A curate.md rule.
+- 2026-10-28 (22): Dentsu's quarterly organic growth appears once a year, in the annual
+  Financial Report's table (about March), not under any release's LINKS, so /curate cannot
+  reach it; hand entry each March until it can.
+- 2026-10-28 (22): a results-season re-check: every quote matched offline against one saved
+  read per URL, and the page's computed numbers recomputed from DESIGN.md's definitions with
+  the clock held. Both took minutes in step 22 (throwaway scripts). Decide after the next
+  results season whether to keep them as `pipeline/audit.py`.
+- 2026-10-28 (22): STGW shares_outstanding_m 262.0 stays unverified: the Q2 2026 call gives
+  244.4m shares outstanding without saying whether that covers Class A and Class C. Market
+  cap only, not on the page.
