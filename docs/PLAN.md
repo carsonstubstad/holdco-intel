@@ -668,6 +668,21 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   has the link, the one-line description and the disclaimer; the live Pages URL works on a
   real phone without horizontal scroll and on desktop with zero console errors.
   Commit: `step 21: ready to share`.
+  Built 2026-10-28 in one session with one maintainer-approved polish round (DESIGN.md
+  revision 2026-10-28, step 21). Header at 1440: 91.3px before and after, the intro on one
+  line; at 1024 and 840 111.6 (intro on two lines); at 375 116 → 153 (intro on three lines,
+  the note on two; accepted), 170 at 320. First screen: at 1440×900 the last row ends at
+  843.6px and the table's takeaway at 876 (both unchanged); at 375×812 Publicis Groupe's
+  growth figure at 702.8 (666 before, on 28 Oct's data). A stale-price line adds 12px at 1440
+  (Dentsu: last row 856, takeaway 889); three companies at once (the Tuesday after Easter)
+  wrap it to two lines, last row 873 and takeaway 906 (accepted, about once a year). Print: 5
+  pages on A4 and Letter, page 1 ending with the foot line, 83px to spare on A4 and 65 on
+  Letter (PDF; unchanged). Stats on 28 Oct: 32 runs, median 32.3 s, p95 37.5 s, 25 of 32 runs
+  with every source ok (Dentsu's press feed failed in 6 snapshots, Omnicom's in 1), 9 curate
+  commits, 25 verified guidance records, 525 trading days of prices. Decisions: the prices
+  line gives the newest close date, not a fetch time; og:image yes; Copy link above 1100px and
+  in the phone list; the mark stays inline twice; Quarterly history gains "Organic growth" and
+  "Q/Q change"; "About and sources" does not print.
 
 ## Parked (later, after v2.0)
 
@@ -713,12 +728,14 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   releases stay in the Curate-needed queue), so after a document run it understates
   freshness. `get_commentary` was fixed in `tweak: commentary as_of counts document runs`
   (newer of the two). Step 21's "curated as of" note should use the same rule.
+  2026-10-28 (21): done; the header's "Curated" time uses that rule.
 - 2026-10-15 (step 17): figures lose trailing zeros ("11%" for 11.0, "+5%" for 5.0)
   because JSON drops them; showing "11.0%" needs the value as reported, a schema
   question. Not in 20 (a schema change); it shows in the peer table and its headline.
 - 2026-10-15 (step 17, for 21): a card's YTD silently uses the last close when a
   company's prices are two or more days stale (the old tile said "stale"); the step 21
   freshness note should cover it.
+  2026-10-28 (21): done; the header names a company two or more weekdays behind.
 - 2026-10-15 (step 18 review): All guidance drops records whose company code is not in
   companies.json (the old tracker listed them). None exist today; not in 20.
 - 2026-10-15 (step 18 review): /curate quotes must stand alone; leave out openers such
@@ -743,8 +760,10 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-26 (step 20 design, for 21, needs a yes there): a link-preview image
   (`og:image`, 1200×630, no figures so it never goes stale), drafted by Cowork as
   `prompts/design/cowork/final/og-image.png`; it would be a new file in `docs/`.
+  2026-10-28 (21): yes, built as docs/og-image.png, unchanged.
 - 2026-10-26 (step 20 design, for 21, needs a yes there): a "Copy link" pill in the
   capsule for the current peer set (the URL hash already holds it).
+  2026-10-28 (21): yes, built (above 1100px; on phones the opened list's last row).
 - 2026-10-26 (20a build check): the maintainer asked whether every panel should take the
   primary panels' 2px ink edge; kept the two weights for now (the capsule and the peer
   table's title are not built yet). Look again at 20c's build check; if the secondary edges
@@ -774,3 +793,17 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
   headings, so heading navigation skips In their words and Press releases (h2s before 20f),
   All guidance and Quarterly history. Option: an h2 inside each summary (HTML allows one),
   checked with VoiceOver so the summary keeps its button role.
+- 2026-10-28 (maintainer, before step 21 was built): a full data audit before the link is
+  shared: every figure traced to the document it cites, every link checked, each gap (Dentsu
+  half-years only, Stagwell's organic growth "not stated" in 5 of 8 quarters) filled from the
+  company's own site or stated as a limit, and source health over time (Dentsu's press feed
+  failed in 6 of 32 snapshots). Its own step after 21, with its own planning chat.
+- 2026-10-28 (21 build check): print the live site address on the handout's page 1, so a
+  reader holding the paper can find the page (Letter's page 1 has 65px to spare).
+- 2026-10-28 (21 plan): a test that keeps index.html's og:url and og:image in step with
+  `dashboard.site_url`, which they copy as static text. A tweak.
+- 2026-10-28 (21 plan): ARCHITECTURE.md's repo tree and section 7 do not name
+  `pipeline/stats.py` or the header's freshness note. A tweak.
+- 2026-10-28 (21 plan): og-image.png's subtitle is the old tagline and its hyphen renders
+  spaced ("public - source"); a redraw is a tweak. `twitter:card` is left out, so X shows a
+  small card.
