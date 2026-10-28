@@ -6,7 +6,19 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <title>Holdco Intel</title>
-  <link rel="icon" href="data:,">
+  <meta name="description" content="Daily public-source tracker of six advertising holding companies: growth, margins, guidance and management’s own words, with share prices for context.">
+  <!-- Link previews: scrapers run no JS, so the address is static text, copied from
+       dashboard.site_url in config/watchlist.yaml; change both together. -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Holdco Intel">
+  <meta property="og:description" content="Daily public-source tracker of six advertising holding companies: growth, margins, guidance and management’s own words, with share prices for context.">
+  <meta property="og:url" content="https://carsonstubstad.github.io/holdco-intel/">
+  <meta property="og:image" content="https://carsonstubstad.github.io/holdco-intel/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Holdco Intel: daily public-source intelligence on six advertising holding companies.">
+  <!-- The mark (six ink dots around one coral dot) as the tab icon. -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='2.8' r='1.9' fill='%231b2a41'/%3E%3Ccircle cx='16.24' cy='6.4' r='1.9' fill='%231b2a41'/%3E%3Ccircle cx='16.24' cy='13.6' r='1.9' fill='%231b2a41'/%3E%3Ccircle cx='10' cy='17.2' r='1.9' fill='%231b2a41'/%3E%3Ccircle cx='3.76' cy='13.6' r='1.9' fill='%231b2a41'/%3E%3Ccircle cx='3.76' cy='6.4' r='1.9' fill='%231b2a41'/%3E%3Ccircle cx='10' cy='10' r='3.2' fill='%23ff6b4a'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" integrity="sha384-cCVCZkAjYNxaYKbM8lsArLznDF/SvMFr1jcZrvOpSTCa0W40ZAdLzHCEulnUa5i7" crossorigin="anonymous" defer></script>
   <script src="app.js" defer></script>
@@ -16,11 +28,13 @@
   <header class="site-header">
     <div>
       <h1>Holdco Intel <svg class="mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><circle class="ink" cx="10" cy="2.8" r="1.9"/><circle class="ink" cx="16.24" cy="6.4" r="1.9"/><circle class="ink" cx="16.24" cy="13.6" r="1.9"/><circle class="ink" cx="10" cy="17.2" r="1.9"/><circle class="ink" cx="3.76" cy="13.6" r="1.9"/><circle class="ink" cx="3.76" cy="6.4" r="1.9"/><circle class="coral" cx="10" cy="10" r="3.2"/></svg></h1>
-      <p class="tagline">Daily public-source intelligence on six advertising holding companies.</p>
+      <p class="tagline">Daily public-source tracker of six advertising holding companies: growth, margins, guidance and management’s own words, with share prices for context.</p>
     </div>
     <div class="header-meta">
-      <span id="as-of">as of …</span>
-      <a class="head-github" href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span id="fresh-prices">Closing prices to …</span>
+      <span id="fresh-stale" hidden></span>
+      <span id="fresh-curated">Curated …</span>
+      <a class="head-about" href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">About and sources</a>
     </div>
   </header>
 
@@ -31,6 +45,7 @@
       <button type="button" class="filter-opener" aria-expanded="false" aria-controls="filter-pills" hidden><span class="opener-label">Peer set:</span> <span class="opener-value"></span><span class="chev" aria-hidden="true"></span></button>
       <div id="filter-pills" class="filter-pills" role="group" aria-labelledby="filter-label"></div>
       <p class="filter-status" hidden><span class="filter-count"></span><span class="filter-sep" aria-hidden="true">·</span><button type="button" class="filter-reset">Reset</button></p>
+      <button type="button" class="copy-link" hidden>Copy link</button>
     </div>
   </div>
 
@@ -99,7 +114,7 @@
       <div class="body"><p class="empty">Loading…</p></div>
     </div>
     <p class="disclaimer">Personal project built from public sources. Not affiliated with or endorsed by any company shown. Not investment advice.</p>
-    <p class="foot-github"><a href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+    <p class="foot-about"><a href="https://github.com/carsonstubstad/holdco-intel" target="_blank" rel="noopener noreferrer">About and sources</a></p>
   </footer>
 </body>
 </html>

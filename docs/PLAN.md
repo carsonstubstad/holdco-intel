@@ -654,7 +654,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   section 8's whole-page checks pass. Measured on 27 Oct's data; from 28 Oct Publicis's 13 Oct
   results leave the 14-day window, so What’s new shows Stagwell's deal third ("3 of 4 shown").
 
-- [ ] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
+- [x] **21 Ready to share** (was 13). Runs last, after 20, so the README and the intro
   line describe the final v2.0 page. `pipeline/stats.py` (computed numbers from
   runs.jsonl, status.json history and git log, "n/a" rather than estimates). README
   rewritten around the live Pages link: what it is, who it is for, the numbers,

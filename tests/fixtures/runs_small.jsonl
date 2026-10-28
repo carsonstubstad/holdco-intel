@@ -1,0 +1,6 @@
+{"run_at": "2026-10-01T22:31:00Z", "runtime_ms": 8000, "sources_ok": 17, "sources_total": 17, "flagged_new": 0}
+{"run_at": "2026-10-02T22:31:00Z", "runtime_ms": 10000, "sources_ok": 17, "sources_total": 17, "flagged_new": 0}
+{"run_at": "2026-10-03T22:31:00Z", "runtime_ms": 12000, "sources_ok": 16, "sources_total": 17, "flagged_new": 1}
+not a json line
+{"run_at": "2026-10-04T22:31:00Z", "runtime_ms": 30000, "sources_ok": 17, "sources_total": 17, "flagged_new": 0}
+{"run_at": "2026-10-05T22:31:00Z", "runtime_ms": 9000, "sources_ok": 17, "sources_total": 17, "flagged_new": 0}

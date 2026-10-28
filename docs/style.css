@@ -112,10 +112,12 @@ h2, .fold-title {
 
 /* A2: the wordmark and its mark on the paper, 12px from the top. */
 .site-header {
-  display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5);
+  display: flex; gap: var(--sp-2) var(--sp-5);
   align-items: flex-end; justify-content: space-between;
   padding-top: var(--sp-3); padding-bottom: var(--sp-4);
 }
+/* Short of room, the intro wraps beside the freshness note; the note never drops under it. */
+.site-header > :first-child { min-width: 0; }
 .site-header h1 {
   font-size: var(--fs-h1); font-weight: var(--fw-bold); line-height: 1; letter-spacing: -0.03em;
 }
@@ -124,11 +126,14 @@ svg.mark { height: 0.62em; width: auto; vertical-align: -0.02em; }
 .mark .ink { fill: var(--ink); }
 .mark .coral { fill: var(--accent); }
 .tagline { margin: var(--sp-2) 0 0; color: var(--ink-2); }
+/* Step 21: the freshness note and "About and sources". Capped, so a long stale-price line wraps
+   instead of widening the column into the intro. */
 .header-meta {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+  display: flex; flex: none; flex-direction: column; align-items: flex-end; gap: 2px;
+  max-width: 220px; text-align: right;
   color: var(--ink-2); font-size: var(--fs-small);
 }
-.head-github, .foot-github a { color: var(--ink-2); }
+.head-about, .foot-about a { color: var(--ink-2); }
 
 /* B1: the filter band, a strip of paper pinned to the top with 12px above the capsule and 20px
    below it. It lies over the header's bottom padding, so at rest the capsule keeps the header's
@@ -183,6 +188,20 @@ svg.mark { height: 0.62em; width: auto; vertical-align: -0.02em; }
 }
 /* The phone opener (B3) shows at 720px and below only. */
 .filter-opener { display: none; }
+/* Step 21: Copy link, an unpressed pill at the capsule's right end, above 1100px only (B1's
+   worst case, five pressed pills, leaves no room for it below that); on phones the opened list's
+   last row. */
+.copy-link {
+  font: inherit; font-size: var(--fs-pill); font-weight: var(--fw-medium);
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  min-height: var(--tap); margin-left: auto; padding: 0 14px; white-space: nowrap; cursor: pointer;
+  background: transparent; color: var(--capsule-text);
+  border: 1px solid var(--capsule-edge); border-radius: var(--radius-pill);
+  transition: background-color 150ms;
+}
+.copy-link:hover { background: var(--capsule-hover); }
+.filter-status:not([hidden]) + .copy-link { margin-left: 0; }
+.copy-link[hidden] { display: none; }
 
 main { display: grid; gap: var(--gap); }
 
@@ -617,6 +636,11 @@ table.kpis th.kpi-delta-head, table.kpis td.kpi-delta {
   position: sticky; left: var(--kpi-co-w); z-index: 1; background: var(--panel);
   border-right: 1px solid var(--hairline);
 }
+/* The header row sits on one baseline at the bottom: "Organic growth" at the left of the corner
+   and "Q/Q change" may each take two lines in their narrow columns. */
+table.kpis th[scope="col"] { vertical-align: bottom; }
+table.kpis th.kpi-corner { text-align: left; white-space: normal; }
+table.kpis th.kpi-delta-head { white-space: normal; }
 /* The company name in plain text: no chip, no color edge (A5). */
 table.kpis th.kpi-company {
   color: var(--ink); font-size: var(--fs-body); font-weight: var(--fw-strong); white-space: nowrap;
@@ -701,8 +725,8 @@ details.err-full pre {
   white-space: pre-wrap; overflow-wrap: anywhere;
 }
 .disclaimer { margin: var(--sp-1) 0 0; color: var(--ink-2); font-size: var(--fs-small); }
-/* On phones the GitHub link joins the footer (A2). */
-.foot-github { display: none; margin: var(--sp-1) 0 0; }
+/* On phones "About and sources" joins the footer (A2). */
+.foot-about { display: none; margin: var(--sp-1) 0 0; }
 
 /* E3: below the full 1280px column the margin line may wrap onto a second line (196px keeps it to
    two), so the table never scrolls: at 1101px the one-line basis pushed it 6px wide. */
@@ -723,6 +747,7 @@ details.err-full pre {
   .comps td.margin { min-width: 140px; }
   /* An estimate's "(est.) ↗" goes under the date; a confirmed "29 Oct ↗" stays one line. */
   .comps .est { display: block; }
+  .copy-link { display: none; }
 }
 
 @media screen and (max-width: 960px) {
@@ -776,12 +801,16 @@ details.err-full pre {
   .band.is-open .filter-pills { display: flex; }
   .filter-pills button { padding: 0 clamp(8px, 2.5vw, 14px); }
   .filter-status { padding-right: var(--sp-1); }
-  /* One column: wordmark, tagline, "as of"; the GitHub link moves to the footer. */
+  /* Copy link: the opened list's last row, under the pills. */
+  .band.is-open .copy-link:not([hidden]) {
+    display: inline-flex; order: 4; margin: 0 0 var(--sp-2); padding: 0 clamp(8px, 2.5vw, 14px);
+  }
+  /* One column: wordmark, intro, the freshness note; "About and sources" moves to the footer. */
   .site-header { flex-direction: column; align-items: flex-start; gap: var(--sp-1); }
   .tagline { margin-top: var(--sp-1); font-size: var(--fs-small); }
-  .header-meta { align-items: flex-start; }
-  .head-github { display: none; }
-  .foot-github { display: block; }
+  .header-meta { align-items: flex-start; max-width: none; text-align: left; }
+  .head-about { display: none; }
+  .foot-about { display: block; }
   /* The controls start their own line under the title. */
   .panel-controls { margin-left: 0; }
   /* "Show" or "Hide" never takes a line of its own: the title wraps instead, and the cue sits
@@ -843,7 +872,7 @@ details.err-full pre {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .filter-pills button, .comps tbody tr,
+  .filter-pills button, .copy-link, .comps tbody tr,
   .track > button, .bench-toggle, .show-more, details.fold > summary, .chev { transition: none; }
 }
 
@@ -858,6 +887,11 @@ details.err-full pre {
     --radius: 6px;
   }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  /* The intro prints on two lines (an A4 line is 703px); the header's padding gives back those
+     16px, so page 1 keeps its room (step 21). */
+  .site-header { padding-top: 0; padding-bottom: var(--sp-3); }
+  /* "About and sources" is a link with no address on paper. */
+  .head-about { display: none; }
   .band { display: none; }
   .chart-controls { display: none !important; }
   .panel.primary { border-width: 1px; }

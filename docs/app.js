@@ -118,9 +118,14 @@ function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+// "9 Oct 2026, 01:51 UTC" (DESIGN.md S3), the same for every reader; "unknown" when missing or
+// unreadable (new Date(null) would read 1970).
 function fmtTimestamp(ts) {
-  const t = new Date(ts);
-  return Number.isNaN(t.getTime()) ? String(ts) : t.toLocaleString();
+  const t = typeof ts === 'string' ? new Date(ts) : null;
+  if (!t || Number.isNaN(t.getTime())) return 'unknown';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${t.getUTCDate()} ${MONTHS[t.getUTCMonth()]} ${t.getUTCFullYear()}, `
+    + `${pad(t.getUTCHours())}:${pad(t.getUTCMinutes())} UTC`;
 }
 
 // ---------- number helpers ----------
@@ -250,11 +255,15 @@ function selectionFromHash(ctx) {
   return allCodes(ctx).filter((c) => wanted.has(String(c).toUpperCase()));
 }
 
+// "#PUB,WPP" for a subset, "" for all companies: the hash writeHash sets and Copy link copies.
+function selectionHash(ctx) {
+  const codes = allCodes(ctx).filter((c) => selected.has(c));
+  return codes.length === ctx.list.length ? '' : '#' + codes.join(',');
+}
+
 // The URL carries the selection (#PUB,WPP) without adding history entries; all six clears it.
 function writeHash(ctx) {
-  const codes = allCodes(ctx).filter((c) => selected.has(c));
-  history.replaceState(null, '', codes.length === ctx.list.length
-    ? location.pathname + location.search : '#' + codes.join(','));
+  history.replaceState(null, '', selectionHash(ctx) || location.pathname + location.search);
 }
 
 // The one setter: sets the shown companies and updates every view that follows them.
@@ -360,6 +369,34 @@ function renderFilter(ctx) {
     if (isOpen() && e.relatedTarget && !band.contains(e.relatedTarget)) setOpen(false);
   });
   opener.hidden = false;
+
+  // Copy link (step 21): the page's address with the shown peer set, where the clipboard is
+  // available. "Copied" for 2 seconds (a second click restarts the timer) at the width "Copy link"
+  // measures in the reader's own font, so the pill never shrinks; #announce is cleared first, so
+  // a second copy is announced too. The phone opener stays open.
+  const copy = band.querySelector('.copy-link');
+  if (copy && navigator.clipboard?.writeText) {
+    let timer = null;
+    copy.addEventListener('click', async () => {
+      if (copy.textContent === 'Copy link') {
+        copy.style.minWidth = copy.getBoundingClientRect().width + 'px';
+      }
+      const announce = document.getElementById('announce');
+      announce.textContent = '';
+      try {
+        await navigator.clipboard.writeText(
+          location.origin + location.pathname + location.search + selectionHash(ctx));
+      } catch (err) {
+        announce.textContent = 'Could not copy the link';
+        return;
+      }
+      copy.textContent = 'Copied';
+      clearTimeout(timer);
+      timer = setTimeout(() => { copy.textContent = 'Copy link'; }, 2000);
+      announce.textContent = 'Link copied';
+    });
+    copy.hidden = false;
+  }
 
   const total = ctx.list.length;
   const show = () => {
@@ -2007,10 +2044,12 @@ function renderKpis(ctx, data) {
     return td;
   };
 
+  // The corner names the grid's figures; screen readers keep "Company" as the column's name.
   const head = el('tr', {}, el('th', {scope: 'col', className: 'kpi-corner'},
+    el('span', {'aria-hidden': 'true'}, 'Organic growth'),
     el('span', {className: 'visually-hidden'}, 'Company')),
-    el('th', {scope: 'col', className: 'kpi-delta-head', title: 'Change vs the quarter before'},
-      'Change'));
+    el('th', {scope: 'col', className: 'kpi-delta-head',
+      title: 'Latest quarter vs the quarter before'}, 'Q/Q change'));
   for (let q = first; q <= last; q++) head.appendChild(el('th', {scope: 'col'}, quarterLabel(q)));
 
   const tbody = el('tbody');
@@ -2382,7 +2421,7 @@ function renderHealth(ctx, data) {
   const age = st.guidance_age_days;
 
   const facts = el('ul', {className: 'facts'},
-    el('li', {}, 'Last run: ' + (st.run_at ? fmtTimestamp(st.run_at) : 'unknown')),
+    el('li', {}, 'Last run: ' + fmtTimestamp(st.run_at)),
     el('li', {className: ok < total ? 'warn' : ''}, `${ok}/${total} sources healthy`),
     el('li', {}, 'Runtime: ' + (typeof st.runtime_ms === 'number'
       ? (st.runtime_ms / 1000).toFixed(1) + ' s' : 'unknown')),
@@ -2407,6 +2446,69 @@ function renderHealth(ctx, data) {
     body.appendChild(el('p', {className: 'muted'}, 'Failing sources:'));
     body.appendChild(ul);
   }
+}
+
+// ---------- The header's freshness note (step 21) ----------
+
+// Weekdays d with from < d <= to (ISO dates).
+function weekdaysAfter(from, to) {
+  let n = 0;
+  for (let d = dayNum(from) + 1; d <= dayNum(to); d++) {
+    const wd = new Date(d * DAY_MS).getUTCDay();
+    if (wd !== 0 && wd !== 6) n++;
+  }
+  return n;
+}
+
+// The newest curation: press_releases.json's last_curate_at or any curated_at in
+// commentary.json, since a document run adds quotes without moving last_curate_at (the rule
+// mcp_server's _commentary_as_of uses). The string as stored, or null.
+function curatedAt(press, commentary) {
+  const stamps = [press?.last_curate_at];
+  for (const key of ['records', 'headlines']) {
+    const list = commentary?.[key];
+    if (Array.isArray(list)) for (const r of list) stamps.push(r?.curated_at);
+  }
+  let best = null;
+  for (const s of stamps) {
+    const t = typeof s === 'string' ? Date.parse(s) : NaN;
+    if (!Number.isNaN(t) && (!best || t > best.t)) best = {s, t};
+  }
+  return best ? best.s : null;
+}
+
+// "Closing prices to 27 Oct 2026." from the newest company close (the pipeline never takes the
+// day's own close), then any company two or more weekdays behind it ("Dentsu last closed
+// 24 Oct."; YTD and the chart keep using that close), then "Curated 26 Oct 2026, 17:07 UTC.".
+// The header is not under the capsule, so this covers every company whatever the selection.
+function renderFreshness(ctx, data) {
+  const lasts = [];
+  for (const c of ctx.list) {
+    const pts = nonNullPoints(data.prices?.series?.[c.ticker]);
+    if (pts.length) lasts.push({code: c.code, last: pts[pts.length - 1][0]});
+  }
+  const newest = lasts.reduce((m, x) => (x.last > m ? x.last : m), '');
+  document.getElementById('fresh-prices').textContent = newest
+    ? `Closing prices to ${fmtDate(newest)}.` : 'Closing prices: unknown.';
+
+  // Companies behind by the same date share one clause; the oldest date comes first.
+  const behind = new Map();
+  for (const x of lasts) {
+    if (weekdaysAfter(x.last, newest) < 2) continue;
+    if (!behind.has(x.last)) behind.set(x.last, []);
+    behind.get(x.last).push(companyName(ctx, x.code));
+  }
+  const clauses = [...behind].sort(([a], [b]) => a.localeCompare(b)).map(([date, names]) => {
+    const who = names.length > 1
+      ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
+    return `${who} last closed ${fmtDayIn(date, newest.slice(0, 4))}`;
+  });
+  const stale = document.getElementById('fresh-stale');
+  stale.textContent = clauses.length ? clauses.join('; ') + '.' : '';
+  stale.hidden = !clauses.length;
+
+  document.getElementById('fresh-curated').textContent =
+    'Curated ' + fmtTimestamp(curatedAt(data.press, data.commentary)) + '.';
 }
 
 // ---------- main ----------
@@ -2444,8 +2546,15 @@ async function main() {
   };
   const data = {prices, guidance, events, press, status, kpis, commentary};
 
-  document.getElementById('as-of').textContent = status?.run_at
-    ? 'as of ' + fmtTimestamp(status.run_at) : 'as of unknown';
+  // The freshness note never stops the page; a failure reads "unknown".
+  try {
+    renderFreshness(ctx, data);
+  } catch (err) {
+    console.warn('[holdco] freshness note failed:', err);
+    document.getElementById('fresh-prices').textContent = 'Closing prices: unknown.';
+    document.getElementById('fresh-stale').hidden = true;
+    document.getElementById('fresh-curated').textContent = 'Curated unknown.';
+  }
   // The footnote names the same benchmark as the chart's key and Key takeaway; the static text is
   // a fallback.
   const benchName = document.querySelector('#panel-chart .bench-name');
