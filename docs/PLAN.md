@@ -738,9 +738,12 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   each URL read once. (1) DENTSU in `data/kpis.yaml`: organic-only rows for Q3 2024 to Q4 2025
   from the "Organic growth rate by region" tables in its own annual Financial Reports
   (`2025_finance.pdf`, `FY2025_finance.pdf`), and FY 2024 and FY 2025 rows (organic, net
-  revenue, underlying operating margin) from the same reports. Dentsu's 2026 quarters are not
-  entered: its 2026 half-year report gives H1 only, and its quarterly filings sit on the
-  robots-disallowed ssl4.eir-parts.net, so they wait for the FY2026 report. (2) STGW in
+  revenue, underlying operating margin) from the same reports. Organic-only rows for Q1 and Q2
+  2026 from the quarterly results spreadsheet on Dentsu's own site
+  (`group.dentsu.com/en/ir/common/xls/qcr202602e.xlsx`, found by the maintainer on
+  2026-10-28), read once by a throwaway stdlib script, since `verify_quote` reads HTML and PDF
+  only; its 2024 to 2025 quarters are checked against the annual reports' tables. The
+  robots-disallowed ssl4.eir-parts.net stays out. (2) STGW in
   `data/kpis.yaml`: the five rows Q1 2025 to Q1 2026 take their group organic growth from that
   quarter's earnings presentation on stagwellglobal.com; each row's `source_url` becomes the
   deck and every figure in it comes from the deck. A deck without a group figure leaves its
@@ -749,16 +752,19 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   line in the `definitions` block names Core Operations organic growth from Q1 2026. (5)
   DENTSU `shares_outstanding_m` 260.5 in `config/watchlist.yaml` (265,800,000 issued less
   5,313,214 treasury, 30 Jun 2026, 2026 semiannual report). (6) Site: Quarterly history's Q/Q
-  change follows the peer table's rule (DESIGN.md A5, revision 2026-10-28 step 22b), so
-  Dentsu's cell stays "–" while its newest figure is a half-year. (7) README.md's "Data
-  sources and their limits" in the maintainer's approved words. Files: `data/kpis.yaml`,
-  `data/guidance.json`, `config/watchlist.yaml`, `docs/app.js`, `README.md`, `docs/PLAN.md`.
+  change follows the peer table's rule (DESIGN.md A5, revision 2026-10-28 step 22b), so a
+  company's cell is "–" while its newest figure is a half-year or full-year (none once
+  Dentsu has its 2026 quarters). (7) README.md's "Data sources and their limits" in the
+  maintainer's approved words. (8) `docs/FAILURES.md`: an update note on the 2026-10-08 Dentsu
+  KPI row naming the spreadsheet. Files: `data/kpis.yaml`, `data/guidance.json`,
+  `config/watchlist.yaml`, `docs/app.js`, `README.md`, `docs/FAILURES.md`, `docs/PLAN.md`.
   No schema, pipeline, core or `.github/` change; `docs/data/` only from local
   `make pipeline` runs, discarded before the commit.
   Acceptance: every new or changed figure listed before and after with the line it was
   verified against; `make validate` and `make check` green; Quarterly history at 1440 and 375
-  shows Dentsu's Q3 2024 to Q4 2025 and Stagwell's filled quarters, Dentsu's Q/Q "–",
-  every other company's Q/Q unchanged, zero console errors.
+  shows Dentsu's eight quarters and Stagwell's filled quarters, Dentsu's Q/Q Q2 26 vs Q1 26,
+  every other company's Q/Q unchanged, the half-year "–" shown in a forced test state, zero
+  console errors.
   Commit: `step 22b: hand entry from the audit`.
   From the Backlog (2026-10-28, step 22): the audit's fillable gaps, and how Dentsu's Q/Q
   cell reads once its newest quarter is a year old (the maintainer, 28 Oct: only once the

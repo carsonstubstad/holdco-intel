@@ -60,9 +60,9 @@ link-preview image is final/og-image.png, unchanged. Accepted: the phone header 
 stale line wraps at 1440, putting the last table row at 873px (A2, A7, section 8).
 
 Revision 2026-10-28 (maintainer, step 22b): Quarterly history's Q/Q change follows the peer
-table's Change rule (C2): when a company's newest figure is a half-year (Dentsu between its
-annual reports), the cell shows "–" with its reason, and it fills once that company's newest
-figure is a quarter again (A5).
+table's Change rule (C2): when a company's newest figure is a half-year (Dentsu's, until its
+2026 quarters were entered from its own quarterly spreadsheet in 22b), the cell shows "–"
+with its reason, and it fills once that company's newest figure is a quarter again (A5).
 
 ## 1. Principles
 - Answer, per company: who is growing and is it speeding up, what margin it makes, what it guides to, how the market took its last results, and when it reports next. The peer table answers all five in one sweep. Share price sits right under the table; management's words, press and the detail behind the table are folds below it.
