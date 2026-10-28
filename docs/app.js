@@ -2121,10 +2121,7 @@ function renderKpis(ctx, data) {
     detail,
     // L1: the footnote opens with what the grid holds; the title alone does not say it is organic
     // growth only.
-    el('p', {className: 'footnote'}, `Organic growth, last ${KPI_COLUMNS} quarters, as reported `
-      + 'by each company; definitions differ, so figures are not directly comparable. A half-year '
-      + 'figure spans two quarters only where no quarterly figure is published. Colors saturate '
-      + 'at ±' + KPI_CLAMP + '%.'),
+    el('p', {className: 'footnote'}, 'Organic growth as each company defines and reports it.'),
     defList.childElementCount ? defList : null,
   ].filter(Boolean));
   // Newest quarter first on narrow screens. A closed <details> has no width to scroll, so the
