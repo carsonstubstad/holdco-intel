@@ -606,6 +606,22 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   print at most 5 pages on A4 and on Letter, page 1 ending with the table's foot line; no
   company color outside the chart. If it runs long, J6 goes first, then J5. Commit:
   `step 20g-1: table colors, arrows and labels`.
+  Built 2026-10-27 in one session with one maintainer-approved polish round: all six items, no
+  cut. The ▲/▼ needed no 12px fallback: the table does not scroll at 1024, 1101, 1200, 1280 or
+  1440, and the margin line stays on one line at 1280 and 1440. The YTD glyph took 15px from
+  the company column, so "Publicis Groupe" takes two lines at 1440 (accepted: rows stay 63px;
+  with the results-out marker forced on Publicis and Omnicom the last row ends at 856px). No
+  guidance figure newly cut; regular text shows more at 1440 (Publicis's Profit to "versus…",
+  its "18.2%" still cut as accepted in 20e; Omnicom's Top line to "constant…", was "4%…"), and
+  1101 is unchanged. Polish: no line in a company block starts or ends with "·" (What’s new's
+  separator, grey); "(2 days)" goes under its figure at 320 to 366px and 721 to 747px, and
+  under WPP's wider figure up to 375 and 764px (accepted). Last row at 1440×900: 844px; at
+  375×812 Publicis Groupe's growth figure ends at 702px. Page height at 1440: 1,963px
+  (unchanged), /#WPP 1,593 (unchanged); at 375: 3,647px (3,381; each block 44px taller, 24 from
+  J6's gaps and 20 from the share line's second line), /#WPP 1,953 (1,908). Print is 5 pages on
+  A4 and on Letter, page 1 ending with the foot line: 123px to spare on A4 (unchanged), 56 on
+  Letter (88; on paper the share columns took about 25px from the guidance columns, so two
+  guidance values wrap one more line); page 2 holds the chart and all the quotes.
 
 - [ ] **20g-2 Clean tops and takeaways.** L1 to L4: every panel's top holds only its title
   and its controls (the scope and count lines go; what still matters moves to the bottom),
