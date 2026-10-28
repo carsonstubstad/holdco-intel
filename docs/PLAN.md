@@ -769,6 +769,29 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   From the Backlog (2026-10-28, step 22): the audit's fillable gaps, and how Dentsu's Q/Q
   cell reads once its newest quarter is a year old (the maintainer, 28 Oct: only once the
   quarters are there).
+  Built 2026-10-28 in one session with one maintainer-approved polish round (a comparative
+  note on Stagwell's Q1 2026 row). Rows added: 10 for DENTSU (Q3 2024 to Q4 2025 organic only,
+  from the two annual Financial Reports' quarterly tables; FY 2024 and FY 2025 with organic,
+  net revenue and underlying operating margin; Q1 2026 +0.8 and Q2 2026 −0.2 organic only,
+  from the quarterly results spreadsheet on group.dentsu.com that the maintainer found, whose
+  2024 to 2025 quarters match the reports). Rows changed: STGW's five, Q1 2025 to Q1 2026, now
+  cite their earnings decks (organic 0.6, 0.6, −0.4, −0.3, 1.6; margins to one decimal, 14.3,
+  15.5, 18.6, 19.9, 15.3; net revenue unchanged; Q1 2026's note names the deck's Q1 2025
+  comparative margin of 14.6%). Also: WPP's £800m to £900m guidance new to held, OMC's Core
+  Operations definition, DENTSU shares 260.5 (verified), README's limits paragraph in the
+  maintainer's shorter words, and a FAILURES.md note on the Dentsu row. Figures: 34 of 34
+  verified lines found, no retry; 7 documents read once each, plus one spreadsheet download
+  read by a standard-library script (verify_quote reads HTML and PDF only). Quarterly
+  history's blanks: 12 before, 4 after (Omnicom Q4 2025, a stated limit; WPP, Dentsu and
+  Stagwell Q3 2026, not yet published). Dentsu shows 7 of its 8 new quarters (Q3 2024 sits
+  left of the eight-quarter window) and Q/Q ▼ −1.0 vs Q1 26; Stagwell ▲ +3.4; the peer
+  table's takeaway reads "speeding up at 4 companies and slowing at 2"; Publicis, Omnicom, WPP
+  and Havas read as before; the half-year and full-year dashes shown in forced test states.
+  The planning chat spot-checked Dentsu Q2 2025 and Stagwell Q3 2025 against their
+  documents: both held. Left as it was: Dentsu's H1 2025 and H1 2026 rows (behind the
+  quarters in the grid; H1 2026 is still the peer table's margin), Stagwell's other rows
+  (release figures, whole-number margins), and Dentsu's Q2 26 link, which downloads the
+  spreadsheet. The robots-disallowed ssl4.eir-parts.net stayed out.
 
 ## Parked (later, after v2.0)
 
@@ -901,6 +924,9 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-28 (22): Dentsu's quarterly organic growth appears once a year, in the annual
   Financial Report's table (about March), not under any release's LINKS, so /curate cannot
   reach it; hand entry each March until it can.
+  2026-10-28 (22b): Dentsu's own site also publishes a quarterly results spreadsheet
+  (`qcr202602e.xlsx`, updated on results day), so its quarters can be entered each quarter,
+  not once a year; see the two (22b) lines below.
 - 2026-10-28 (22): a results-season re-check: every quote matched offline against one saved
   read per URL, and the page's computed numbers recomputed from DESIGN.md's definitions with
   the clock held. Both took minutes in step 22 (throwaway scripts). Decide after the next
@@ -908,3 +934,11 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-28 (22): STGW shares_outstanding_m 262.0 stays unverified: the Q2 2026 call gives
   244.4m shares outstanding without saying whether that covers Class A and Class C. Market
   cap only, not on the page.
+- 2026-10-28 (22b): verify_quote, and so /curate, reads HTML and PDF only, not Dentsu's
+  quarterly spreadsheet. Option: an .xlsx reader in verify_quote (standard library zipfile,
+  no new dependency) printing named cells as they display, so /curate can draft Dentsu's
+  quarter rows on results day. A pipeline change, its own small step; needs a yes. Until
+  then each Dentsu quarter is a hand entry, which rule 4 allows only in a numbered step.
+- 2026-10-28 (22b): the spreadsheet's name carries the quarter (`qcr202602e.xlsx`). If Dentsu
+  replaces it after its Q3 results (about 13 Nov), the Q1 and Q2 2026 rows' links break:
+  check then, and repoint them in that quarter's hand entry.
