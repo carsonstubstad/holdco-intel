@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-28T15:37:33Z",
+ "as_of": "2026-10-28T22:04:58Z",
  "records": [
   {
    "id": "pub-organic_growth-fy2026-2026-07-16",
@@ -219,7 +219,7 @@
    "unit": "currency_m",
    "period": "FY 2026",
    "set_date": "2026-08-06",
-   "status": "new",
+   "status": "held",
    "supersedes": null,
    "quote": "We continue to anticipate adjusted operating cash flow before working capital of \u00a3800m to \u00a3900m.",
    "source_url": "https://www.wpp.com/en/news/2026-interim-results",
