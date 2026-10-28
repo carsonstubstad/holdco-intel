@@ -30,7 +30,7 @@
   --fs-pill: 13px;
   --fs-body: 14px;
   --fs-quote: 17px;
-  --fs-headline: 20px;
+  --fs-takeaway: 17px;
   --fs-h2: 22px;
   --fs-fig: 28px;
   --fs-fig2: 17px;
@@ -194,13 +194,12 @@ main { display: grid; gap: var(--gap); }
   min-width: 0;
 }
 .panel.primary { border: 2px solid var(--ink); }
-/* The header row: title, scope line, then the panel's own controls at the right. */
+/* The header row: the title, then the panel's own controls at the right; nothing else (L1). */
 .panel-head {
   display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-3);
   padding: var(--sp-3) var(--pad) 10px;
   border-bottom: 1px solid var(--hairline);
 }
-.scope { margin: 0; font-size: var(--fs-small); color: var(--ink-2); }
 .panel-controls { margin-left: auto; }
 .panel > .body { padding: var(--sp-3) var(--pad) var(--sp-4); }
 
@@ -218,12 +217,13 @@ main { display: grid; gap: var(--gap); }
    right, under right-aligned headers; the company and guidance columns sit left. */
 #panel-comps > .body { padding: 0 0 var(--sp-3); }
 #panel-comps > .body > .empty { padding: var(--sp-3) var(--pad) var(--sp-1); }
-/* C4: the headline sits on the title's row, where a scope line would. */
-.comps-headline {
-  margin: 0; font-size: var(--fs-headline); line-height: 1.25; letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums lining-nums;
+/* L2: the table's and the chart's closing line, "Key takeaway:" and its figures at 600, all ink
+   (a sentence takes no color and no glyph); no rule above it. Under the rows here, under the plot
+   in the chart. */
+.takeaway {
+  margin: var(--sp-2) var(--pad) 0; font-size: var(--fs-takeaway); line-height: 1.45;
 }
-.comps-headline strong { font-weight: var(--fw-strong); }
+.takeaway strong { font-weight: var(--fw-strong); font-variant-numeric: tabular-nums lining-nums; }
 .comps-wrap { overflow-x: auto; }
 /* A tab stop only while it scrolls (app.js); the ring stays inside the panel's border. */
 .comps-wrap:focus-visible { outline-offset: -2px; }
@@ -311,7 +311,7 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 .g-value .badge { font-size: inherit; }
 .comps .badge, .co-block .badge { line-height: inherit; }
 .comps td.next { white-space: nowrap; }
-/* C5: one small line under the table. */
+/* C5: one small line under the table and its takeaway. */
 .comps-foot {
   margin: var(--sp-3) var(--pad) 0; padding-top: var(--sp-2);
   border-top: 1px solid var(--hairline); color: var(--ink-2); font-size: var(--fs-small);
@@ -422,20 +422,11 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 /* D2: Plotly takes this height through responsive autosizing (400px from 721 to 960px, 280px at
    720px and below). */
 #chart { width: 100%; height: 440px; }
-.chart-headline {
-  margin: 0; padding: var(--sp-3) var(--pad) 0;
-  font-size: var(--fs-h2); font-weight: var(--fw-strong); line-height: 1.15;
-  letter-spacing: -0.01em; font-variant-numeric: tabular-nums lining-nums;
-}
-/* The benchmark's figure, muted after the lead and trail. */
-.chart-bench {
-  font-size: var(--fs-body); font-weight: var(--fw-regular); letter-spacing: 0; color: var(--ink-2);
-}
 /* D2: a key, not a control: a swatch and the full name for each drawn line, the dashed
-   benchmark, and for a subset the event markers. */
+   benchmark, and for a subset the event markers. It opens the body, 12px under the header row. */
 .chart-key {
   display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4);
-  margin: 0; padding: var(--sp-2) var(--pad) 0; list-style: none; font-size: var(--fs-small);
+  margin: 0; padding: var(--sp-3) var(--pad) 0; list-style: none; font-size: var(--fs-small);
 }
 .chart-key[hidden] { display: none; }
 .chart-key li { display: inline-flex; align-items: center; gap: 6px; }
@@ -445,6 +436,8 @@ table.comps { font-variant-numeric: tabular-nums lining-nums; }
 .key-events { color: var(--ink-2); }
 .chart-key:not([hidden]) + .body { padding-top: var(--sp-1); }
 #panel-chart > .body { padding-bottom: var(--sp-2); }
+/* L2: the chart's takeaway between the plot and the footnote. */
+#panel-chart > .takeaway { margin: 0 var(--pad) var(--sp-3); }
 .footnote { margin: var(--sp-2) 0 0; color: var(--ink-2); font-size: var(--fs-small); }
 #panel-chart > .footnote { margin: 0; padding: 0 var(--pad) var(--sp-4); }
 
@@ -473,7 +466,7 @@ li.c-row {
 /* A "·" opens each later part and fills the gap before it (--c-sep sets both). A part that wraps
    to a new line takes its "·" past the left edge, where it is clipped (the 4px pad keeps focus
    rings), so no line starts or ends with one. */
-.c-detail, .c-next-dates {
+.c-detail, .c-next-dates, .c-note {
   --c-sep: var(--sp-3);
   display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--c-sep);
   min-width: 0; margin-left: -4px; padding-left: 4px; overflow-wrap: anywhere;
@@ -492,12 +485,18 @@ li.c-row {
    title); the ↗ stays outside the cut. */
 .c-clipped { display: flex; align-items: baseline; gap: var(--sp-1); min-width: 0; }
 .c-clip { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* "Next", then the dates; a wrapped line hangs under the first date. */
-.c-next {
-  display: flex; align-items: baseline; column-gap: var(--sp-3); margin: var(--sp-2) 0 0;
+/* L1: the Next line, then at the right end of its row "Updates from the last 14 days · 3 of 5
+   shown" on the Next line's baseline; the note takes its own line, at the left, only where the row
+   is full (below 1280px, phones). */
+.c-foot {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+  column-gap: var(--sp-4); margin: var(--sp-2) 0 0;
 }
+/* "Next", then the dates; a wrapped line hangs under the first date. */
+.c-next { display: flex; align-items: baseline; column-gap: var(--sp-3); margin: 0; min-width: 0; }
 .c-next-label { flex: none; font-weight: var(--fw-strong); }
 .c-next-dates { flex: 1 1 auto; }
+.c-note { margin-block: 0; color: var(--ink-2); font-size: var(--fs-small); }
 
 /* Shared tables */
 .table-wrap { overflow-x: auto; }
@@ -556,16 +555,17 @@ details.fold > summary:focus-visible { outline-offset: -3px; }
   transform: rotate(-45deg); transition: transform 150ms;
 }
 details.fold[open] .chev { transform: rotate(45deg); }
-.fold-count { font-size: var(--fs-small); color: var(--ink-2); }
 .fold-cue { margin-left: auto; font-size: var(--fs-small); color: var(--ink-2); }
 .fold-cue::before { content: "Show"; }
 details.fold[open] .fold-cue::before { content: "Hide"; }
 
-/* In their words (F1): the theme track and "Verbatim from company documents" open the fold's body. */
+/* In their words (F1): the theme track opens the fold's body; the bar goes with the track (one
+   company, a failed panel). */
 .q-bar {
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-3);
   padding: var(--sp-3) var(--pad) 0;
 }
+.q-bar:has(> .q-themes[hidden]) { display: none; }
 /* D4: a grid of quotes, three across (two from 721 to 960px and in print, one on phones), with a
    hairline above every row but the first. */
 ul.q-grid {
@@ -596,6 +596,11 @@ ul.q-grid[hidden], .q-missing[hidden] { display: none; }
 .q-attr a { color: var(--ink-2); white-space: nowrap; }
 .q-attr a:focus-visible { text-decoration: underline; }
 .q-missing { margin: 0; padding-top: var(--sp-2); color: var(--ink-2); }
+/* L1: the fold's last line while it shows quotes; paper names the pressed theme first. */
+.q-verbatim {
+  margin: 0; padding-top: var(--sp-2); color: var(--ink-2); font-size: var(--fs-small);
+}
+.q-print-theme { display: none; }
 
 /* Panel G: organic growth grid */
 table.kpis { font-variant-numeric: tabular-nums lining-nums; }
@@ -724,8 +729,6 @@ details.err-full pre {
   /* The capsule stays one row: the "Showing…" words go (Reset stays) and the pills tighten. */
   .filter-count, .filter-sep { display: none; }
   .filter-pills button { padding: 0 var(--sp-3); }
-  /* The headline wraps under the title. */
-  .comps-headline { flex-basis: 100%; }
   /* D1: the blocks replace the table, two to a row with hairlines between; a lone or odd last
      block has none at its right. */
   .comps-wrap { display: none; }
@@ -734,7 +737,6 @@ details.err-full pre {
   .co-block:nth-child(odd) { border-right: 1px solid var(--hairline); }
   .co-block:nth-child(odd):last-child { border-right: 0; }
   .co-block:only-child { grid-column: 1 / -1; }
-  .comps-foot { margin-top: 0; }
   #chart { height: 400px; }
   /* D4: two quotes across; the third cell starts the second row. */
   ul.q-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -750,7 +752,7 @@ details.err-full pre {
 }
 
 @media screen and (max-width: 720px) {
-  :root { --pad: 16px; --gap: 12px; --gutter: 12px; --fs-h1: 28px; --fs-headline: 16px; }
+  :root { --pad: 16px; --gap: 12px; --gutter: 12px; --fs-h1: 28px; --fs-takeaway: 16px; }
   /* The band is 68px here; 80px keeps a focus ring clear of its edge. */
   html { scroll-padding-top: 80px; }
   /* B3: one 44px row, the mark, the opener and Reset; open, the pills take their own rows. */
@@ -780,16 +782,16 @@ details.err-full pre {
   .header-meta { align-items: flex-start; }
   .head-github { display: none; }
   .foot-github { display: block; }
-  /* The controls start their own line under the title and scope. */
+  /* The controls start their own line under the title. */
   .panel-controls { margin-left: 0; }
-  /* A fold's count line takes its own line under the title, with "Show" or "Hide" at the right of
-     its last line, never alone on a line. */
-  details.fold > summary .fold-count:not(:empty) { flex: 1 1 calc(100% - 48px); min-width: 0; }
+  /* "Show" or "Hide" never takes a line of its own: the title wraps instead, and the cue sits
+     at the right of its last line ("Press releases, last 30 days" at 375). */
+  details.fold > summary { flex-wrap: nowrap; }
   details.fold > summary .fold-cue { align-self: flex-end; }
   /* Narrower segments keep the four theme labels on one line at 320px. */
   .track > button { padding: 0 clamp(6px, 2vw, 14px); }
   /* A near-square plot on phones: 280px tall across the panel's full width. The 8px at the right
-     keeps the longest code clear of the panel's edge; the headline, key and footnote keep their
+     keeps the longest code clear of the panel's edge; the key, takeaway and footnote keep their
      padding. */
   #chart { height: 280px; }
   #panel-chart > .body { padding-left: 0; padding-right: var(--sp-2); }
@@ -851,17 +853,21 @@ details.err-full pre {
   /* D6, a handout with its own layout (never a screen breakpoint's). The page margins stand in for
      the gutters, so the history grid fits an A4 line (703px); body text 11px, small text too (as
      the table's labels), panels 1px with a 6px radius. */
-  :root { --gutter: 0px; --pad: 12px; --fs-body: 11px; --fs-small: 11px; --radius: 6px; }
+  :root {
+    --gutter: 0px; --pad: 12px; --fs-body: 11px; --fs-small: 11px; --fs-takeaway: 13px;
+    --radius: 6px;
+  }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .band { display: none; }
   .chart-controls { display: none !important; }
   .panel.primary { border-width: 1px; }
-  /* Panel titles and the table's and chart's headlines at 16px, in a tighter header row. */
-  h2, .fold-title, .comps-headline, .chart-headline { font-size: 16px; }
+  /* Panel titles at 16px, in a tighter header row; the Key takeaways at 13px (:root). */
+  h2, .fold-title { font-size: 16px; }
   .panel-head { padding-block: var(--sp-2) 6px; }
-  /* Block flow, not the screen's grid, so page 1 ends after the peer table and its foot line. */
+  /* Block flow, not the screen's grid, so page 1 ends after the peer table and its foot line;
+     12px between panels (20g-2: page 1 took the table's takeaway, page 2 the chart's). */
   main { display: block; }
-  main > * + * { margin-top: var(--gap); }
+  main > * + * { margin-top: var(--sp-3); }
   #panel-comps { break-after: page; }
   /* Links in ink without their ↗ (the table's ↗-only guidance links go with it). */
   a { color: var(--ink) !important; }
@@ -872,7 +878,7 @@ details.err-full pre {
   #chart { height: 260px; }
   #panel-chart > .body { clip-path: inset(0); }
   /* K7: break-inside sits on items, not panels, so tall panels leave no blank pages. */
-  ul.press li, li.c-row, ul.g-records li, .q-cell, tr, #chart { break-inside: avoid; }
+  ul.press li, li.c-row, ul.g-records li, .q-cell, tr, #chart, .takeaway { break-inside: avoid; }
   h2, details.fold > summary { break-after: avoid; }
   /* Controls stay off paper: the show buttons and the table's "Definitions · All guidance" (D6's
      rule for Definitions, brought forward with E3's All guidance). */
@@ -881,10 +887,11 @@ details.err-full pre {
   .c-clipped { display: block; }
   .c-clip { white-space: normal; }
   details.err-full { display: none; }
-  /* The peer table on an A4 line (703px): D6's table sizes (20f fits the rest of the page), the
+  /* The peer table on an A4 line (703px): D6's table sizes (20f fits the rest of the page; 4px
+     cells from 20g-2, so Letter's page 1 still ends with the foot line under the takeaway), the
      tight widths, and guidance never clamped. */
   .comps-wrap { overflow: visible; }
-  .comps th, .comps td { padding: 5px; font-size: 11px; }
+  .comps th, .comps td { padding: 4px; font-size: 11px; }
   .comps thead th { white-space: normal; }
   .comps .sub, .comps .delta { font-size: 11px; }
   .comps .fig1 { font-size: 18px; }
@@ -896,11 +903,13 @@ details.err-full pre {
   .comps td.margin .sub { white-space: normal; }
   .comps .g-value { display: block; -webkit-line-clamp: none; overflow: visible; }
   .comps .est { display: block; }
-  /* The pressed theme for all six companies; the count line names it. Quotes three across, as on
-     screen, so the chart and every quote share page 2 (two across ran 100px onto page 3). */
-  .q-themes { display: none !important; }
+  /* The pressed theme for all six companies, named on the fold's last line (the track and its bar
+     stay off paper). Quotes three across, as on screen, so the chart and every quote share page 2
+     (two across ran 100px onto page 3). */
+  .q-bar { display: none !important; }
+  .q-print-theme { display: inline; }
   ul.q-grid { column-gap: var(--sp-4); }
-  .q-cell { padding: var(--sp-3) 0; }
+  .q-cell { padding: var(--sp-2) 0; }
   .q-who { margin-bottom: var(--sp-1); }
   .q-attr { margin-top: var(--sp-1); }
   .q-quote { font-size: 13px; line-height: 1.5; }

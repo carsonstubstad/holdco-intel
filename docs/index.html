@@ -38,7 +38,6 @@
     <section id="panel-changes" class="panel" aria-labelledby="h-changes">
       <div class="panel-head">
         <h2 id="h-changes">What’s new</h2>
-        <p class="scope"></p>
       </div>
       <div class="body"><p class="empty">Loading…</p></div>
     </section>
@@ -46,8 +45,6 @@
     <section id="panel-comps" class="panel primary" aria-labelledby="h-comps">
       <div class="panel-head">
         <h2 id="h-comps">Peer table</h2>
-        <p class="scope"></p>
-        <p class="comps-headline" hidden></p>
       </div>
       <div class="body"><p class="empty">Loading…</p></div>
     </section>
@@ -55,7 +52,6 @@
     <section id="panel-chart" class="panel primary" aria-labelledby="h-chart">
       <div class="panel-head">
         <h2 id="h-chart">Share price</h2>
-        <p class="scope">Rebased to 100 at the start of the window</p>
         <div class="chart-controls panel-controls" hidden>
           <div class="windows track" role="group" aria-label="Chart window">
             <button type="button" data-window="1M">1M</button>
@@ -67,33 +63,32 @@
           <button type="button" class="bench-toggle" aria-pressed="true" hidden></button>
         </div>
       </div>
-      <p id="chart-headline" class="chart-headline" aria-live="polite" hidden></p>
       <ul id="chart-key" class="chart-key" aria-label="Chart key" hidden></ul>
       <div class="body"><p class="empty">Loading…</p></div>
+      <p id="chart-takeaway" class="takeaway" aria-live="polite" hidden></p>
       <p class="footnote">Each line is rebased to 100 at the start of the window, in its own trading currency, price only (no dividends). The <span class="bench-name">S&amp;P 500</span> is a US-dollar reference; for the European and Japanese stocks it is a rough market comparison, not a currency-matched one.</p>
     </section>
 
     <details id="panel-quotes" class="panel fold">
-      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">In their words</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">In their words</span><span class="fold-cue" aria-hidden="true"></span></summary>
       <div class="q-bar">
         <div class="q-themes track" role="group" aria-label="Theme" hidden></div>
-        <p class="scope">Verbatim from company documents</p>
       </div>
       <div class="body"><p class="empty">Loading…</p></div>
     </details>
 
     <details id="panel-press" class="panel fold">
-      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">Press releases, last 30 days</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">Press releases, last 30 days</span><span class="fold-cue" aria-hidden="true"></span></summary>
       <div class="body"><p class="empty">Loading…</p></div>
     </details>
 
     <details id="fold-guidance" class="panel fold">
-      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">All guidance</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">All guidance</span><span class="fold-cue" aria-hidden="true"></span></summary>
       <div class="body"><p class="empty">Loading…</p></div>
     </details>
 
     <details id="fold-history" class="panel fold">
-      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">Quarterly history</span> <span class="fold-count"></span><span class="fold-cue" aria-hidden="true"></span></summary>
+      <summary class="panel-head"><span class="chev" aria-hidden="true"></span><span class="fold-title">Quarterly history</span><span class="fold-cue" aria-hidden="true"></span></summary>
       <div class="body"><p class="empty">Loading…</p></div>
     </details>
   </main>

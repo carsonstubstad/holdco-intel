@@ -263,20 +263,21 @@ then each click adds or removes one; "All", Reset and Esc show all six again. It
 drives What’s new, the table, the chart, the quotes, press and All guidance; it lives in the
 URL hash (`#PUB,WPP`), is shared by link only and is never stored in the browser. What’s new
 is a dated brief for the companies shown: results, guidance moves, capital markets days and
-deals of the last 14 days, newest first, then the dates in the next 14 days (events.json,
-kpis.json, guidance.json, press_releases.json, prices.json). The Peer table gives each company
-one row: organic growth and its change (named against the quarter before), margin, each
-figure beside its guidance, the YTD and results-day share moves, and the next results date;
-at 960px and below each company is a block instead. Share price rebases each shown company's
-line to 100 at the start of the window (1M to 2Y) beside the benchmark; its key is a key, not
-a control, and a subset adds results, capital markets day and deal markers. The folds hold
-verbatim management quotes by theme (commentary.json; the curator's headlines are never
-shown), press releases from the last 30 days (key categories first), every current guidance
-record, and the organic growth grid with its definitions (kpis.json); each fold's summary
-line says what is inside. Names, colors and the benchmark come from companies.json; company
-colors appear only in the chart. Computed in the browser: base-100 rebasing per window, YTD
-and the two-day results move, the quarter-on-quarter growth change, the table's headline and
-guidance records, the status counts, and which quote shows (Strategy prefers investor day,
+deals of the last 14 days, results first when it has more than three, then the dates in the
+next 14 days (events.json, kpis.json, guidance.json, press_releases.json, prices.json). The
+Peer table gives each company one row: organic growth and its change (named against the
+quarter before), margin, each figure beside its guidance, the YTD share move and the two-day
+move on results, and the next results date; at 960px and below each company is a block
+instead. Share price rebases each shown company's line to 100 at the start of the window (1M
+to 2Y) beside the benchmark; its key is a key, not a control, and a subset adds results,
+capital markets day and deal markers. The folds hold verbatim management quotes by theme
+(commentary.json; the curator's headlines are never shown), press releases from the last 30
+days (key categories first), every current guidance record, and the organic growth grid with
+its definitions (kpis.json); each fold's summary is its title. Names, colors and the benchmark
+come from companies.json; company colors appear only in the chart. Computed in the browser:
+base-100 rebasing per window, YTD and the two-day results move, the quarter-on-quarter growth
+change, the peer table's and the chart's Key takeaways and guidance records, the status
+counts, and which quote shows (Strategy prefers investor day,
 annual report or strategy plan material up to 365 days old; otherwise the newest). All
 returns are local currency; the chart footnote says so. Print is a meeting handout on A4 or
 Letter: page 1 holds the header, What’s new and the whole peer table; every fold prints open,

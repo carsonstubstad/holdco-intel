@@ -623,7 +623,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   Letter (88; on paper the share columns took about 25px from the guidance columns, so two
   guidance values wrap one more line); page 2 holds the chart and all the quotes.
 
-- [ ] **20g-2 Clean tops and takeaways.** L1 to L4: every panel's top holds only its title
+- [x] **20g-2 Clean tops and takeaways.** L1 to L4: every panel's top holds only its title
   and its controls (the scope and count lines go; what still matters moves to the bottom),
   the peer table and the chart each end with a computed Key takeaway (who grows fastest and
   slowest and whether growth is speeding up; the share price leader, laggard and how many are

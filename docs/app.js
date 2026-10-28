@@ -4,7 +4,7 @@
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MARKER_TYPES = ['results', 'capital_markets_day', 'deal'];
 const DAY_MS = 86400000;
-const NBSP = String.fromCharCode(160); // keeps a headline figure on its label's line
+const NBSP = String.fromCharCode(160); // keeps a figure on its label's line
 const MINUS = String.fromCharCode(0x2212); // the true minus, as wide as "+" in tabular figures
 const HOVER_BR = '<br>'; // the only markup joined into Plotly hover text; every part is escaped
 
@@ -234,16 +234,6 @@ const COUNT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seve
 // "six" for 6, so counts follow companies.json; digits past twelve.
 function countWord(n) {
   return COUNT_WORDS[n] ?? String(n);
-}
-
-// A scope line: "All six companies" when every company is shown, else the shown codes in
-// companies.json order ("PUB, WPP"); blank without a company list.
-function scopeLabel(ctx, codes) {
-  if (!ctx.list.length) return '';
-  const want = new Set(codes);
-  const shown = allCodes(ctx).filter((c) => want.has(c));
-  return shown.length === ctx.list.length && shown.length > 1
-    ? `All ${countWord(shown.length)} companies` : shown.join(', ');
 }
 
 // Codes named in the URL hash (#PUB,WPP), in companies.json order; unknown codes are ignored.
@@ -480,13 +470,11 @@ function clipped(u, title, ...content) {
 }
 
 // E1: the shown companies' results, guidance moves, capital markets days and deals of the last
-// 14 days, newest first, at most BRIEF_ROWS; then the next three dates on file. Print shows all
-// companies.
+// 14 days, newest first, at most BRIEF_ROWS (results first when some are left out, L3); then the
+// next three dates on file, with L1's note at the end of their row. Print shows all companies.
 function renderChanges(ctx, data) {
   const panel = 'panel-changes';
-  const scope = document.querySelector('#' + panel + ' .panel-head .scope');
   redrawChanges = null;
-  scope.textContent = '';
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
 
   const year = ctx.today.slice(0, 4);
@@ -615,7 +603,13 @@ function renderChanges(ctx, data) {
     const want = new Set(codes);
     const everyone = allCodes(ctx).every((c) => want.has(c));
     const shown = items.filter((x) => everyone || want.has(x.code));
-    const rows = shown.slice(0, BRIEF_ROWS);
+    // L3: with more updates than rows, the rows are chosen by kind before date (results, then
+    // guidance moves, capital markets days, deals; newest first within a kind), then shown in
+    // shown's order: newest first, E1's same-day order.
+    const kept = new Set([...shown].sort((a, b) => BRIEF_ORDER.indexOf(a.kind)
+      - BRIEF_ORDER.indexOf(b.kind) || b.date.localeCompare(a.date) || rank(a.code) - rank(b.code))
+      .slice(0, BRIEF_ROWS));
+    const rows = shown.filter((x) => kept.has(x));
     const next = coming.filter((e) => everyone || want.has(e.company));
     const dates = [...new Set(next.map((e) => day(e.date)))].slice(0, 3);
     // "Next 14 days", then the dates in one span, so a wrapped line hangs under the first date.
@@ -628,11 +622,17 @@ function renderChanges(ctx, data) {
               .sort((a, b) => rank(a.company) - rank(b.company))
               .flatMap((e, j) => [j ? ', ' : null, nextItem(e)]))))));
 
-    scope.textContent = `${scopeLabel(ctx, codes)} · last ${BRIEF_DAYS} days`
-      + (shown.length > rows.length ? `, latest ${rows.length} of ${shown.length} updates` : '');
+    // L1: what the scope line said that still matters, at the right end of the Next line's row:
+    // "Updates from the last 14 days", "· 3 of 5 shown" when rows are left out. None without
+    // rows: the empty sentence says it.
+    const note = rows.length ? el('p', {className: 'c-note'},
+      el('span', {className: 'nowrap'}, `Updates from the last ${BRIEF_DAYS} days`),
+      shown.length > rows.length
+        ? el('span', {className: 'nowrap'}, sep(), `${rows.length} of ${shown.length} shown`)
+        : null) : null;
     body.replaceChildren(rows.length ? el('ul', {className: 'c-rows'}, ...rows.map((x) => x.node))
       : el('p', {className: 'empty'}, `Nothing reported in the last ${BRIEF_DAYS} days.`),
-    nextLine);
+    el('div', {className: 'c-foot'}, nextLine, note));
     // Never leave keyboard focus on a link that was just replaced: the link in the same place,
     // else the capsule.
     if (focusAt >= 0) {
@@ -1092,26 +1092,68 @@ function peerBlock(f, year) {
         nx.period ? nx.period + ', ' : null, nx.date, nx.today ? ' ' : null, nx.today))));
 }
 
-// C4: who grows fastest and slowest among the given companies with a growth figure, each with
-// its own period ("(Q3)"; "(Q4 25)" outside this year). A tie goes to the first in companies.json
-// order, and the trail is never the lead. Null with fewer than two figures.
-function tableHeadline(facts, year) {
+// L2: "Key takeaway:" at 600, then the sentence; set only when its text changes, so the chart's
+// live region never re-announces the same words. Hidden, and emptied, with nothing to name.
+function setTakeaway(node, parts) {
+  if (!node) return;
+  if (!parts) {
+    node.replaceChildren();
+    node.hidden = true;
+    return;
+  }
+  const all = [el('strong', {}, 'Key takeaway:'), ' ', ...parts];
+  const text = all.map((p) => (typeof p === 'string' ? p : p.textContent)).join('');
+  if (node.textContent !== text) node.replaceChildren(...all);
+  node.hidden = false;
+}
+
+// L2, the table's Key takeaway (C4's lead, trail, tie and period rules): who grows fastest and
+// slowest among the given companies with a growth figure, each with its own period ("(Q3)";
+// "(Q4 25)" outside this year), then how many are speeding up, slowing or steady by their Change
+// as shown (rounded as glyphSigned rounds; no change figure, not counted). One figure: that
+// company's growth and its change. Figures in <strong>; null with no figure.
+function tableTakeaway(facts, year) {
   const withFigure = facts.filter((f) => f.growth);
-  if (withFigure.length < 2) return null;
+  if (!withFigure.length) return null;
+  const when = (f) => {
+    const p = String(f.growth.period);
+    return p.endsWith(' ' + year) ? p.split(' ')[0] : shortPeriod(p);
+  };
+  const shown = (d) => Number(d.toFixed(1));
+  if (withFigure.length === 1) {
+    // "WPP’s organic growth is −2.8% (Q2), up 3.9 points vs Q1 26."; the words come from the
+    // rounded change, as the table shows it.
+    const f = withFigure[0];
+    const head = [`${f.name}’s organic growth is `, el('strong', {}, kpiText(f.growth.value)),
+      `${NBSP}(${when(f)})`];
+    if (f.change.delta === null) return [...head, '.'];
+    const r = shown(f.change.delta);
+    const base = changeBase(f.change);
+    return [...head, ', ', ...(r === 0 ? [`unchanged ${base}`]
+      : [`${r > 0 ? 'up' : 'down'} `, el('strong', {}, `${Math.abs(r).toFixed(1)} points`),
+        ` ${base}`]), '.'];
+  }
   let lead = withFigure[0];
   for (const f of withFigure) if (f.growth.value > lead.growth.value) lead = f;
   const rest = withFigure.filter((f) => f !== lead);
   let trail = rest[0];
   for (const f of rest) if (f.growth.value < trail.growth.value) trail = f;
-  const when = (f) => {
-    const p = String(f.growth.period);
-    return p.endsWith(' ' + year) ? p.split(' ')[0] : shortPeriod(p);
-  };
   const part = (f, words) => [`${f.name} ${words} at `, el('strong', {}, kpiText(f.growth.value)),
     `${NBSP}(${when(f)})`];
   const [leadWords, trailWords] = lead.growth.value < 0 ? ['shrinks least', 'shrinks most']
     : ['grows fastest', trail.growth.value < 0 ? 'is shrinking' : 'grows slowest'];
-  return [...part(lead, leadWords), ', ', ...part(trail, trailWords), '.'];
+  // "growth is speeding up at 3 companies, slowing at 1 and steady at 1"; a part with no company
+  // is left out, and with no change figure at all the second half goes.
+  const changes = facts.filter((f) => f.change.delta !== null).map((f) => shown(f.change.delta));
+  const pace = [['speeding up', changes.filter((r) => r > 0).length],
+    ['slowing', changes.filter((r) => r < 0).length],
+    ['steady', changes.filter((r) => r === 0).length]].filter(([, n]) => n)
+    .map(([words, n], i) => `${words} at ${n}`
+      + (i ? '' : NBSP + (n === 1 ? 'company' : 'companies')));
+  const second = pace.length > 1
+    ? `${pace.slice(0, -1).join(', ')} and ${pace[pace.length - 1]}` : pace[0];
+  return [...part(lead, leadWords), ' and ', ...part(trail, trailWords),
+    second ? `; growth is ${second}.` : '.'];
 }
 
 // YTD per company code, from the same aligned and rebased lines as the chart's YTD window.
@@ -1153,16 +1195,12 @@ function tableHead() {
     el('thead', {}, groups, names)];
 }
 
-// C1: one row per shown company in companies.json order, the headline (C4) on the title's row and
-// the foot line (C5); at 960px and below the same companies as blocks (D1). Print shows all six,
-// always as the table.
+// C1: one row per shown company in companies.json order, then the Key takeaway (L2) and the foot
+// line (C5); at 960px and below the same companies as blocks (D1). Print shows all six, always as
+// the table.
 function renderTable(ctx, data) {
   const panel = 'panel-comps';
-  const scope = document.querySelector('#' + panel + ' .panel-head .scope');
-  const headline = document.querySelector('#' + panel + ' .comps-headline');
   redrawTable = null;
-  scope.textContent = '';
-  headline.hidden = true;
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
 
   const year = Number(ctx.today.slice(0, 4));
@@ -1208,8 +1246,11 @@ function renderTable(ctx, data) {
   });
   const wrap = el('div', {className: 'comps-wrap'}, table);
   const blockList = el('div', {className: 'comps-blocks'});
+  // L2: under the rows (on phones under the last block), above the foot line.
+  const takeaway = el('p', {className: 'takeaway'});
+  takeaway.hidden = true;
   // E3: "All guidance" opens the guidance fold; both jumps stay off paper.
-  bodyOf(panel).replaceChildren(wrap, blockList,
+  bodyOf(panel).replaceChildren(wrap, blockList, takeaway,
     el('p', {className: 'comps-foot'}, 'Latest reported figures, as stated. Growth and margin as '
       + 'each company defines them. ', el('span', {className: 'comps-jumps'}, defs, ' · ',
       guidanceJump('All guidance'))));
@@ -1234,12 +1275,7 @@ function renderTable(ctx, data) {
     const shown = allCodes(ctx).filter((c) => want.has(c));
     tbody.replaceChildren(...shown.map((c) => rows.get(c)));
     blockList.replaceChildren(...shown.map((c) => blocks.get(c)));
-    // With fewer than two growth figures the headline hides and the scope line names the shown.
-    const parts = tableHeadline(shown.map((c) => facts.get(c)), year);
-    headline.replaceChildren(...(parts || []));
-    headline.hidden = !parts;
-    scope.textContent = parts ? '' : scopeLabel(ctx, shown);
-    scope.hidden = Boolean(parts);
+    setTakeaway(takeaway, tableTakeaway(shown.map((c) => facts.get(c)), year));
     if (!hadFocus) return;
     // A link whose row or block stays keeps focus; one whose company left hands it to the capsule.
     if (had.isConnected) had.focus();
@@ -1248,7 +1284,7 @@ function renderTable(ctx, data) {
 
   draw([...selected]);
   redrawTable = () => draw([...selected]);
-  // Paper shows every company's row and their headline (D6).
+  // Paper shows every company's row and their takeaway (D6).
   window.addEventListener('beforeprint', () => { if (redrawTable) draw(allCodes(ctx)); });
   window.addEventListener('afterprint', () => { if (redrawTable) redrawTable(); });
 }
@@ -1318,15 +1354,14 @@ function quoteCell(label, r, today) {
 }
 
 // Quotes only: the curator's headlines in commentary.json are never shown on the site. A fold
-// (F1) whose count line says what is inside; the theme track sits in its body.
+// (F1) whose summary is its title; the theme track sits in its body, "Verbatim from company
+// documents" closes it (L1).
 function renderQuotes(ctx, data) {
   const panel = 'panel-quotes';
   const fold = document.getElementById(panel);
   const themes = fold.querySelector('.q-themes');
-  const count = fold.querySelector('.fold-count');
   redrawQuotes = null;
   themes.hidden = true;
-  count.textContent = '';
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
   const known = new Set(QUOTE_THEMES.map(([t]) => t));
   const all = Array.isArray(data.commentary?.records) ? data.commentary.records : [];
@@ -1348,6 +1383,11 @@ function renderQuotes(ctx, data) {
 
   const list = el('ul', {className: 'q-grid'});
   const gapLine = el('p', {className: 'q-missing'});
+  // L1: the fold's last line while it shows quotes. Paper names the pressed theme first ("AI & data
+  // · "), since the theme track does not print (D6: the printed quotes name their theme).
+  const printTheme = el('span', {className: 'q-print-theme'});
+  const verbatim = el('p', {className: 'q-verbatim'}, printTheme,
+    'Verbatim from company documents');
   const ofCompany = (code) => records.filter((r) => r.company === code);
 
   // Several companies: a cell for each one quoted on the pressed theme, the rest named in one line.
@@ -1366,8 +1406,6 @@ function renderQuotes(ctx, data) {
         if (r) cells.push(quoteCell(label, r, ctx.today));
         else gaps.push(label);
       }
-      // "WPP: quoted on 6 of 6 themes", out of the themes this view lists.
-      count.textContent = `${shown[0]}: quoted on ${cells.length} of ${QUOTE_THEMES.length} themes`;
       gapLine.textContent = gaps.length ? 'No quote yet on: ' + gaps.join(', ') : '';
     } else {
       for (const code of shown) {
@@ -1375,16 +1413,13 @@ function renderQuotes(ctx, data) {
         if (r) cells.push(quoteCell(companyName(ctx, code), r, ctx.today));
         else gaps.push(companyName(ctx, code));
       }
-      // "Strategy: 5 of 6 companies quoted" with every company shown, "Strategy: 2 of 2 quoted"
-      // for a subset; paper always shows the first, for the pressed theme.
-      const everyone = shown.length === ctx.list.length;
-      count.textContent = `${themeLabel}: ${cells.length} of ${shown.length} `
-        + `${everyone ? 'companies ' : ''}quoted`;
       gapLine.textContent = gaps.length ? `No ${themeLabel} quote yet: ` + gaps.join(', ') : '';
     }
     list.replaceChildren(...cells);
     list.hidden = !cells.length;
     gapLine.hidden = !gaps.length;
+    printTheme.textContent = single ? '' : themeLabel + ' · ';
+    verbatim.hidden = !cells.length;
     // A track about to hide hands its focus to the fold's summary (one company, e.g. after print).
     if (single && themes.contains(document.activeElement)) fold.querySelector('summary').focus();
     themes.hidden = single;
@@ -1395,10 +1430,10 @@ function renderQuotes(ctx, data) {
     }
   }
 
-  bodyOf(panel).replaceChildren(list, gapLine);
+  bodyOf(panel).replaceChildren(list, gapLine, verbatim);
   draw([...selected]);
   redrawQuotes = () => draw([...selected]);
-  // Paper shows the pressed theme for all six companies; the count line names the theme.
+  // Paper shows the pressed theme for all six companies; the last line names the theme.
   window.addEventListener('beforeprint', () => { if (redrawQuotes) draw(allCodes(ctx)); });
   window.addEventListener('afterprint', () => { if (redrawQuotes) redrawQuotes(); });
 }
@@ -1452,8 +1487,8 @@ function rebased(vals) {
   return vals.map((v) => (v === null || base === null ? null : (100 * v) / base));
 }
 
-// At 720px and below the x axis keeps at most 4 ticks and the chart headline names codes.
-// Screen only, like every breakpoint (DESIGN.md section 2): paper never takes the phone layout.
+// At 720px and below the x axis keeps at most 4 ticks. Screen only, like every breakpoint
+// (DESIGN.md section 2): paper never takes the phone layout.
 const NARROW = window.matchMedia('screen and (max-width: 720px)');
 // D6: the printed plot. A4's content width (210mm less two 12mm margins: 186mm, 703px) less the
 // panel's 1px borders and 12px print padding; Letter's 725px line holds it too.
@@ -1523,8 +1558,50 @@ function placeEndLabels(gd) {
   return Plotly.relayout(gd, {annotations: next});
 }
 
+// L2: the window's words opening the chart's Key takeaway.
+const WINDOW_WORDS = {'1M': 'Over the past month', '3M': 'Over the past three months',
+  YTD: 'Year to date', '1Y': 'Over the past year', '2Y': 'Over the past two years'};
+
+// L2, the chart's Key takeaway: the leader and the laggard among the drawn lines, then how many are
+// ahead of the benchmark while its line shows. `ends` are [{name, r}] in companies.json order and
+// `bench` the benchmark's figure or null, all rounded to one decimal as shown, so a sentence never
+// contradicts its own figures (a tie goes to the first; level is not ahead). Null with no line.
+function chartTakeaway(win, ends, benchName, bench) {
+  if (!ends.length) return null;
+  const fig = (r) => el('strong', {}, signedPct(r));
+  const words = WINDOW_WORDS[win] ?? win;
+  // The benchmark's name and its figure never split across lines ("the S&P 500 (+12.1%)").
+  const benchPart = bench === null ? []
+    : [`the ${String(benchName).replace(/ /g, NBSP)}${NBSP}(`, fig(bench), ')'];
+  if (ends.length === 1) {
+    // "Year to date, WPP is at +18.0%, ahead of the S&P 500 (+12.1%)."
+    const [e] = ends;
+    if (bench === null) return [`${words}, ${e.name} is at `, fig(e.r), '.'];
+    const vs = e.r > bench ? 'ahead of' : e.r < bench ? 'behind' : 'level with';
+    return [`${words}, ${e.name} is at `, fig(e.r), `, ${vs} `, ...benchPart, '.'];
+  }
+  let lead = ends[0];
+  for (const e of ends) if (e.r > lead.r) lead = e;
+  const rest = ends.filter((e) => e !== lead);
+  let trail = rest[0];
+  for (const e of rest) if (e.r < trail.r) trail = e;
+  const [leadWords, trailWords] = ends.every((e) => e.r < 0) ? ['falls least', 'falls most']
+    : ['leads', 'trails'];
+  const out = [`${words}, ${lead.name} ${leadWords} at `, fig(lead.r),
+    ` and ${trail.name} ${trailWords} at `, fig(trail.r)];
+  if (bench !== null) {
+    // "3 of 6 are", "1 of 6 is", "both are", "all six are", "none is" ahead of the benchmark.
+    const n = ends.length;
+    const k = ends.filter((e) => e.r > bench).length;
+    const count = k === 0 ? 'none is' : k === n ? (n === 2 ? 'both are' : `all ${countWord(n)} are`)
+      : `${k} of ${n} ${k === 1 ? 'is' : 'are'}`;
+    out.push(`; ${count} ahead of `, ...benchPart);
+  }
+  return [...out, '.'];
+}
+
 // Draws the selection on screen; with `print` ({width, height}), the all-six chart for paper (D6):
-// never a subset, so no event markers, names in the headline and no phone rules, at that size.
+// never a subset, so no event markers, and no phone rules, at that size.
 function drawChart(ctx, data, aligned, win, print = null) {
   const {series, union, bench} = aligned;
   const start = windowStart(win, union);
@@ -1645,39 +1722,17 @@ function drawChart(ctx, data, aligned, win, print = null) {
     });
   }
 
-  // The headline reads the same rebased lines, for the shown companies only.
+  // L2: the Key takeaway reads the same rebased lines as the end codes, for the shown companies,
+  // names in full at every width (raw strings, never the escaped Plotly names). No company with a
+  // value in this window hides it, so the last window's words never stay up.
   const lastOf = (ys) => ys.findLast((v) => v !== null);
-  // Codes on narrow screens; raw strings, never the escaped Plotly names.
-  const ends = shownSeries.map((s, i) => ({code: s.company.code,
-    name: narrow ? String(s.company.code) : String(s.company.name ?? s.company.code),
-    v: lastOf(companyTraces[i].y)})).filter((e) => isNum(e.v));
-  const headline = document.getElementById('chart-headline');
-  if (headline && ends.length) {
-    let text;
-    if (ends.length === 1) {
-      text = `${win}: ${ends[0].name}${NBSP}${signedPct(ends[0].v - 100)}`;
-    } else {
-      const lead = ends.reduce((a, e) => (e.v > a.v ? e : a));
-      const trail = ends.reduce((a, e) => (e.v < a.v ? e : a));
-      text = `${win}: ${lead.name} leads${NBSP}${signedPct(lead.v - 100)}, `
-        + `${trail.name} trails${NBSP}${signedPct(trail.v - 100)}`;
-    }
-    // D2: the benchmark's figure follows, muted and smaller, while its line is drawn; a hidden
-    // ". " makes a screen reader end the trail phrase before it.
-    const benchEnd = lastOf(benchY);
-    const benchText = bench && benchVisible && isNum(benchEnd)
-      ? `${bench.name}${NBSP}${signedPct(benchEnd - 100)}` : '';
-    const parts = benchText ? [text, el('span', {className: 'visually-hidden'}, '. '), ' ',
-      el('span', {className: 'chart-bench'}, benchText)] : [text];
-    // Set only on change, so a redraw with the same numbers does not re-announce it.
-    const want = parts.map((p) => (typeof p === 'string' ? p : p.textContent)).join('');
-    if (headline.textContent !== want) headline.replaceChildren(...parts);
-    headline.hidden = false;
-  } else if (headline) {
-    // No company has a value in this window: never leave the last window's text up.
-    headline.textContent = '';
-    headline.hidden = true;
-  }
+  const asShown = (v) => Number((v - 100).toFixed(1));
+  const ends = shownSeries.map((s, i) => ({name: String(s.company.name ?? s.company.code),
+    v: lastOf(companyTraces[i].y)})).filter((e) => isNum(e.v))
+    .map((e) => ({name: e.name, r: asShown(e.v)}));
+  const benchEnd = lastOf(benchY);
+  setTakeaway(document.getElementById('chart-takeaway'), chartTakeaway(win, ends,
+    bench?.name, bench && benchVisible && isNum(benchEnd) ? asShown(benchEnd) : null));
 
   // D2: the key lists what is drawn, by full name as text: each company line, the benchmark
   // while it shows, and for a subset the event markers. With nothing drawn it hides.
@@ -1749,10 +1804,10 @@ function drawChart(ctx, data, aligned, win, print = null) {
 function hideChartControls() {
   const controls = document.querySelector('#panel-chart .chart-controls');
   if (controls) controls.hidden = true;
-  for (const id of ['chart-headline', 'chart-key']) {
-    const node = document.getElementById(id);
-    if (node) node.hidden = true;
-  }
+  // The takeaway empties too, so a hidden live region never keeps a stale sentence.
+  setTakeaway(document.getElementById('chart-takeaway'), null);
+  const key = document.getElementById('chart-key');
+  if (key) key.hidden = true;
 }
 
 function renderChart(ctx, data) {
@@ -2021,9 +2076,12 @@ function renderKpis(ctx, data) {
   bodyOf(panel).replaceChildren(...[
     wrap,
     detail,
-    el('p', {className: 'footnote'}, 'As reported by each company; definitions differ, so '
-      + 'figures are not directly comparable. A half-year figure spans two quarters only where '
-      + 'no quarterly figure is published. Colors saturate at ±' + KPI_CLAMP + '%.'),
+    // L1: the footnote opens with what the grid holds; the title alone does not say it is organic
+    // growth only.
+    el('p', {className: 'footnote'}, `Organic growth, last ${KPI_COLUMNS} quarters, as reported `
+      + 'by each company; definitions differ, so figures are not directly comparable. A half-year '
+      + 'figure spans two quarters only where no quarterly figure is published. Colors saturate '
+      + 'at ±' + KPI_CLAMP + '%.'),
     defList.childElementCount ? defList : null,
   ].filter(Boolean));
   // Newest quarter first on narrow screens. A closed <details> has no width to scroll, so the
@@ -2032,9 +2090,6 @@ function renderKpis(ctx, data) {
   fold.addEventListener('toggle', () => {
     if (fold.open) wrap.scrollLeft = wrap.scrollWidth;
   });
-  // Set only once the grid is drawn, so the summary line stays blank while loading or empty.
-  fold.querySelector('.fold-count').textContent =
-    `organic growth, ${KPI_COLUMNS} quarters as reported`;
 }
 
 // Opens a <details> for printing and puts it back as it was afterwards; a second beforeprint
@@ -2116,9 +2171,7 @@ function guidanceRecordLines(records, year) {
 function renderGuidanceFold(ctx, data) {
   const panel = 'fold-guidance';
   const fold = document.getElementById(panel);
-  const count = fold.querySelector('.fold-count');
   redrawGuidanceFold = null;
-  count.textContent = '';
   if (!ctx.list.length) return empty(panel, 'Company list unavailable.');
   const records = currentGuidance(data.guidance);
   if (!records.length) return empty(panel, 'No guidance records yet.');
@@ -2151,11 +2204,6 @@ function renderGuidanceFold(ctx, data) {
       el('h3', {className: 'g-group-head'}, companyName(ctx, code)),
       el('ul', {className: 'g-records'},
         ...guidanceRecordLines(mine.filter((r) => companyOf(r) === code), year))));
-    // The summary says what is inside: "15 records: 1 raised, 2 new, 12 held"; blank for none.
-    const statuses = statusCounts(mine, SUMMARY_STATUSES, []).map(([s, n]) => `${n} ${s}`);
-    count.textContent = !mine.length ? ''
-      : `${mine.length} ${mine.length === 1 ? 'record' : 'records'}`
-        + (statuses.length ? ': ' + statuses.join(', ') : '');
     body.replaceChildren(...[summary, missingLine, ...groups].filter(Boolean));
     // Never leave keyboard focus on a link that was just replaced.
     if (hadFocus) fold.querySelector('summary')?.focus();
@@ -2182,23 +2230,19 @@ function isKeyPress(p) {
 
 const PRESS_PHONE_CAP = 8; // D5: key rows a collapsed list shows at 720px and below
 
-// A fold (F1) of the last 30 days' releases: date, code, category, title (D5). Its count line names
-// the shown companies, the key count and the newest date.
+// A fold (F1) of the last 30 days' releases: date, code, category, title (D5). Its summary is its
+// title (L1): "Show N other releases" carries the count, and the first row is the newest.
 function renderPress(ctx, data) {
   const panel = 'panel-press';
   const fold = document.getElementById(panel);
   const all = Array.isArray(data.press?.items) ? data.press.items : [];
   const since = addDays(ctx.today, -30);
-  const year = ctx.today.slice(0, 4);
   // Newest first, the higher id breaking a tie; key items are pulled ahead in draw().
   const items = all.filter((p) => p && isIsoDate(p.published) && p.published.slice(0, 10) >= since)
     .sort((a, b) => b.published.localeCompare(a.published)
       || String(b.id ?? '').localeCompare(String(a.id ?? '')));
   redrawPress = null;
   resetPress = null;
-  // The count line stays blank until there are releases to describe.
-  const count = fold.querySelector('.fold-count');
-  count.textContent = '';
   if (!items.length) return empty(panel, 'No press releases in the last 30 days.');
   // No company color: the code in ink, the category as a word in an outlined pill (key rows only).
   const rows = new Map(items.map((p) => [p,
@@ -2222,7 +2266,6 @@ function renderPress(ctx, data) {
     'aria-controls': 'press-list'});
   let extra = [];
   let over = []; // key rows past the phone cap
-  let countText = () => '';
   const isOpen = () => more.getAttribute('aria-expanded') === 'true';
   const isCapped = () => list.classList.contains('capped');
   const setCapped = (on) => {
@@ -2236,7 +2279,6 @@ function renderPress(ctx, data) {
     more.setAttribute('aria-expanded', String(open));
     more.textContent = open ? 'Show fewer' : `Show ${extra.length} other ${release(extra.length)}`;
     setCapped(!open && over.length > 0);
-    count.textContent = countText(open);
   };
   // replaceChildren blurs a focused row even when it stays, so focus goes back to it, else to a
   // button, else to the first shown link. Shown means laid out: CSS hides the capped rows.
@@ -2271,18 +2313,6 @@ function renderPress(ctx, data) {
       none.textContent = mine.length ? '' : 'No press releases from '
         + (want.size === 1 ? companyName(ctx, [...want][0]) : 'the selected companies')
         + ' in the last 30 days.';
-      // "All six companies · 20 key releases of 32, newest 26 Oct". Blank with no releases or no
-      // companies.json. The newest is of all the shown companies' releases, so opening the list
-      // never changes it.
-      const label = scopeLabel(ctx, codes);
-      // No-break spaces keep the date whole where the line wraps (phones).
-      const newest = mine.length
-        ? ', newest ' + fmtDayIn(mine[0].published, year).replaceAll(' ', NBSP) : '';
-      countText = (expanded) => (!label || !mine.length ? '' : label + ' · ' + (!key.length
-        ? `${mine.length} ${release(mine.length)}, none key`
-        : expanded ? `all ${mine.length}, key releases first`
-          : `${key.length} key ${release(key.length)} of ${mine.length}`)
-        + newest);
       more.hidden = !extra.length;
       setOpen(open);
     });
@@ -2388,15 +2418,6 @@ function failPanel(panelId) {
     const themes = document.querySelector('#panel-quotes .q-themes');
     if (themes) themes.hidden = true;
   }
-  // A fold's count line, or a computed scope line, describes content that is no longer there.
-  const count = document.querySelector('#' + panelId + ' .fold-count');
-  if (count) count.textContent = '';
-  if (['panel-changes', 'panel-comps'].includes(panelId)) {
-    const scope = document.querySelector('#' + panelId + ' .panel-head .scope');
-    if (scope) scope.textContent = '';
-  }
-  const headline = document.querySelector('#' + panelId + ' .comps-headline');
-  if (headline) headline.hidden = true;
   empty(panelId, 'This panel could not be rendered.');
 }
 
@@ -2425,7 +2446,8 @@ async function main() {
 
   document.getElementById('as-of').textContent = status?.run_at
     ? 'as of ' + fmtTimestamp(status.run_at) : 'as of unknown';
-  // The footnote names the same benchmark as the chart headline; the static text is a fallback.
+  // The footnote names the same benchmark as the chart's key and Key takeaway; the static text is
+  // a fallback.
   const benchName = document.querySelector('#panel-chart .bench-name');
   // Same fallback as buildAligned (name, else symbol), so the two never disagree.
   if (benchName && ctx.benchmark) {
