@@ -733,7 +733,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   Dentsu's 2026 quarters wait for its FY2026 report. FAILURES.md: two new Dentsu rows and
   update notes on the HAVAS, Stagwell and Dentsu rows.
 
-- [ ] **22b Hand entry from the audit.** Executor, plan mode. Hand entry (CLAUDE.md rule 4),
+- [x] **22b Hand entry from the audit.** Executor, plan mode. Hand entry (CLAUDE.md rule 4),
   each figure checked against its document with `verify_quote --quotes` before it is written,
   each URL read once. (1) DENTSU in `data/kpis.yaml`: organic-only rows for Q3 2024 to Q4 2025
   from the "Organic growth rate by region" tables in its own annual Financial Reports

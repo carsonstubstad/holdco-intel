@@ -2,7 +2,7 @@
 # period: Q1 2026 | H1 2026 | FY 2025. One row per company per period.
 definitions:
   PUB: "Organic growth: net revenue growth at constant scope and FX. Margin: operating margin on net revenue."
-  OMC: "Organic growth: revenue growth excluding acquisitions, disposals and FX. Margin: adjusted EBITA margin. Not comparable across the IPG close (Nov 2025)."
+  OMC: "Organic growth: revenue growth excluding acquisitions, disposals and FX; from Q1 2026, Core Operations only, while revenue and margin stay consolidated. Margin: adjusted EBITA margin. Not comparable across the IPG close (Nov 2025)."
   WPP: "Like-for-like revenue less pass-through costs growth. Margin: headline operating margin."
   HAVAS: "Organic net revenue growth. Margin: adjusted EBIT margin on net revenue."
   DENTSU: "Organic growth of net revenue. Margin: underlying operating margin."
@@ -325,49 +325,49 @@ rows:
     note: "Net revenue."
   - company: STGW
     period: Q1 2026
-    organic_growth_pct: null
+    organic_growth_pct: 1.6
     revenue_local_m: 585
     currency: USD
     margin_metric: adjusted EBITDA margin
-    margin_pct: 15
-    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-months-ended-march-31-2026/"
-    note: "Net revenue. Group organic growth not stated."
+    margin_pct: 15.3
+    source_url: "https://www.stagwellglobal.com/wp-content/uploads/2026/04/1Q26-Earnings-Presentation-v.2-1.pdf"
+    note: "Net revenue. Earnings presentation (the release gives no group organic growth). Presentation shows Q1 2025 comparative margin as 14.6%."
   - company: STGW
     period: Q4 2025
-    organic_growth_pct: null
+    organic_growth_pct: -0.3
     revenue_local_m: 651
     currency: USD
     margin_metric: adjusted EBITDA margin
-    margin_pct: 20
-    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-twelve-months-ended-december-31-2025/"
-    note: "Net revenue. Group organic growth not stated (one-pager gives ex-Advocacy only)."
+    margin_pct: 19.9
+    source_url: "https://www.stagwellglobal.com/wp-content/uploads/2025/07/4Q25-Earnings-Presentation.pdf"
+    note: "Net revenue. Earnings presentation (the release gives no group organic growth)."
   - company: STGW
     period: Q3 2025
-    organic_growth_pct: null
+    organic_growth_pct: -0.4
     revenue_local_m: 615
     currency: USD
     margin_metric: adjusted EBITDA margin
-    margin_pct: 19
-    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-nine-months-ended-september-30-2025/"
-    note: "Net revenue. Group organic growth not stated."
+    margin_pct: 18.6
+    source_url: "https://www.stagwellglobal.com/wp-content/uploads/2025/07/3Q25-Earnings-Presentation-v.1.pdf"
+    note: "Net revenue. Earnings presentation (the release gives no group organic growth)."
   - company: STGW
     period: Q2 2025
-    organic_growth_pct: null
+    organic_growth_pct: 0.6
     revenue_local_m: 598
     currency: USD
     margin_metric: adjusted EBITDA margin
-    margin_pct: 16
-    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-six-months-ended-june-30-2025/"
-    note: "Net revenue. Group organic growth not stated."
+    margin_pct: 15.5
+    source_url: "https://www.stagwellglobal.com/wp-content/uploads/2025/07/2Q25-Earnings-Presentation-v.1.pdf"
+    note: "Net revenue. Earnings presentation (the release gives no group organic growth)."
   - company: STGW
     period: Q1 2025
-    organic_growth_pct: null
+    organic_growth_pct: 0.6
     revenue_local_m: 564
     currency: USD
     margin_metric: adjusted EBITDA margin
-    margin_pct: 14
-    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-months-ended-march-31-2025/"
-    note: "Net revenue. Group organic growth not stated."
+    margin_pct: 14.3
+    source_url: "https://www.stagwellglobal.com/wp-content/uploads/2025/07/1Q25-Earnings-Presentation-v.1.pdf"
+    note: "Net revenue. Earnings presentation (the release gives no group organic growth)."
   - company: STGW
     period: Q4 2024
     organic_growth_pct: 10
@@ -504,6 +504,51 @@ rows:
     source_url: "https://www.group.dentsu.com/en/ir/common/pdf/2026_semiannual.pdf"
     note: "Net revenue. Semiannual report."
   - company: DENTSU
+    period: Q2 2026
+    organic_growth_pct: -0.2
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/xls/qcr202602e.xlsx"
+    note: "Organic only; quarterly results spreadsheet."
+  - company: DENTSU
+    period: Q1 2026
+    organic_growth_pct: 0.8
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/xls/qcr202602e.xlsx"
+    note: "Organic only; quarterly results spreadsheet."
+  - company: DENTSU
+    period: FY 2025
+    organic_growth_pct: 0.5
+    revenue_local_m: 1197530
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: 14.4
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/FY2025_finance.pdf"
+    note: "Net revenue. Financial Report."
+  - company: DENTSU
+    period: Q4 2025
+    organic_growth_pct: 0.9
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/FY2025_finance.pdf"
+    note: "Organic only; Financial Report quarterly table."
+  - company: DENTSU
+    period: Q3 2025
+    organic_growth_pct: 1.4
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/FY2025_finance.pdf"
+    note: "Organic only; Financial Report quarterly table."
+  - company: DENTSU
     period: H1 2025
     organic_growth_pct: -0.2
     revenue_local_m: 561994
@@ -512,3 +557,48 @@ rows:
     margin_pct: 12.0
     source_url: "https://www.group.dentsu.com/en/ir/common/pdf/2025_semiannual.pdf"
     note: "Net revenue. Semiannual report."
+  - company: DENTSU
+    period: Q2 2025
+    organic_growth_pct: -0.7
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/FY2025_finance.pdf"
+    note: "Organic only; Financial Report quarterly table."
+  - company: DENTSU
+    period: Q1 2025
+    organic_growth_pct: 0.2
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/FY2025_finance.pdf"
+    note: "Organic only; Financial Report quarterly table."
+  - company: DENTSU
+    period: FY 2024
+    organic_growth_pct: -0.1
+    revenue_local_m: 1201647
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: 14.8
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/2025_finance.pdf"
+    note: "Net revenue. Financial Report."
+  - company: DENTSU
+    period: Q4 2024
+    organic_growth_pct: 2.6
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/2025_finance.pdf"
+    note: "Organic only; Financial Report quarterly table."
+  - company: DENTSU
+    period: Q3 2024
+    organic_growth_pct: 0.3
+    revenue_local_m: null
+    currency: JPY
+    margin_metric: underlying operating margin
+    margin_pct: null
+    source_url: "https://www.group.dentsu.com/en/ir/common/pdf/2025_finance.pdf"
+    note: "Organic only; Financial Report quarterly table."

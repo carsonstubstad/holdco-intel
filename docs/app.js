@@ -2064,14 +2064,18 @@ function renderKpis(ctx, data) {
     const name = el('th', {scope: 'row', className: 'kpi-company'},
       el('span', {className: 'name-full'}, String(c.name ?? c.code)),
       el('span', {className: 'name-code', title: String(c.name ?? c.code)}, String(c.code)));
-    // Δ q/q: this company's newest quarter vs the quarter directly before, both quarterly
-    // figures (a half-year never counts). Glyph and sign carry the direction, not color.
-    const newest = byQuarter.size ? Math.max(...byQuarter.keys()) : null;
-    const d = newest === null ? null : quarterDelta(byQuarter, newest);
-    let delta = el('td', {className: 'kpi-delta kpi-none', 'aria-label': 'not available',
-      title: 'No two quarters in a row to compare'}, '–');
+    // Δ q/q starts from the company's newest figure, as the peer table's Change does (C2): a
+    // half-year or full-year gives a dash with its reason; a quarter compares with the quarter
+    // directly before (A5). Glyph and sign carry the direction, not color.
+    const change = growthChange(own, latestRow(own, 'organic_growth_pct'));
+    const why = {half: 'Latest figure is a half-year',
+      full: 'Latest figure is a full-year'}[change.why];
+    const d = change.delta;
+    let delta = el('td', {className: 'kpi-delta kpi-none', 'aria-label': why ?? 'not available',
+      title: why ?? 'No two quarters in a row to compare'}, '–');
     if (d !== null) {
-      const prev = newest - 1;
+      const newest = change.end;
+      const prev = change.base;
       const span = Math.floor(newest / 4) === Math.floor(prev / 4)
         ? `Q${(newest % 4) + 1} vs ${quarterLabel(prev)}`
         : `${quarterLabel(newest)} vs ${quarterLabel(prev)}`;

@@ -121,8 +121,8 @@ companies:
     exchange: Tokyo Stock Exchange
     currency: JPY
     color: "#9467bd"
-    shares_outstanding_m: 262.0        # verify
-    shares_verified: false
+    shares_outstanding_m: 260.5        # issued less treasury, 30 Jun 2026 (2026 semiannual report)
+    shares_verified: true
     news_query: '"Dentsu"'
     press_releases:
       adapter: dentsu
