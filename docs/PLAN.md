@@ -684,7 +684,7 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   in the phone list; the mark stays inline twice; Quarterly history gains "Organic growth" and
   "Q/Q change"; "About and sources" does not print.
 
-- [ ] **22 Data audit.** Executor, plan mode, read only. One sweep of every data input and
+- [x] **22 Data audit.** Executor, plan mode, read only. One sweep of every data input and
   output before the v2.0 link is shared, from the data as of the commit it starts from
   (WPP's and Stagwell's Q3 results of 29 Oct are out of scope). (1) Every KPI row, guidance
   record and quote against its source document, and HAVAS's share count. (2) The numbers the
