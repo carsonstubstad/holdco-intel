@@ -441,18 +441,19 @@ const BRIEF_ORDER = ['results', 'guidance', 'capital_markets_day', 'deal'];
 const DAY_GUIDANCE = [['cut', 'guidance cut'], ['raised', 'guidance raised'],
   ['new', 'new guidance'], ['withdrawn', 'guidance withdrawn'], ['held', 'guidance held']];
 
-// E1's window, shared with E2's marker: from 14 days before today to yesterday (an event dated
-// today stays on the Next line).
-function inBrief(iso, today) {
+// E1's window, shared with E2's marker: from 14 days before today to yesterday, or through today
+// with withToday (What's new takes today's updates once on file; E2 never counts today's results).
+function inBrief(iso, today, withToday = false) {
   const d = iso.slice(0, 10);
-  return d >= addDays(today, -BRIEF_DAYS) && d < today;
+  return d >= addDays(today, -BRIEF_DAYS) && (withToday ? d <= today : d < today);
 }
 
-// E1 and E2's one record set: the results events in the window, each with its KPI row
-// (resultsRow; null while not on file, and always without kpis.json).
-function briefResults(events, kpiRows, kpisOk, today) {
+// E1 and E2's one record set: the results events in the window (today's too with withToday),
+// each with its KPI row (resultsRow; null while not on file, and always without kpis.json).
+function briefResults(events, kpiRows, kpisOk, today, withToday = false) {
   return events.filter((e) => e && e.type === 'results' && isIsoDate(e.date)
-    && inBrief(e.date, today)).map((e) => ({e, kpi: kpisOk ? resultsRow(kpiRows, e) : null}));
+    && inBrief(e.date, today, withToday))
+    .map((e) => ({e, kpi: kpisOk ? resultsRow(kpiRows, e) : null}));
 }
 
 // J3: the one ↗ every link to a company document ends in: 0.85em in --border-2 whatever the link's
@@ -507,8 +508,9 @@ function clipped(u, title, ...content) {
 }
 
 // E1: the shown companies' results, guidance moves, capital markets days and deals of the last
-// 14 days, newest first, at most BRIEF_ROWS (results first when some are left out, L3); then the
-// next three dates on file, with L1's note at the end of their row. Print shows all companies.
+// 14 days (today's results, guidance and deals once on file), newest first, at most BRIEF_ROWS
+// (results first when some are left out, L3); then the next three dates on file, with L1's note
+// at the end of their row. Print shows all companies.
 function renderChanges(ctx, data) {
   const panel = 'panel-changes';
   redrawChanges = null;
@@ -541,9 +543,10 @@ function renderChanges(ctx, data) {
       .map((part, i) => (i ? el('span', {}, sep(), part) : part))));
 
   // Results: a results event in the window that is confirmed or has its KPI row (an estimated
-  // date with no figures may not have happened).
-  const results = briefResults(events, kpiRows, kpisOk, ctx.today)
-    .filter(({e, kpi}) => e.confirmed === true || kpi);
+  // date with no figures may not have happened); one dated today only with its KPI row, and then
+  // it leaves the Next line.
+  const results = briefResults(events, kpiRows, kpisOk, ctx.today, true)
+    .filter(({e, kpi}) => kpi || (e.confirmed === true && day(e.date) < ctx.today));
   const resultsOn = new Set(results.map(({e}) => e.company + ' ' + day(e.date)));
 
   // "organic +7.2% ▲ +1.1 pp vs Q2 26" (or the dash and its reason, as C2), else why there is no
@@ -588,9 +591,10 @@ function renderChanges(ctx, data) {
         fmtDayIn(e.date, year)), e.company,
       [titlePeriod(e.title), 'results'].filter(Boolean).join(' '),
       figures(e, kpi), share(e), dayWord(e))})),
-    // Guidance moved on a day its company has no results row (B5's row content).
+    // Guidance moved on a day its company has no results row (B5's row content), today included.
     ...guidance.filter((r) => MOVE_STATUSES.includes(r.status) && isIsoDate(r.set_date)
-      && inBrief(r.set_date, ctx.today) && !resultsOn.has(r.company + ' ' + day(r.set_date)))
+      && inBrief(r.set_date, ctx.today, true)
+      && !resultsOn.has(r.company + ' ' + day(r.set_date)))
       .map((r) => {
         const what = [metricLabel(r.metric), String(r.period ?? '').replace(/_/g, ' ')]
           .filter(Boolean).join(' ');
@@ -604,13 +608,14 @@ function renderChanges(ctx, data) {
               ...(r.status === 'withdrawn' ? [el('s', {}, ...guidanceText(value))]
                 : guidanceText(value))))};
       }),
+    // A capital markets day dated today stays on the Next line: a calendar date, not an input.
     ...events.filter((e) => e.type === 'capital_markets_day' && inBrief(e.date, ctx.today))
       .map((e) => ({date: day(e.date), code: e.company, kind: e.type,
         node: row(fmtDayIn(e.date, year), e.company, 'Capital markets day',
           clipped(e.source_url, String(e.title ?? '')))})),
-    // Deals come from the press release; past deal events make no rows.
+    // Deals come from the press release, today's included; past deal events make no rows.
     ...press.filter((p) => p && p.category === 'm_and_a' && isIsoDate(p.published)
-      && inBrief(p.published, ctx.today))
+      && inBrief(p.published, ctx.today, true))
       .map((p) => ({date: day(p.published), code: p.company, kind: 'deal',
         node: row(fmtDayIn(p.published, year), p.company, 'Deal',
           clipped(p.url, String(p.title ?? '')))})),
@@ -618,10 +623,12 @@ function renderChanges(ctx, data) {
     || BRIEF_ORDER.indexOf(a.kind) - BRIEF_ORDER.indexOf(b.kind) || rank(a.code) - rank(b.code));
 
   // The Next line: the next three dates with a results event, a capital markets day or a deal,
-  // from today through 14 days ahead; companies grouped by date in companies.json order. (The
-  // table's Next results column has no window.)
+  // from today through 14 days ahead; companies grouped by date in companies.json order. Today's
+  // results leave it once they are a row, so they never show twice. (The table's Next results
+  // column has no window.)
   const coming = upcomingEvents(data.events, ctx.today, BRIEF_DAYS)
-    .filter((e) => MARKER_TYPES.includes(e.type));
+    .filter((e) => MARKER_TYPES.includes(e.type)
+      && !(e.type === 'results' && resultsOn.has(e.company + ' ' + day(e.date))));
   const nextItem = (e) => {
     const what = e.type === 'results' ? titlePeriod(e.title) ?? 'results'
       : COMING_WORD[e.type] ?? String(e.type).replace(/_/g, ' ');
@@ -653,7 +660,7 @@ function renderChanges(ctx, data) {
     const nextLine = el('p', {className: 'c-next'},
       el('span', {className: 'c-next-label'}, `Next ${BRIEF_DAYS} days`),
       el('span', {className: 'c-next-dates'}, ...(!eventsOk ? [muted('Dates unavailable.')]
-        : !dates.length ? [muted('No dates on file.')]
+        : !dates.length ? [muted('None.')]
           : dates.map((d, i) => el('span', {}, i ? sep() : null, fmtDayIn(d, year) + ' ',
             ...next.filter((e) => day(e.date) === d)
               .sort((a, b) => rank(a.company) - rank(b.company))
@@ -1252,7 +1259,7 @@ function renderTable(ctx, data) {
     guidance: currentGuidance(data.guidance),
     results: items.filter((e) => e && e.type === 'results' && isIsoDate(e.date)
       && e.date.slice(0, 10) <= ctx.today),
-    // E2: results events in E1's window with their KPI rows.
+    // E2: results events in E1's window to yesterday, with their KPI rows.
     brief: briefResults(items, kpiRows, kpisOk, ctx.today),
     upcoming: upcomingEvents(data.events, ctx.today, null),
     series: data.prices?.series && typeof data.prices.series === 'object' ? data.prices.series : {},
