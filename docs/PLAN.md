@@ -793,6 +793,45 @@ stay out), the printed chart showing all six (D6), pressable theme buttons (A4),
   (release figures, whole-number margins), and Dentsu's Q2 26 link, which downloads the
   spreadsheet. The robots-disallowed ssl4.eir-parts.net stayed out.
 
+## v2.1: upkeep after sharing
+
+Started 2026-10-29. The standing PM (prompts/standing-pm.md) turns Backlog lines the
+maintainer approves into steps, one at a time, each with its own planning chat. `/curate`
+runs happen between steps, never during one. Step prompts are in `prompts/v2.1/`.
+
+- [ ] **23 A name for "other" guidance.** Executor, plan mode. A guidance record with metric
+  `other` gets an optional `metric_label` in `schemas/guidance.schema.json` (3 to 40
+  characters): the metric's name copied from the record's own quote, in the quote's case.
+  `make validate` (`pipeline/validate.py`, data/guidance.json only) refuses an "other" record
+  without one, a label not found in its quote as written, or a label on any other metric; the schema
+  keeps it optional so docs/data/guidance.json stays valid until the next daily run. Hand
+  entry (CLAUDE.md rule 4) of the four "other" records' labels: Stagwell "Adjusted EBITDA"
+  (both), WPP "adjusted operating cash flow" (both). `.claude/commands/curate.md` section 4
+  fills it for every new "other" record, matches an "other" record's predecessor by label
+  too (a second "other" measure never supersedes the first), and section 7 shows it. The
+  site names an "other" record by its label, first letter capitalised, through one helper
+  for every place that names a guidance metric: All guidance and What's new's guidance rows
+  (the peer table's two uses cannot meet an "other" record today) (DESIGN.md revision
+  2026-10-29, step 23); "Other" only for a record without one; the label column stays 9rem.
+  `docs/ARCHITECTURE.md` names the field and the validate rule. Files: `schemas/guidance.schema.json`, `pipeline/validate.py`,
+  `data/guidance.json`, `.claude/commands/curate.md`, `docs/app.js`, `docs/ARCHITECTURE.md`,
+  `tests/` (at most two files), `docs/PLAN.md`. No core, MCP, `.github/` or other data
+  change; `docs/data/` only from local `make pipeline` runs, discarded before the commit.
+  Acceptance: `make validate` and `make check` green, and `make validate` failing with one
+  label removed (then restored from a backup, never `git checkout`); All guidance at 1440
+  and 375 labels Stagwell "Adjusted EBITDA" and WPP "Adjusted operating cash flow", each over
+  "FY 2026", with no "Other" label left; What's new names the label in a forced test state
+  (Stagwell alone, its results event left out, clock at 30 Oct); print still at most 5 pages
+  on A4 and Letter; zero console errors.
+  Commit: `step 23: name "other" guidance by its metric`.
+  From the Backlog (2026-10-11): guidance records with metric `other` read as "other" on the
+  site (STGW $475-525m, WPP £800-900m), which tells a reader nothing. Option: an optional
+  `metric_label` in the guidance schema (e.g. "adjusted EBITDA"), filled by /curate from
+  the source's own wording. A schema change, so its own small step or part of the next
+  /curate step.
+  2026-10-29: yes (maintainer, to the standing PM), after the Q3 run raised Stagwell's
+  adjusted EBITDA guidance to $490m to $540m, which All guidance shows as "Other".
+
 ## Parked (later, after v2.0)
 
 Renamed from "Parked (v2)" on 2026-10-15, so it is not confused with the v2.0 steps.
@@ -808,11 +847,6 @@ Renamed from "Parked (v2)" on 2026-10-15, so it is not confused with the v2.0 st
 One dated line per idea. The planning chat sorts each into a tweak, an existing step, a
 new step, Parked, or no (breaks a hard rule), then moves the line.
 
-- 2026-10-11: guidance records with metric `other` read as "other" on the site (STGW
-  $475-525m, WPP £800-900m), which tells a reader nothing. Option: an optional
-  `metric_label` in the guidance schema (e.g. "adjusted EBITDA"), filled by /curate from
-  the source's own wording. A schema change, so its own small step or part of the next
-  /curate step.
 - 2026-10-12: the chart footnote in index.html names "S&P 500" as static text instead of
   companies.json's benchmark name (noticed in 12e). Fold into step 13, which already
   edits index.html.
@@ -824,6 +858,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-15 (v2.0 review): print follows the chosen companies (a peer-set handout).
 - 2026-10-15 (v2.0 review): once `metric_label` exists (2026-10-11 line), Stagwell's
   adjusted EBITDA guidance as its card's Profit line.
+  2026-10-29: `metric_label` comes in step 23; this line still needs its own yes (Stagwell's
+  Profit reads "▲ Raised · EPS $1.07 – $1.21").
 - 2026-10-15 (15a): `/curate` document mode could also draft guidance and KPI rows from
   slides or transcripts when the results release lacks them (e.g. Dentsu FY rows, guidance
   given only on the call). Decide after 15b shows what the documents yield.

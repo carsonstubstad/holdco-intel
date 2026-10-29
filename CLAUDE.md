@@ -23,7 +23,7 @@ docs/PLAN.md at the start of every session.
    series byte-identical). Local `make pipeline` runs may write `docs/data/` for testing;
    discard those changes (`git checkout -- docs/data`) before committing. `data/*.yaml`,
    `data/guidance.json`, `data/commentary.json` and `data/curate_state.json` are written
-   only by `/curate` or by the maintainer by hand (steps 08, 12, 14b, 15b and 22b). Code never
+   only by `/curate` or by the maintainer by hand (steps 08, 12, 14b, 15b, 22b and 23). Code never
    writes `data/`. The pipeline copies `data/*` into `docs/data/` as JSON; the site reads
    only `docs/data/`.
 5. Partial failure is normal. A collector that fails logs the failure into `status.json`
