@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-29T14:14:54Z",
+ "as_of": "2026-10-29T14:51:28Z",
  "definitions": {
   "PUB": "Organic growth: net revenue growth at constant scope and FX. Margin: operating margin on net revenue.",
   "OMC": "Organic growth: revenue growth excluding acquisitions, disposals and FX; from Q1 2026, Core Operations only, while revenue and margin stay consolidated. Margin: adjusted EBITA margin. Not comparable across the IPG close (Nov 2025).",
@@ -340,6 +340,17 @@
    "note": "Net revenue."
   },
   {
+   "company": "STGW",
+   "period": "Q3 2026",
+   "organic_growth_pct": 7,
+   "revenue_local_m": 664,
+   "currency": "USD",
+   "margin_metric": "adjusted EBITDA margin",
+   "margin_pct": 22,
+   "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/",
+   "note": "Net revenue."
+  },
+  {
    "company": "WPP",
    "period": "Q3 2024",
    "organic_growth_pct": 0.5,
@@ -470,6 +481,17 @@
    "margin_pct": 8.4,
    "source_url": "https://www.wpp.com/en/news/2026-interim-results",
    "note": "LFL revenue less pass-through costs (decreased 4.7%)."
+  },
+  {
+   "company": "WPP",
+   "period": "Q3 2026",
+   "organic_growth_pct": -2.1,
+   "revenue_local_m": 2411,
+   "currency": "GBP",
+   "margin_metric": null,
+   "margin_pct": null,
+   "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+   "note": "LFL revenue less pass-through costs."
   },
   {
    "company": "DENTSU",
