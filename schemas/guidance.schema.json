@@ -15,6 +15,7 @@
           "id": {"type": "string", "description": "company-metric-period-setdate, lowercase, e.g. pub-organic_growth-fy2026-2026-07-17"},
           "company": {"type": "string"},
           "metric": {"type": "string", "enum": ["organic_growth", "operating_margin", "revenue", "free_cash_flow", "eps", "other"]},
+          "metric_label": {"type": "string", "minLength": 3, "maxLength": 40, "description": "For metric other only: the metric's name copied from the quote, e.g. 'Adjusted EBITDA'."},
           "period": {"type": "string", "description": "FY2026, H2 2026, Q4 2026, medium_term"},
           "value": {"type": "string", "description": "As stated, e.g. '+4% to +5%', 'around 18%', 'low single digit decline'."},
           "unit": {"type": ["string", "null"], "description": "pct, pct_points, currency_m, text"},

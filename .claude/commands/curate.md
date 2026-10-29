@@ -77,12 +77,21 @@ Draft a record only for a forward-looking target the company states for a future
   `pub-organic_growth-fy2026-2026-07-17` (period slug: period lowercased, spaces removed).
 - `company`: the code as in press_releases.json (e.g. `PUB`).
 - `metric`: one of organic_growth, operating_margin, revenue, free_cash_flow, eps, other.
+- `metric_label`: for metric `other` only (leave it out otherwise). The metric's name copied
+  from the record's own quote, in the quote's case, at most 40 characters: the shortest run of
+  the quote's words that names the measure, e.g. `"Adjusted EBITDA"`; WPP's is
+  `"adjusted operating cash flow"`, not the 51-character "... before working capital". Never
+  inferred or paraphrased; `make validate` refuses a label not found in the quote as written.
 - `value`: exactly as stated, e.g. `"+1% to +2%"`, `"around 18%"`.
 - `unit`: pct, pct_points, currency_m, text, or null.
 - `period`: e.g. `"FY 2026"`, `"H2 2026"`, `"medium_term"`.
 - `set_date`: the release's `published` date.
 - `status` and `supersedes`: find the current record for the same company, metric and period
-  (current = no other record's `supersedes` points at it).
+  (current = no other record's `supersedes` points at it). For metric `other` it must also
+  have the same `metric_label`, compared ignoring case (a later quote may capitalise it
+  differently; the new record keeps its own quote's case), so a second "other" measure never
+  supersedes the first. Two `other` records for one company, period and release would share an
+  id: stop and ask the maintainer.
   - If one exists: `raised`, `held`, `cut` or `withdrawn` by comparing the two values;
     `supersedes` = its id. Never delete the old record.
   - If none exists: use the release's own explicit wording (raise/increase/upgrade → raised,
@@ -205,8 +214,8 @@ step 6b's rules hold except where this section says otherwise.
 
 ## 7. Propose and wait
 
-Show tables of: new guidance records (id, value, status, supersedes, verified), records they
-supersede, events to add, KPI rows to add, and anything dropped and why. Add a commentary
+Show tables of: new guidance records (id, metric_label, value, status, supersedes, verified),
+records they supersede, events to add, KPI rows to add, and anything dropped and why. Add a commentary
 block: company, source_type, theme, quote (first 12 words), FOUND/NOT FOUND, plus each
 company's headline (none in document mode).
 Then wait:

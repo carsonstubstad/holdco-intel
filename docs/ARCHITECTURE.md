@@ -48,7 +48,7 @@ Havas (HAVAS.AS), Dentsu (4324.T), Stagwell (STGW).
     │   ├── run.py                    orchestrates collectors, writes docs/data/*.json
     │   ├── backfill.py               one-time local price history backfill
     │   ├── check_symbols.py          local one-off: last close per ticker and FX pair (step 02)
-    │   ├── validate.py               validates data/ and docs/data/ against schemas/ (step 01)
+    │   ├── validate.py               validates data/ and docs/data/ against schemas/ (step 01); data/guidance.json's metric_label rule (step 23)
     │   ├── nudge.py                  prints the "Curate needed" Issue body, or nothing (step 06)
     │   └── verify_quote.py           deterministic quote-in-source check used by /curate
     ├── mcp_server/
@@ -233,7 +233,7 @@ Formal JSON Schema lives in `schemas/`. Summary of each file:
 - news.json: `{as_of, items: [{company, title, url, publisher, published, source, fetched_at}]}`
 - press_releases.json: `{as_of, last_curate_at, items: [{id, company, title, url, published, category, flagged, source, fetched_at}], new_since_last_curate: [id]}`
 - events.json: `{as_of, items: [{company, date, type, title, confirmed, source_url}]}`
-- guidance.json: `{as_of, records: [{id, company, metric, period, value, unit, status, set_date, quote, source_url, supersedes, curated_at}]}`
+- guidance.json: `{as_of, records: [{id, company, metric, metric_label?, period, value, unit, status, set_date, quote, source_url, supersedes, curated_at}]}`. `metric_label` is optional: metric other only, the metric's name copied from its quote (e.g. "Adjusted EBITDA"); `make validate` requires it on every "other" record in data/guidance.json, found in the quote as written, and refuses it on any other metric.
 - commentary.json: `{as_of, headlines: [{company, release_date, headline, headline_by, source_url, curated_at}], records: [{id, company, theme, quote, speaker, release_date, period, source_url, source_type?, curated_at, verified}]}`. `source_type` is optional: results_release, call_transcript, results_slides, annual_report, investor_day, strategy_plan or announcement; missing means results_release.
 - kpis.json: `{as_of, definitions: {CODE: text}, rows: [{company, period, organic_growth_pct, revenue_local_m, currency, margin_metric, margin_pct, source_url, note}]}`
 - status.json: `{run_at, runtime_ms, run_id, sources: {name: {ok, items, ms, error, last_ok}}, guidance_age_days, counts: {companies, sources_total, sources_ok, press_releases, flagged_new, news, events_upcoming}}`

@@ -799,7 +799,7 @@ Started 2026-10-29. The standing PM (prompts/standing-pm.md) turns Backlog lines
 maintainer approves into steps, one at a time, each with its own planning chat. `/curate`
 runs happen between steps, never during one. Step prompts are in `prompts/v2.1/`.
 
-- [ ] **23 A name for "other" guidance.** Executor, plan mode. A guidance record with metric
+- [x] **23 A name for "other" guidance.** Executor, plan mode. A guidance record with metric
   `other` gets an optional `metric_label` in `schemas/guidance.schema.json` (3 to 40
   characters): the metric's name copied from the record's own quote, in the quote's case.
   `make validate` (`pipeline/validate.py`, data/guidance.json only) refuses an "other" record

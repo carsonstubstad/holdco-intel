@@ -596,7 +596,7 @@ function renderChanges(ctx, data) {
       && inBrief(r.set_date, ctx.today, true)
       && !resultsOn.has(r.company + ' ' + day(r.set_date)))
       .map((r) => {
-        const what = [metricLabel(r.metric), String(r.period ?? '').replace(/_/g, ' ')]
+        const what = [metricLabel(r), String(r.period ?? '').replace(/_/g, ' ')]
           .filter(Boolean).join(' ');
         const value = String(r.value ?? '');
         return {date: day(r.set_date), code: r.company, kind: 'guidance',
@@ -937,7 +937,7 @@ function guidanceValue(name, slot, year) {
   const s = typeof r.status === 'string' ? r.status : 'unknown';
   const value = String(r.value ?? '');
   const period = String(r.period ?? '').replace(/_/g, ' ');
-  const pre = [slot.fallback ? metricLabel(r.metric) : null,
+  const pre = [slot.fallback ? metricLabel(r) : null,
     period && period !== 'FY ' + year ? period + ':' : null].filter(Boolean).join(' ');
   const date = isIsoDate(r.set_date) ? fmtDayIn(r.set_date, year) : null;
   const moved = TABLE_STATUSES.includes(s);
@@ -953,7 +953,7 @@ function guidanceValue(name, slot, year) {
   src.append(docArrow(true));
   src.className = 'g-src';
   src.setAttribute('aria-label',
-    `${name} ${metricLabel(r.metric)} guidance source${date ? ', ' + date : ''}`);
+    `${name} ${metricLabel(r)} guidance source${date ? ', ' + date : ''}`);
   return el('div', {className: 'g-line'}, text, src);
 }
 
@@ -2180,9 +2180,14 @@ function statusCounts(records, statuses, always) {
     .filter(([s, n]) => n > 0 || always.includes(s));
 }
 
-// "free_cash_flow" -> "Free cash flow", "eps" -> "EPS".
-function metricLabel(metric) {
-  return capitalize(String(metric ?? '').replace(/_/g, ' ').replace(/\beps\b/gi, 'EPS'));
+// A guidance record's metric name: "free_cash_flow" -> "Free cash flow", "eps" -> "EPS"; an
+// "other" record by its metric_label, first letter capitalised ("Adjusted operating cash flow"),
+// "Other" only without one (DESIGN.md revision 2026-10-29). Plain text, never markup.
+function metricLabel(r) {
+  const label = r.metric === 'other' && typeof r.metric_label === 'string'
+    ? r.metric_label.trim() : '';
+  if (label) return capitalize(label);
+  return capitalize(String(r.metric ?? '').replace(/_/g, ' ').replace(/\beps\b/gi, 'EPS'));
 }
 
 // G3's record lines: status changes first, then held, then anything else; newest set_date first
@@ -2202,8 +2207,10 @@ function guidanceRecordLines(records, year) {
       && !(value && quote.toLowerCase().includes(value.toLowerCase()));
     if (showQuote) lastQuote = quote;
     return el('li', {},
-      el('span', {className: 'g-label'}, metricLabel(r.metric),
-        el('span', {className: 'date'}, String(r.period ?? '').replace(/_/g, ' '))),
+      // Print sets the period after the label: it stays whole ("FY 2026"), and the <wbr> lets
+      // it take the next line on its own when the label fills the column.
+      el('span', {className: 'g-label'}, metricLabel(r), el('wbr', {}),
+        el('span', {className: 'date'}, String(r.period ?? '').replace(/[_ ]/g, NBSP))),
       // The value at 400 with its figures bold (J4).
       el('span', {className: 'g-rec-value'}, ...guidanceText(value)),
       // The set date links to the source with its ↗ (J3); without a valid date the link reads

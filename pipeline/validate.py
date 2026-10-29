@@ -1,4 +1,8 @@
-"""Validate data/ and docs/data/ files against schemas/. Run: python -m pipeline.validate"""
+"""Validate data/ and docs/data/ files against schemas/. Run: python -m pipeline.validate
+
+data/guidance.json also follows the metric_label rule (step 23): a record with metric "other"
+has a metric_label found in its quote as written (case-sensitive), and no other record has one.
+"""
 
 import copy
 import datetime
@@ -69,8 +73,23 @@ def load(path: Path) -> object:
     return json.loads(text)
 
 
+def guidance_label_errors(data: dict) -> list[str]:
+    """Return "<id>: <problem>" for each guidance record breaking the metric_label rule."""
+    errors = []
+    for r in data["records"]:
+        has_label = "metric_label" in r
+        if r["metric"] != "other":
+            if has_label:
+                errors.append(f"{r['id']}: metric_label on metric {r['metric']}")
+        elif not has_label:
+            errors.append(f"{r['id']}: metric other without metric_label")
+        elif r["metric_label"] not in r["quote"]:
+            errors.append(f"{r['id']}: metric_label {r['metric_label']!r} not in its quote")
+    return errors
+
+
 def validate_file(rel: str, schema_name: str) -> bool:
-    """Validate one file and print its result line; return False only on failure."""
+    """Validate one file (data/guidance.json also by its label rule); False only on failure."""
     path = ROOT / rel
     schema_path = SCHEMAS / f"{schema_name}.schema.json"
     if not path.exists():
@@ -91,6 +110,12 @@ def validate_file(rel: str, schema_name: str) -> bool:
         where = "/".join(str(p) for p in error.path) or "<root>"
         print(f"FAIL {rel}: {where}: {error.message}")
         return False
+    if rel == "data/guidance.json":
+        problems = guidance_label_errors(data)
+        for problem in problems:
+            print(f"FAIL {rel}: {problem}")
+        if problems:
+            return False
     print(f"ok {rel}")
     return True
 
