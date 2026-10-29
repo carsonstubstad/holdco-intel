@@ -315,6 +315,15 @@ rows:
     source_url: "https://www.havas.com/wp-content/uploads/2025/03/pr_annual-results-2024_en-v-def.pdf"
     note: "Net revenue."
   - company: STGW
+    period: Q3 2026
+    organic_growth_pct: 7
+    revenue_local_m: 664
+    currency: USD
+    margin_metric: adjusted EBITDA margin
+    margin_pct: 22
+    source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/"
+    note: "Net revenue."
+  - company: STGW
     period: Q2 2026
     organic_growth_pct: 5
     revenue_local_m: 632
@@ -386,6 +395,15 @@ rows:
     margin_pct: 19
     source_url: "https://www.stagwellglobal.com/stagwell-inc-nasdaq-stgw-reports-results-for-the-three-and-nine-months-ended-september-30-2024/"
     note: "Net revenue."
+  - company: WPP
+    period: Q3 2026
+    organic_growth_pct: -2.1
+    revenue_local_m: 2411
+    currency: GBP
+    margin_metric: null
+    margin_pct: null
+    source_url: "https://www.wpp.com/en/news/third-quarter-trading-update-2026"
+    note: "LFL revenue less pass-through costs."
   - company: WPP
     period: H1 2026
     organic_growth_pct: -4.7

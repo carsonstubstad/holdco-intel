@@ -47,6 +47,22 @@
       "headline_by": "curator",
       "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
       "curated_at": "2026-10-26T17:07:35Z"
+    },
+    {
+      "company": "WPP",
+      "release_date": "2026-10-29",
+      "headline": "WPP reports Q3 2026 revenue less pass-through costs down 2.1% LFL and maintains its full-year margin expectation of 12% to 13%.",
+      "headline_by": "curator",
+      "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+      "curated_at": "2026-10-29T14:48:21Z"
+    },
+    {
+      "company": "STGW",
+      "release_date": "2026-10-29",
+      "headline": "Stagwell reports Q3 2026 organic net revenue growth of 7% and raises its full-year 2026 adjusted EBITDA and adjusted EPS guidance.",
+      "headline_by": "curator",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/",
+      "curated_at": "2026-10-29T14:48:21Z"
     }
   ],
   "records": [
@@ -701,6 +717,136 @@
       "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx",
       "source_type": "results_release",
       "curated_at": "2026-10-26T17:07:35Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-strategy-2026-10-29-1",
+      "company": "WPP",
+      "theme": "strategy",
+      "quote": "We are on track to deliver phase one of Elevate28: stabilising our business performance and laying the foundations for a simpler, more unified WPP.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-ai_and_data-2026-10-29-1",
+      "company": "WPP",
+      "theme": "ai_and_data",
+      "quote": "Client demand remains healthy for our AI-enabled media, creative, production and enterprise solutions, powered by our agentic marketing platform WPP Open.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-clients_and_new_business-2026-10-29-1",
+      "company": "WPP",
+      "theme": "clients_and_new_business",
+      "quote": "Winning competitive pitches to renew long-standing partnerships with clients like The Coca-Cola Company and DoorDash provides further evidence of commercial momentum and client confidence in WPP’s ability to drive brand differentiation and business growth at a global scale.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-performance-2026-10-29-1",
+      "company": "WPP",
+      "theme": "performance",
+      "quote": "Our third quarter results show further sequential improvement in LFL growth, in line with our expectations.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-outlook-2026-10-29-1",
+      "company": "WPP",
+      "theme": "outlook",
+      "quote": "We remain focused on disciplined execution as we prepare for the ‘Build’ phase of Elevate28 and position WPP for a return to growth during 2027.",
+      "speaker": "Cindy Rose, CEO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "wpp-capital_allocation-2026-10-29-1",
+      "company": "WPP",
+      "theme": "capital_allocation",
+      "quote": "We maintained progress on delivering our targeted cost savings, as well as potential asset disposals and will provide updates in due course, as appropriate.",
+      "speaker": null,
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-performance-2026-10-29-1",
+      "company": "STGW",
+      "theme": "performance",
+      "quote": "We have more than doubled our initial Enterprise Technology Bookings goal for the year, saw 23% organic net revenue growth in Digital Transformation, and 108% organic growth in The Marketing Cloud.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-strategy-2026-10-29-1",
+      "company": "STGW",
+      "theme": "strategy",
+      "quote": "Software products, like our agentic Stagwell Machines, and the Digital Transformation segment are driving our business as we pivot from primarily marketing services to AI-powered marketing transformation.",
+      "speaker": "Mark Penn, Chairman and CEO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-capital_allocation-2026-10-29-1",
+      "company": "STGW",
+      "theme": "capital_allocation",
+      "quote": "Net leverage now stands at 2.7x, a 0.7x improvement year-over-year, and our lowest ever third quarter ratio.",
+      "speaker": "Ryan Greene, CFO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
+      "verified": true
+    },
+    {
+      "id": "stgw-outlook-2026-10-29-1",
+      "company": "STGW",
+      "theme": "outlook",
+      "quote": "Results through the first three quarters give us the confidence to raise our adjusted EBITDA and adjusted EPS guidance today.",
+      "speaker": "Ryan Greene, CFO",
+      "release_date": "2026-10-29",
+      "period": "Q3 2026",
+      "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/",
+      "source_type": "results_release",
+      "curated_at": "2026-10-29T14:48:21Z",
       "verified": true
     }
   ]
