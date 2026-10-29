@@ -1,126 +1,126 @@
 {
- "run_at": "2026-10-29T01:54:18Z",
- "runtime_ms": 31830,
- "run_id": "40803176321",
+ "run_at": "2026-10-29T14:14:54Z",
+ "runtime_ms": 30978,
+ "run_id": "40889540054",
  "sources": {
   "companies": {
    "ok": true,
    "items": 6,
-   "ms": 43,
+   "ms": 0,
    "error": null,
-   "last_ok": "2026-10-29T01:54:18Z"
+   "last_ok": "2026-10-29T14:14:54Z"
   },
   "prices": {
    "ok": true,
    "items": 10,
-   "ms": 3580,
+   "ms": 3539,
    "error": null,
-   "last_ok": "2026-10-29T01:54:22Z"
+   "last_ok": "2026-10-29T14:14:57Z"
   },
   "press_releases:PUB": {
    "ok": true,
    "items": 1112,
-   "ms": 3216,
+   "ms": 2485,
    "error": null,
-   "last_ok": "2026-10-29T01:54:25Z"
+   "last_ok": "2026-10-29T14:15:00Z"
   },
   "press_releases:OMC": {
    "ok": true,
    "items": 20,
-   "ms": 385,
+   "ms": 361,
    "error": null,
-   "last_ok": "2026-10-29T01:54:26Z"
+   "last_ok": "2026-10-29T14:15:00Z"
   },
   "press_releases:WPP": {
    "ok": true,
    "items": 12,
-   "ms": 472,
+   "ms": 389,
    "error": null,
-   "last_ok": "2026-10-29T01:54:26Z"
+   "last_ok": "2026-10-29T14:15:00Z"
   },
   "press_releases:HAVAS": {
    "ok": true,
    "items": 10,
-   "ms": 480,
+   "ms": 716,
    "error": null,
-   "last_ok": "2026-10-29T01:54:27Z"
+   "last_ok": "2026-10-29T14:15:01Z"
   },
   "press_releases:DENTSU": {
    "ok": true,
    "items": 100,
-   "ms": 797,
+   "ms": 957,
    "error": null,
-   "last_ok": "2026-10-29T01:54:27Z"
+   "last_ok": "2026-10-29T14:15:02Z"
   },
   "press_releases:STGW": {
    "ok": true,
    "items": 10,
-   "ms": 335,
+   "ms": 330,
    "error": null,
-   "last_ok": "2026-10-29T01:54:28Z"
+   "last_ok": "2026-10-29T14:15:02Z"
   },
   "events": {
    "ok": true,
    "items": 40,
-   "ms": 7,
+   "ms": 8,
    "error": null,
-   "last_ok": "2026-10-29T01:54:28Z"
+   "last_ok": "2026-10-29T14:15:02Z"
   },
   "calendar:PUB": {
    "ok": true,
    "items": 63,
-   "ms": 1542,
+   "ms": 1257,
    "error": null,
-   "last_ok": "2026-10-29T01:54:29Z"
+   "last_ok": "2026-10-29T14:15:04Z"
   },
   "calendar:OMC": {
    "ok": true,
    "items": 14,
-   "ms": 10215,
+   "ms": 10189,
    "error": null,
-   "last_ok": "2026-10-29T01:54:39Z"
+   "last_ok": "2026-10-29T14:15:14Z"
   },
   "calendar:WPP": {
    "ok": true,
-   "items": 4,
-   "ms": 150,
+   "items": 5,
+   "ms": 211,
    "error": null,
-   "last_ok": "2026-10-29T01:54:40Z"
+   "last_ok": "2026-10-29T14:15:14Z"
   },
   "calendar:HAVAS": {
    "ok": true,
    "items": 7,
-   "ms": 10332,
+   "ms": 10189,
    "error": null,
-   "last_ok": "2026-10-29T01:54:50Z"
+   "last_ok": "2026-10-29T14:15:24Z"
   },
   "calendar:STGW": {
    "ok": true,
    "items": 28,
-   "ms": 209,
+   "ms": 142,
    "error": null,
-   "last_ok": "2026-10-29T01:54:50Z"
+   "last_ok": "2026-10-29T14:15:24Z"
   },
   "guidance": {
    "ok": true,
    "items": 25,
-   "ms": 0,
+   "ms": 9,
    "error": null,
-   "last_ok": "2026-10-29T01:54:50Z"
+   "last_ok": "2026-10-29T14:15:25Z"
   },
   "commentary": {
    "ok": true,
    "items": 52,
-   "ms": 5,
+   "ms": 110,
    "error": null,
-   "last_ok": "2026-10-29T01:54:50Z"
+   "last_ok": "2026-10-29T14:15:25Z"
   },
   "kpis": {
    "ok": true,
    "items": 66,
-   "ms": 34,
+   "ms": 50,
    "error": null,
-   "last_ok": "2026-10-29T01:54:50Z"
+   "last_ok": "2026-10-29T14:15:25Z"
   }
  },
  "guidance_age_days": 2,
@@ -128,8 +128,8 @@
   "companies": 6,
   "sources_total": 17,
   "sources_ok": 17,
-  "press_releases": 110,
-  "flagged_new": 1,
+  "press_releases": 113,
+  "flagged_new": 3,
   "news": 0,
   "events_upcoming": 3
  }
