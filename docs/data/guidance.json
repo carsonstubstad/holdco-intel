@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-29T14:51:28Z",
+ "as_of": "2026-10-29T19:18:06Z",
  "records": [
   {
    "id": "pub-organic_growth-fy2026-2026-07-16",
@@ -155,6 +155,7 @@
    "id": "stgw-other-fy2026-2026-07-30",
    "company": "STGW",
    "metric": "other",
+   "metric_label": "Adjusted EBITDA",
    "value": "$475 million to $525 million",
    "unit": "currency_m",
    "period": "FY 2026",
@@ -215,6 +216,7 @@
    "id": "wpp-other-fy2026-2026-08-06",
    "company": "WPP",
    "metric": "other",
+   "metric_label": "adjusted operating cash flow",
    "value": "\u00a3800m to \u00a3900m",
    "unit": "currency_m",
    "period": "FY 2026",
@@ -410,6 +412,7 @@
    "id": "wpp-other-fy2026-2026-10-29",
    "company": "WPP",
    "metric": "other",
+   "metric_label": "adjusted operating cash flow",
    "value": "\u00a3800m to \u00a3900m",
    "unit": "currency_m",
    "period": "FY 2026",
@@ -440,6 +443,7 @@
    "id": "stgw-other-fy2026-2026-10-29",
    "company": "STGW",
    "metric": "other",
+   "metric_label": "Adjusted EBITDA",
    "value": "$490 million to $540 million",
    "unit": "currency_m",
    "period": "FY 2026",
