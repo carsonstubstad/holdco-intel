@@ -831,6 +831,25 @@ runs happen between steps, never during one. Step prompts are in `prompts/v2.1/`
   /curate step.
   2026-10-29: yes (maintainer, to the standing PM), after the Q3 run raised Stagwell's
   adjusted EBITDA guidance to $490m to $540m, which All guidance shows as "Other".
+  Built 2026-10-29 in one session with one maintainer-approved polish round (print keeps the
+  period whole). Labels entered by hand (rule 4), each copied from its own quote: Stagwell
+  "Adjusted EBITDA" (30 Jul, 29 Oct), WPP "adjusted operating cash flow" (6 Aug, 29 Oct; the
+  quote's measure goes on "before working capital"). The page shows them in All guidance
+  ("Adjusted EBITDA" ▲ Raised, "Adjusted operating cash flow" = Held, each over "FY 2026") and
+  in What's new's guidance rows ("Adjusted EBITDA FY 2026 $490 million to $540 million", seen
+  in a forced test state: Stagwell alone, its 29 Oct results event left out, clock at 30 Oct;
+  at 375 that row runs to three lines). One helper serves all four callers, as text.
+  `make validate` refuses an "other" record in data/guidance.json without a label, a label
+  not in its quote as written (case-sensitive) or a label on another metric; shown failing
+  with WPP's 29 Oct label removed, then restored from a backup. /curate fills the label,
+  matches an "other" record's predecessor by label ignoring case, stops on an id collision,
+  and shows the label in section 7. Tests: 5 new, 294 passed. Lines per name: Stagwell 1
+  everywhere; WPP 2 at 1440 ("cash" / "flow", row 52 to 68px), 1 at 375, 1 in print with
+  "FY 2026" whole on the line below (polish: no-break spaces in the period and a line-break
+  point before it; row 28 to 42px). Pages: A4 5 and Letter 5, before and after. Zero console
+  errors. Left as it was: style.css (the label column stays 9rem, a wrapped label accepted),
+  the peer table (it never picks "other"), core/, the MCP server and the pipeline (the label
+  passes through untouched).
 
 ## Parked (later, after v2.0)
 
