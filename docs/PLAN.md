@@ -897,12 +897,14 @@ pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
   (hard rule 5). The listed figures are checked against data/ at `/curate` time. The step
   prompt specifies what counts as a number (years, periods and counts), formatting, the
   company match, superseded figures, and which read the site shows. `.claude/commands/curate.md`:
-  every run ends by drafting a new read for approval, and `/curate --read` drafts one alone; a
-  read copies figures and never computes one. `core/commentary.py`, the pipeline's copy and
-  MCP `get_commentary` carry reads. (2) Size inputs: each company's revenue basis named in
-  `data/kpis.yaml` definitions (hand entry, CLAUDE.md rule 4); Stagwell's share count checked
-  against a stagwellglobal.com document, or left `shares_verified: false` so the site marks
-  its market cap and price-to-sales unverified. (3) `docs/ARCHITECTURE.md` names reads.
+  every run but document mode ends by drafting a new read for approval, and `/curate --read`
+  drafts one alone; a read copies figures and never computes one. `core/commentary.py`, the
+  pipeline's copy and MCP `get_commentary` carry reads. (2) Size inputs: each company's
+  revenue basis named in `data/kpis.yaml` definitions (hand entry, CLAUDE.md rule 4; the
+  sentences also show in Quarterly history's definitions, so print pages are counted);
+  Stagwell's share count checked against its newest results release, or left
+  `shares_verified: false` (companies.json carries it) so the site marks its market cap and
+  price-to-sales unverified. (3) `docs/ARCHITECTURE.md` names reads.
   Acceptance: `make check` and `make validate` green; `make validate` failing on a read whose
   text has one figure changed, then restored from a backup; MCP returns reads; no change under
   `docs/` but ARCHITECTURE.md and this file. Commit: `step 24a: industry read data and size inputs`.
