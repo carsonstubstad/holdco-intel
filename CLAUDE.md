@@ -23,7 +23,7 @@ docs/PLAN.md at the start of every session.
    series byte-identical). Local `make pipeline` runs may write `docs/data/` for testing;
    discard those changes (`git checkout -- docs/data`) before committing. `data/*.yaml`,
    `data/guidance.json`, `data/commentary.json` and `data/curate_state.json` are written
-   only by `/curate` or by the maintainer by hand (steps 08, 12, 14b, 15b, 22b and 23). Code never
+   only by `/curate` or by the maintainer by hand (steps 08, 12, 14b, 15b, 22b, 23 and 24a). Code never
    writes `data/`. The pipeline copies `data/*` into `docs/data/` as JSON; the site reads
    only `docs/data/`.
 5. Partial failure is normal. A collector that fails logs the failure into `status.json`
@@ -77,7 +77,9 @@ docs/PLAN.md at the start of every session.
   email), a 20 second timeout and one retry. Tests never touch the network: every collector has a
   recorded fixture in `tests/fixtures/` and a test that parses it.
 - Dates are ISO 8601 strings. Money stays in the company's reporting currency with a
-  `currency` field; the only USD conversion is market cap, labelled approximate.
+  `currency` field. The only USD conversions are market cap and, from v3.0, the site's
+  last-12-months revenue and price-to-sales (at the newest FX close on file), each labelled
+  approximate.
 - Logging: `print()` with a `[collector]` prefix is fine; the pipeline captures stdout.
 - Style: ruff defaults, 100 char lines, docstring on every public function stating the
   contract in one line.
@@ -97,7 +99,7 @@ paste its output. `make serve` blocks: run it in the background, check the page 
 `curl -s localhost:8000 | head` plus a browser look, then stop it.
 
 A step is not done until its acceptance criteria in docs/PLAN.md are met and the box
-is ticked in the same commit. Exceptions: steps 09, 14b and 15b, where /curate makes its own
+is ticked in the same commit. Exceptions: steps 09, 14b, 15b and 24b, where /curate makes its own
 data commit and the box is ticked in the step's closing commit.
 
 ## How to work in this repo

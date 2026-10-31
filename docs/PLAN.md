@@ -851,12 +851,132 @@ runs happen between steps, never during one. Step prompts are in `prompts/v2.1/`
   the peer table (it never picks "other"), core/, the MCP server and the pipeline (the label
   passes through untouched).
 
+## v3.0: the read, company pages and compare
+
+Planned 2026-10-31 (maintainer-approved in the v3.0 planning chat), from a v3.0 review
+(trusted reader) and the maintainer's own points, with an independent plan-reviewer pass.
+Executives stay the first reader; a technical visitor, who looks at how it was built for
+them, is the second. The page leads with the answer and says less: an overview (The read,
+six company badges, share price), a page per company, and Compare, with companies as columns
+and metrics as rows. A Claude-drafted Industry read is written at each `/curate` run on the
+maintainer's laptop, its figures checked by a script and approved by the maintainer; the
+pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
+- Order: 24a, 24b, 25, 26a, 26b, 27a, 27b, 28, 29, 30, in number order. 24a, 24b and 25 push
+  as usual; pushes are held from 26a until 28 is built, so the live page never shows half a
+  redesign. `/curate` runs happen between steps, never during one: 24b is the first
+  `/curate --read`. Dentsu's Q3 (about 13 Nov) is v2.1's 23b, a hand entry; it waits until 28
+  is pushed unless it lands before 26a starts, and `/curate --read` then refreshes the read.
+  Results from 2 Feb 2027 (PUB 2 Feb, Dentsu 12 Feb, Havas 16 Feb, Omnicom 17 Feb, WPP 25
+  Feb, Stagwell 9 Mar, estimates) come after v3.0.
+- Reverses two v2.0 decisions: "no LLM-written summary on the site" (now the Industry read)
+  and "no market cap" (now Size, with revenue in USD and price-to-sales, all labelled
+  approximate; CLAUDE.md's money rule amended). DESIGN.md sections 1 and 9 are amended in 25.
+- Removed or moved: the capsule's chips become the badge row (the URL hash and Copy link
+  stay); the row-per-company Peer table becomes the badges and Compare; the two Key takeaways
+  and What's new move into The read, What's new as an activity timeline; the four folds go
+  (In their words to company pages and a Compare quote row, Press releases to the timeline
+  and company pages, All guidance to company pages and Compare, Quarterly history to the
+  badges' lines, company-page charts and Compare); Data health stays at the bottom, joined
+  with How it's made.
+- Left out on purpose: real company logos (badges instead); a 3D chart or an industry map
+  (index.html's CSP has no 'unsafe-eval', a rotating chart takes phone swipes, and the badges
+  already compare); a guidance range bar (guidance values are text); EV multiples (they need
+  net debt each half); a peer median (periods differ); an AI read that updates itself daily
+  (hard rule 2); the curator's per-release headlines on the page (the read replaces them);
+  news (Parked, with the 2026-10-29 probe); the Backlog (the maintainer kept it out of v3.0).
+- Design items from the 26a to 28 reviews that do not fit that step's polish round go to the
+  Backlog marked "for 29".
+
+- [ ] **24a Size and the read: build.** Executor, plan mode, no site change. (1) The Industry
+  read: `data/commentary.json` gains `reads`, each with its date, two or three sentences
+  across all six companies, the figures it cites as a list (company, field, period, value as
+  on file) and the required http(s) source_urls of the records it cites. The schema and `make
+  validate` check a read against itself only: every number in its text is one of its own
+  listed figures, written by DESIGN.md's figure rule (J4). So a later hand edit to kpis.yaml
+  or guidance.json never fails the daily run, whose validate step runs before its commit
+  (hard rule 5). The listed figures are checked against data/ at `/curate` time. The step
+  prompt specifies what counts as a number (years, periods and counts), formatting, the
+  company match, superseded figures, and which read the site shows. `.claude/commands/curate.md`:
+  every run ends by drafting a new read for approval, and `/curate --read` drafts one alone; a
+  read copies figures and never computes one. `core/commentary.py`, the pipeline's copy and
+  MCP `get_commentary` carry reads. (2) Size inputs: each company's revenue basis named in
+  `data/kpis.yaml` definitions (hand entry, CLAUDE.md rule 4); Stagwell's share count checked
+  against a stagwellglobal.com document, or left `shares_verified: false` so the site marks
+  its market cap and price-to-sales unverified. (3) `docs/ARCHITECTURE.md` names reads.
+  Acceptance: `make check` and `make validate` green; `make validate` failing on a read whose
+  text has one figure changed, then restored from a backup; MCP returns reads; no change under
+  `docs/` but ARCHITECTURE.md and this file. Commit: `step 24a: industry read data and size inputs`.
+- [ ] **24b First Industry read.** The maintainer, in a fresh session (a changed command loads
+  only in a new one), runs `/curate --read`. /curate makes its own data commit; the box is
+  ticked in the step's closing commit. Acceptance: one read in data/commentary.json, `make
+  validate` green; after the push and the daily run, docs/data/commentary.json and MCP
+  `get_commentary` return it.
+- [ ] **25 Design v3.0.** Planning chat with Cowork, creative-director and design-reviewer; no
+  executor session. Keeps the Plot Sheet look (tokens, type, paper). One Cowork layout round
+  (2 to 3 layouts; a second round only if needed), with real data and the 24b read, for the
+  overview, a company page and Compare at 1440 and 375, and print page 1. It decides: the
+  badges (one metric each with its small picture: an 8-quarter line for growth, a bar for
+  margin and size, a mini price line for YTD; each naming its period and basis; contrast on
+  every badge, since white fails 4.5:1 on Publicis, Omnicom and Stagwell's colors and Havas's
+  is direction red); the activity timeline (six lanes from 30 days back to each company's
+  next results, dots by type); the URL hash, defined once, with v2.0 links such as `#PUB,WPP`
+  still working, plus Esc, Back and printing from a company page; Compare's rows and which
+  guidance records they show; last-12-months revenue (the last four quarters, else the last
+  FY minus its H1 plus this H1) and price-to-sales, with Omnicom's "–" and its reason while
+  its window straddles the IPG close; How it's made and Data health as one diagram; and a 3D
+  feature (2 to 3 options, such as the six-dot mark turning on scroll or an isometric How
+  it's made), each tested against the CSP, still under reduced motion, flat in print and
+  never taking a phone swipe. For each new part it lists the DESIGN.md rules kept (E1 with
+  tweak 176fa02, L3, E2, C2, J1, J4, C5, G2, step 23's labels, first-screen and page-height
+  checks). Output: a DESIGN.md v3.0 revision with must items for 26a to 28, sections 1 and 9
+  amended (company colors on badges; market cap, sparklines and the Claude-drafted read
+  leave "out of scope"). Commit: `step 25: v3.0 design brief`.
+- [ ] **26a The read and the timeline.** Site only, one or two sessions. The header on one
+  line (with the 3D feature if 25 puts it there); The read under it: the newest Industry read
+  with its date and label, three computed lines, and the activity timeline in place of What's
+  new, its text rows kept for phones and screen readers. Acceptance: DESIGN.md's 26a items;
+  screenshots at 1440, 1024, 390 and 375; zero console errors. Commit: `step 26a: the read
+  and activity timeline`. Not pushed.
+- [ ] **26b Badges and share price.** Site only. The badge row replaces the capsule's chips and
+  the row-per-company Peer table: one metric each with its small picture, the Growth / Margin
+  / YTD / Size switch, Copy link. Share price shows % change from the window start with a 0%
+  line. Acceptance as 26a. Commit: `step 26b: company badges and percent-change chart`. Not
+  pushed.
+- [ ] **27a Company page.** Site only. A badge opens its company's page: Size (market cap,
+  last-12-months revenue in USD beside its own currency, price-to-sales), organic growth with
+  its 8-quarter chart, margin, every current guidance record, share moves, In their words
+  (all themes), 30 days of press releases, next results. Acceptance as 26a, with a page for
+  each of the six. Commit: `step 27a: company pages`. Not pushed.
+- [ ] **27b Compare.** Site only, plus `docs/ARCHITECTURE.md` section 7. "+ Compare" and
+  "Compare all six": metrics as rows, the chosen companies as columns, each figure with its
+  period (Size; Growth with the last four quarters; Profit; Guidance with ▲, = or ▼; Market;
+  a quote row for a chosen theme; Next results; definitions). The four folds go. Acceptance as
+  26a, with two columns at 375. Commit: `step 27b: compare view`. Not pushed.
+- [ ] **28 Print and How it's made.** Site only. The handout rebuilt: page 1 holds The read,
+  the badges and Compare with all six, then quotes; at most 5 pages on A4 and on Letter. How
+  it's made and Data health as one diagram at the bottom, each stage with its live status.
+  Acceptance as 26a, plus pages counted on A4 and Letter. Commit: `step 28: print handout
+  and how it's made`. Then push, on the maintainer's word.
+- [ ] **29 Final design pass.** The planning chat and design-reviewer review the built page
+  with real data; the maintainer picks fixes, removal first; one executor session builds them.
+  Commit: `step 29: v3.0 final polish`.
+- [ ] **30 Share it.** Executor. The README rewritten for v3.0 (what a reader gets, how it is
+  built, where Claude is used and how its words are checked); the intro line and meta
+  description; live checks after the push. Commit: `step 30: ready to share v3.0`.
+
 ## Parked (later, after v2.0)
 
 Renamed from "Parked (v2)" on 2026-10-15, so it is not confused with the v2.0 steps.
 
 - Deal tracker (`data/deals.yaml`, panel, /curate extension).
 - News panel on the site (collector exists from step 04; data is in docs/data/news.json).
+  2026-10-29 (v3.0 planning): probed once. Yahoo news via yfinance (an allowed source)
+  returned 0 to 20 items per company, mostly automated stock write-ups and newswire
+  releases, none for Havas. Trade-press RSS (Marketing Dive, Digiday, Adweek) opens and
+  robots.txt allows it, but none of the 35 newest titles named one of the six, and Adweek and
+  Digiday are partly paywalled (hard rule 3). Kept parked; if it returns, count real matches
+  for a week first, and keep news out of the Industry read (curate.md takes URLs only from
+  press_releases.json).
 - EDGAR reported financials as enrichment.
 - AI value chain watchlist (`config/ai-value-chain.yaml`).
 - Alpha Vantage fallback (only if yfinance fails on the runner for several days).
