@@ -908,6 +908,23 @@ pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
   Acceptance: `make check` and `make validate` green; `make validate` failing on a read whose
   text has one figure changed, then restored from a backup; MCP returns reads; no change under
   `docs/` but ARCHITECTURE.md and this file. Commit: `step 24a: industry read data and size inputs`.
+  Built 2026-11-01 in one session with one maintainer-approved polish round (Omnicom's revenue
+  sentence in its rows' own words). `make validate` checks each read against its own figures;
+  `python -m pipeline.validate --check-reads [-]` checks the newest read, or a draft on stdin,
+  against data/, and only /curate runs it; with no arguments validate is unchanged. Beyond the
+  prompt (maintainer yes): a results date names its year when it is not the read's ("2 Feb
+  2027"); a revenue figure carries its row's currency sign; a figure counts only on clean edges
+  ("2%" never inside "22%"); a schema error names its record's id. Revenue bases, hand entry
+  (rule 4): Publicis, Havas, Dentsu and Stagwell "Revenue: net revenue." (their rows' notes);
+  Omnicom "Revenue: consolidated revenue." (notes: "consolidated revenue and margin"); WPP
+  "Revenue: revenue less pass-through costs." (its Q4 2024 and FY 2025 notes; no fetch).
+  Stagwell: its 29 Oct release, read to the end, names Class A and Class C only in a footnote,
+  with no counts, so the watchlist is unchanged and `shares_verified` stays false (Backlog).
+  Tests: tests/test_validate.py (25 cases: 11 self-check refusals, 9 data-check refusals,
+  no-argument validate unchanged), reads in test_commentary.py (core and MCP), shares_verified
+  in test_pipeline.py; 322 pass. Print stays 5 pages on A4 and Letter. Left as it was: the
+  page's "Curated" stamp (app.js `curatedAt`) does not count reads (step 26a); ARCHITECTURE.md
+  section 7 (step 27b).
 - [ ] **24b First Industry read.** The maintainer, in a fresh session (a changed command loads
   only in a new one), runs `/curate --read`. /curate makes its own data commit; the box is
   ticked in the step's closing commit. Acceptance: one read in data/commentary.json, `make
@@ -1119,3 +1136,8 @@ new step, Parked, or no (breaks a hard rule), then moves the line.
 - 2026-10-28 (22b): the spreadsheet's name carries the quarter (`qcr202602e.xlsx`). If Dentsu
   replaces it after its Q3 results (about 13 Nov), the Q1 and Q2 2026 rows' links break:
   check then, and repoint them in that quarter's hand entry.
+- 2026-11-01 (24a): Stagwell's share count stays unverified. Its 29 Oct results release names
+  Class A and Class C shares only in a footnote, with no counts. A Stagwell document on its own
+  domain that states both counts (EDGAR stays out) would let a hand entry set
+  `shares_outstanding_m` and `shares_verified: true`; until then the site marks Stagwell's
+  market cap and price-to-sales unverified.
