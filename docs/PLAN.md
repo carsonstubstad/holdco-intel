@@ -925,11 +925,18 @@ pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
   in test_pipeline.py; 322 pass. Print stays 5 pages on A4 and Letter. Left as it was: the
   page's "Curated" stamp (app.js `curatedAt`) does not count reads (step 26a); ARCHITECTURE.md
   section 7 (step 27b).
-- [ ] **24b First Industry read.** The maintainer, in a fresh session (a changed command loads
+- [x] **24b First Industry read.** The maintainer, in a fresh session (a changed command loads
   only in a new one), runs `/curate --read`. /curate makes its own data commit; the box is
   ticked in the step's closing commit. Acceptance: one read in data/commentary.json, `make
   validate` green; after the push and the daily run, docs/data/commentary.json and MCP
   `get_commentary` return it.
+  Built 2026-11-01: read-2026-11-01-1, three sentences, 303 characters, 6 figures (Omnicom,
+  Stagwell and WPP Q3 2026 organic growth; Stagwell's FY 2026 adjusted EBITDA guidance as its
+  whole value; Dentsu's Q2 2026 organic growth and its next results date, "13 Nov (est.)");
+  `--check-reads` ok; committed in 14cd319 (data/commentary.json only). One wording edit at the
+  maintainer's word: Dentsu's H1 2026 (+0.3%) became Q2 2026 (−0.2%), the figure the page shows
+  (the quarter wins a tie with the half-year). "Publicis, Havas and WPP held theirs" carries no
+  figure, so the planning chat checked it by hand (every Q3 record held).
 - [ ] **25 Design v3.0.** Planning chat with Cowork, creative-director and design-reviewer; no
   executor session. Keeps the Plot Sheet look (tokens, type, paper). One Cowork layout round
   (2 to 3 layouts; a second round only if needed), with real data and the 24b read, for the
