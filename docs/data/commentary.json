@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-01T01:21:39Z",
+ "as_of": "2026-11-01T17:38:14Z",
  "headlines": [
   {
    "company": "PUB",
@@ -849,6 +849,71 @@
    "source_type": "results_release",
    "curated_at": "2026-10-29T14:48:21Z",
    "verified": true
+  }
+ ],
+ "reads": [
+  {
+   "id": "read-2026-11-01-1",
+   "date": "2026-11-01",
+   "text": "In Q3, Omnicom grew fastest at +7.2% (Core Operations only), ahead of Stagwell at +7%, while WPP was lowest at \u22122.1%. Stagwell raised FY 2026 Adjusted EBITDA guidance to $490 million to $540 million, while Publicis, Havas and WPP held theirs. Dentsu, at \u22120.2% for Q2 2026, reports next on 13 Nov (est.).",
+   "figures": [
+    {
+     "company": "OMC",
+     "field": "organic_growth_pct",
+     "period": "Q3 2026",
+     "text": "+7.2%",
+     "value": 7.2,
+     "ref": null,
+     "source_url": "https://investor.omc.com/news/news-details/2026/OMNICOM-REPORTS-THIRD-QUARTER-2026-RESULTS/default.aspx"
+    },
+    {
+     "company": "STGW",
+     "field": "organic_growth_pct",
+     "period": "Q3 2026",
+     "text": "+7%",
+     "value": 7,
+     "ref": null,
+     "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/"
+    },
+    {
+     "company": "WPP",
+     "field": "organic_growth_pct",
+     "period": "Q3 2026",
+     "text": "\u22122.1%",
+     "value": -2.1,
+     "ref": null,
+     "source_url": "https://www.wpp.com/en/news/third-quarter-trading-update-2026"
+    },
+    {
+     "company": "STGW",
+     "field": "guidance",
+     "period": "FY 2026",
+     "text": "$490 million to $540 million",
+     "value": null,
+     "ref": "stgw-other-fy2026-2026-10-29",
+     "source_url": "https://www.stagwellglobal.com/stagwell-inc-nasdaqstgw-reports-results-for-the-three-and-nine-months-ended-september-30-2026/"
+    },
+    {
+     "company": "DENTSU",
+     "field": "organic_growth_pct",
+     "period": "Q2 2026",
+     "text": "\u22120.2%",
+     "value": -0.2,
+     "ref": null,
+     "source_url": "https://www.group.dentsu.com/en/ir/common/xls/qcr202602e.xlsx"
+    },
+    {
+     "company": "DENTSU",
+     "field": "results_date",
+     "period": null,
+     "text": "13 Nov (est.)",
+     "value": null,
+     "ref": null,
+     "source_url": "https://www.group.dentsu.com/en/ir/calendar/"
+    }
+   ],
+   "drafted_by": "claude",
+   "curated_at": "2026-11-01T17:36:35Z"
   }
  ]
 }

@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-01T01:21:39Z",
+ "as_of": "2026-11-01T17:38:14Z",
  "companies": [
   {
    "code": "PUB",
@@ -7,7 +7,8 @@
    "ticker": "PUB.PA",
    "exchange": "Euronext Paris",
    "currency": "EUR",
-   "color": "#9A7D2E"
+   "color": "#9A7D2E",
+   "shares_verified": true
   },
   {
    "code": "OMC",
@@ -15,7 +16,8 @@
    "ticker": "OMC",
    "exchange": "NYSE",
    "currency": "USD",
-   "color": "#d95f02"
+   "color": "#d95f02",
+   "shares_verified": true
   },
   {
    "code": "WPP",
@@ -23,7 +25,8 @@
    "ticker": "WPP.L",
    "exchange": "London Stock Exchange",
    "currency": "GBP",
-   "color": "#191D63"
+   "color": "#191D63",
+   "shares_verified": true
   },
   {
    "code": "HAVAS",
@@ -31,7 +34,8 @@
    "ticker": "HAVAS.AS",
    "exchange": "Euronext Amsterdam",
    "currency": "EUR",
-   "color": "#E2001A"
+   "color": "#E2001A",
+   "shares_verified": true
   },
   {
    "code": "DENTSU",
@@ -39,7 +43,8 @@
    "ticker": "4324.T",
    "exchange": "Tokyo Stock Exchange",
    "currency": "JPY",
-   "color": "#9467bd"
+   "color": "#9467bd",
+   "shares_verified": true
   },
   {
    "code": "STGW",
@@ -47,7 +52,8 @@
    "ticker": "STGW",
    "exchange": "NASDAQ",
    "currency": "USD",
-   "color": "#4A9AB9"
+   "color": "#4A9AB9",
+   "shares_verified": false
   }
  ],
  "benchmark": {
