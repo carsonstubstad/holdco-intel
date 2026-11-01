@@ -49,6 +49,43 @@
           "verified": {"const": true, "description": "verify_quote.py passed; unverified records are never written."}
         }
       }
+    },
+    "reads": {
+      "type": "array",
+      "description": "Industry read: drafted by Claude in /curate from data on file, approved by the maintainer. make validate checks each read against its own figures; validate --check-reads checks them against data/.",
+      "items": {
+        "type": "object",
+        "required": ["id", "date", "text", "figures", "drafted_by", "curated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^read-[0-9]{4}-[0-9]{2}-[0-9]{2}-[1-9][0-9]*$",
+            "description": "read-YYYY-MM-DD-n, n counting from 1 per date"
+          },
+          "date": {"type": "string", "format": "date", "description": "the day it was drafted"},
+          "text": {"type": "string", "maxLength": 450, "description": "2 or 3 sentences"},
+          "figures": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 12,
+            "items": {
+              "type": "object",
+              "required": ["company", "field", "period", "text", "value", "ref", "source_url"],
+              "properties": {
+                "company": {"type": "string"},
+                "field": {"type": "string", "enum": ["organic_growth_pct", "margin_pct", "revenue_local_m", "guidance", "results_date"]},
+                "period": {"type": ["string", "null"], "description": "the KPI row's or guidance record's period; null for results_date"},
+                "text": {"type": "string", "minLength": 1, "description": "the figure exactly as written in the read"},
+                "value": {"type": ["number", "null"], "description": "a number for the three KPI fields, else null"},
+                "ref": {"type": ["string", "null"], "description": "the guidance record id for guidance, else null"},
+                "source_url": {"type": "string", "format": "uri", "description": "the KPI row's, guidance record's or event's"}
+              }
+            }
+          },
+          "drafted_by": {"const": "claude"},
+          "curated_at": {"type": "string", "format": "date-time"}
+        }
+      }
     }
   }
 }

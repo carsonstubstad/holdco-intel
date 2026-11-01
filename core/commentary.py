@@ -31,6 +31,11 @@ def _kind(item: dict) -> tuple[str, str]:
     return item["company"], item.get("source_type") or "results_release"
 
 
+def _read_key(read: dict) -> tuple[str, int]:
+    """(date, n) from a read, so read-2026-11-01-2 sorts after read-2026-11-01-1."""
+    return read["date"], int(str(read["id"]).rsplit("-", 1)[-1])
+
+
 def get_commentary(
     code: str | None = None,
     theme: str | None = None,
@@ -38,8 +43,9 @@ def get_commentary(
     *,
     path: Path | str = COMMENTARY_PATH,
 ) -> dict:
-    """Return {headlines, records} from commentary.json; latest_only keeps each company's newest
-    document per source_type."""
+    """Return {headlines, records, reads} from commentary.json; latest_only keeps each company's
+    newest document per source_type and only the newest read; reads come newest first and code
+    and theme never filter them."""
     path = Path(path)
     data = {}
     if path.exists():
@@ -47,6 +53,9 @@ def get_commentary(
         data = json.loads(text) if text else {}
     headlines = data.get("headlines") or []
     records = data.get("records") or []
+    reads = sorted(data.get("reads") or [], key=_read_key, reverse=True)
+    if latest_only:
+        reads = reads[:1]
     if code:
         headlines = [h for h in headlines if str(h["company"]).upper() == code.upper()]
         records = [r for r in records if str(r["company"]).upper() == code.upper()]
@@ -65,4 +74,4 @@ def get_commentary(
 
     headlines = sorted(headlines, key=lambda h: (rank(h), h["release_date"]))
     records = sorted(records, key=lambda r: (rank(r), r["theme"], r["id"]))
-    return {"headlines": headlines, "records": records}
+    return {"headlines": headlines, "records": records, "reads": reads}

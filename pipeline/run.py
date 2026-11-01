@@ -119,7 +119,10 @@ def main(root: Path = Path(".")) -> int:
 
     def companies_step():
         keys = ["code", "name", "ticker", "exchange", "currency", "color"]
-        rows = [{k: c[k] for k in keys} for c in companies]
+        rows = [
+            {**{k: c[k] for k in keys}, "shares_verified": bool(c.get("shares_verified", False))}
+            for c in companies
+        ]
         payload = {"as_of": run_at, "companies": rows}
         bench = watchlist["dashboard"].get("benchmark")
         if bench:

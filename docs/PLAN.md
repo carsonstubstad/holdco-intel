@@ -887,7 +887,7 @@ pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
 - Design items from the 26a to 28 reviews that do not fit that step's polish round go to the
   Backlog marked "for 29".
 
-- [ ] **24a Size and the read: build.** Executor, plan mode, no site change. (1) The Industry
+- [x] **24a Size and the read: build.** Executor, plan mode, no site change. (1) The Industry
   read: `data/commentary.json` gains `reads`, each with its date, two or three sentences
   across all six companies, the figures it cites as a list (company, field, period, value as
   on file) and the required http(s) source_urls of the records it cites. The schema and `make

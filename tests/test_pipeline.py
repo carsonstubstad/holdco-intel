@@ -234,14 +234,35 @@ def test_calendar_candidate_drops_once_in_events_yaml(repo):
     assert ("HAVAS", _ahead(12)) not in dates
 
 
+def test_companies_carry_shares_verified(repo):
+    watchlist = repo / "config" / "watchlist.yaml"
+    # PUB's line goes, so its flag falls back to False
+    watchlist.write_text(watchlist.read_text().replace("    shares_verified: true\n", "", 1))
+    expected = [bool(c.get("shares_verified", False))
+                for c in yaml.safe_load(watchlist.read_text())["companies"]]
+    run.main(repo)
+    companies = _load(repo, "companies")["companies"]
+    assert [c["shares_verified"] for c in companies] == expected
+    assert companies[0]["code"] == "PUB" and companies[0]["shares_verified"] is False
+    assert any(c["shares_verified"] for c in companies)
+
+
 def test_pipeline_copies_commentary(repo):
-    shutil.copy(ROOT / "tests" / "fixtures" / "commentary_small.json",
-                repo / "data" / "commentary.json")
+    data = json.loads((ROOT / "tests" / "fixtures" / "commentary_small.json").read_text())
+    read = {"id": "read-2026-11-01-1", "date": "2026-11-01",
+            "text": "Omnicom grew +7.2% in Q3 2026. Dentsu reports next on 13 Nov (est.).",
+            "figures": [{"company": "OMC", "field": "organic_growth_pct", "period": "Q3 2026",
+                         "text": "+7.2%", "value": 7.2, "ref": None,
+                         "source_url": "https://example.com/omc"}],
+            "drafted_by": "claude", "curated_at": "2026-11-01T12:00:00Z"}
+    data["reads"] = [read]
+    (repo / "data" / "commentary.json").write_text(json.dumps(data))
     run.main(repo)
     schema = json.loads((ROOT / "schemas" / "commentary.schema.json").read_text())
     copied = _load(repo, "commentary")
     validator = Draft202012Validator(schema, format_checker=FORMAT_CHECKER)
     assert not list(validator.iter_errors(copied))
     assert len(copied["records"]) == 7 and len(copied["headlines"]) == 2
+    assert copied["reads"] == [read]
     source = _load(repo, "status")["sources"]["commentary"]
     assert source["ok"] is True and source["items"] == 7

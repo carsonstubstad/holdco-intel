@@ -26,7 +26,8 @@
           "ticker": {"type": "string"},
           "exchange": {"type": "string"},
           "currency": {"type": "string"},
-          "color": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}
+          "color": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
+          "shares_verified": {"type": "boolean", "description": "shares_outstanding_m checked against the company's latest results; false marks market cap and price-to-sales unverified"}
         }
       }
     }

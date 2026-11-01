@@ -48,7 +48,7 @@ Havas (HAVAS.AS), Dentsu (4324.T), Stagwell (STGW).
     │   ├── run.py                    orchestrates collectors, writes docs/data/*.json
     │   ├── backfill.py               one-time local price history backfill
     │   ├── check_symbols.py          local one-off: last close per ticker and FX pair (step 02)
-    │   ├── validate.py               validates data/ and docs/data/ against schemas/ (step 01); data/guidance.json's metric_label rule (step 23)
+    │   ├── validate.py               validates data/ and docs/data/ against schemas/ (step 01); data/guidance.json's metric_label rule (step 23); data/commentary.json's reads checked against their own figures, and `--check-reads [-]` against data/, run by /curate only (step 24a)
     │   ├── nudge.py                  prints the "Curate needed" Issue body, or nothing (step 06)
     │   └── verify_quote.py           deterministic quote-in-source check used by /curate
     ├── mcp_server/
@@ -112,9 +112,16 @@ releases fetch live; their committed copies are in `docs/data/`.
 
 Management commentary lives in `data/commentary.json`: verbatim, verified quotes by theme plus
 an optional one-line curator headline per company and release. Only `/curate` writes it.
-`core/commentary.py` `get_commentary()` reads it, the pipeline copies it to
-`docs/data/commentary.json`, and the MCP tool `get_commentary` serves it. The site does not
-read it yet.
+It also holds `reads`, the Industry read: two or three sentences across the six companies,
+drafted by Claude in `/curate` from data on file (KPIs, current guidance, events) and approved
+by the maintainer, each figure listed with its company, field, period, text as written and
+`source_url`. `make validate` checks each read against its own figures only, so a later hand
+edit to kpis.yaml or guidance.json never fails the daily run; `python -m pipeline.validate
+--check-reads` (the newest read) or `--check-reads -` (a draft on stdin) checks the figures
+against data/, and only `/curate` runs it. `core/commentary.py` `get_commentary()` reads the
+file (reads newest first; latest_only keeps only the newest), the pipeline copies it to
+`docs/data/commentary.json`, and the MCP tool `get_commentary` serves it. The site shows its
+quotes, never the headlines; reads reach the page from step 26a.
 
 ```python
 # core/config.py
@@ -234,11 +241,11 @@ Formal JSON Schema lives in `schemas/`. Summary of each file:
 - press_releases.json: `{as_of, last_curate_at, items: [{id, company, title, url, published, category, flagged, source, fetched_at}], new_since_last_curate: [id]}`
 - events.json: `{as_of, items: [{company, date, type, title, confirmed, source_url}]}`
 - guidance.json: `{as_of, records: [{id, company, metric, metric_label?, period, value, unit, status, set_date, quote, source_url, supersedes, curated_at}]}`. `metric_label` is optional: metric other only, the metric's name copied from its quote (e.g. "Adjusted EBITDA"); `make validate` requires it on every "other" record in data/guidance.json, found in the quote as written, and refuses it on any other metric.
-- commentary.json: `{as_of, headlines: [{company, release_date, headline, headline_by, source_url, curated_at}], records: [{id, company, theme, quote, speaker, release_date, period, source_url, source_type?, curated_at, verified}]}`. `source_type` is optional: results_release, call_transcript, results_slides, annual_report, investor_day, strategy_plan or announcement; missing means results_release.
+- commentary.json: `{as_of, headlines: [{company, release_date, headline, headline_by, source_url, curated_at}], records: [{id, company, theme, quote, speaker, release_date, period, source_url, source_type?, curated_at, verified}], reads?: [{id, date, text, figures: [{company, field, period, text, value, ref, source_url}], drafted_by, curated_at}]}`. `source_type` is optional: results_release, call_transcript, results_slides, annual_report, investor_day, strategy_plan or announcement; missing means results_release. `reads` is optional: the Industry read (section 4); `make validate` checks each read against its own figures in data/commentary.json, and `validate --check-reads` checks them against data/.
 - kpis.json: `{as_of, definitions: {CODE: text}, rows: [{company, period, organic_growth_pct, revenue_local_m, currency, margin_metric, margin_pct, source_url, note}]}`
 - status.json: `{run_at, runtime_ms, run_id, sources: {name: {ok, items, ms, error, last_ok}}, guidance_age_days, counts: {companies, sources_total, sources_ok, press_releases, flagged_new, news, events_upcoming}}`
 
-- companies.json: `{as_of, companies: [{code, name, ticker, exchange, currency, color}]}` (display subset of the watchlist)
+- companies.json: `{as_of, companies: [{code, name, ticker, exchange, currency, color, shares_verified}]}` (display subset of the watchlist; `shares_verified` is false when the watchlist omits it, so the site can mark a market cap and price-to-sales that rest on an unverified share count)
 - runs.jsonl: one JSON object per line `{run_at, runtime_ms, sources_ok, sources_total, flagged_new}`
 
 If this summary and a file in `schemas/` disagree, the schema wins.

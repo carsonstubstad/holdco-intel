@@ -1,7 +1,7 @@
 ---
-description: Draft verified guidance, KPI rows, event dates and management commentary from holdco results releases and pasted company documents, then commit data/ after approval
-argument-hint: "[--commentary] [--all | CODE ...] | --commentary CODE <url>"
-allowed-tools: Read, Edit(data/**), Write(data/**), Bash(uv run python -m pipeline.verify_quote:*), Bash(make validate), Bash(git status), Bash(git diff:*), Bash(git add data/:*), Bash(git commit:*)
+description: Draft verified guidance, KPI rows, event dates and management commentary from holdco results releases and pasted company documents, and an Industry read from data on file, then commit data/ after approval
+argument-hint: "[--commentary] [--all | CODE ...] | --commentary CODE <url> | --read"
+allowed-tools: Read, Edit(data/**), Write(data/**), Bash(uv run python -m pipeline.verify_quote:*), Bash(uv run python -m pipeline.validate:*), Bash(make validate), Bash(git status), Bash(git diff:*), Bash(git add data/:*), Bash(git commit:*)
 ---
 
 You are curating forward-looking guidance for the Holdco Intel dashboard. Arguments: `$ARGUMENTS`
@@ -29,7 +29,8 @@ Ground rules for the whole run:
   step 6c) is the one place a pasted URL is accepted. Every read and verify call passes
   `--company CODE`, which refuses a URL off that company's registered domain or barred by
   robots.txt (exit 2).
-- Never infer, round, convert or compute a number. Copy what the company wrote.
+- Never infer, round, convert or compute a number. Copy what the company wrote. An Industry
+  read (step 6d) copies figures on file and never computes one.
 - Edit only `data/guidance.json`, `data/events.yaml`, `data/kpis.yaml`,
   `data/commentary.json` and `data/curate_state.json`. Never push.
 
@@ -54,6 +55,9 @@ it exists) and `docs/data/press_releases.json`.
 - `--commentary CODE <url>` (exactly one company code and one http(s) URL): document mode.
   Go straight to step 6c; it does not combine with `--all` or more codes, and it skips the
   table and the stop below (the maintainer chose the document).
+- `--read` (alone; it combines with no other argument): drafts an Industry read only. No
+  release is selected or fetched, and there is no table or stop. Steps 3 to 6c are skipped;
+  go straight to step 6d.
 
 Show the selection as a table (company, published, title, url) and list any company with no
 eligible release. **Stop and wait for confirmation before fetching anything.**
@@ -212,16 +216,77 @@ step 6b's rules hold except where this section says otherwise.
    No headline. No guidance, KPI or event records, and never an estimated date (estimates
    are entered by hand).
 
+## 6d. Industry read
+
+Every run except document mode (step 6c) ends by drafting one Industry read; `--read` drafts
+only this. A read is two or three sentences across all six companies, drafted from data on
+file only.
+
+- Sources: `data/kpis.yaml`; `data/events.yaml`; current `data/guidance.json` records, plus
+  this run's new guidance records, KPI rows and events. A record this run supersedes is no
+  longer current. No fetch, no share prices, no news, no quotes.
+- Content: what moved in the latest results and guidance across the group; who grew fastest
+  and slowest, comparing organic growth only within one period (Dentsu's newest may be a
+  different quarter or a half-year, and Omnicom's organic growth covers Core Operations only,
+  per its definition); the next results date when one is on file, with "(est.)" when it is
+  unconfirmed.
+- Wording: neutral, as for headlines (nothing the sources do not say). Comparisons in words
+  only; never a computed number (no differences, averages or counts in digits). Every number
+  in the text is one of its listed figures.
+- Form (`make validate` refuses a read that breaks it):
+  - 2 or 3 sentences, at most 450 characters. A sentence ends at ".", "!" or "?" before a
+    space or the end, so use no abbreviation ending in "." other than "(est.)".
+  - Digits only inside listed figures, period tokens (`Q3`, `Q3 2026`, `H1 2026`, `9M 2026`,
+    `FY 2026`) and years. Counts in words ("two of the six").
+  - A period named in a sentence is the period of a figure in that sentence ("Q3" matches
+    Q3 2026). A results date has no period, so write "Dentsu reports next on 13 Nov (est.)",
+    not "Dentsu's Q3 results are due 13 Nov (est.)".
+  - Name the company (its name's first word, e.g. "Publicis", or its code) before each of its
+    figures in the same sentence, with no other company named in between.
+  - Organic growth: "+7.2%", or with the true minus (U+2212) "−2.1%", never a hyphen; zero
+    takes no sign. Margin and revenue: no sign. Revenue in millions with its row's currency
+    sign ("£2,411m" or "£2,411 million"), never "bn" or "billion".
+  - Guidance: the record's whole `value`, as written.
+  - Results date: the company's next results event (the earliest on or after the read's
+    date), as "13 Nov", or "2 Feb 2027" when its year is not the read's, followed by
+    " (est.)" exactly when the event has `confirmed: false`.
+- Fields (schema wins on conflict):
+  - `id`: `read-<date>-<n>`, `n` counting from 1 per date, after any existing ids.
+  - `date`: today, `YYYY-MM-DD`. `text`: the read.
+  - `figures`: 1 to 12, one per figure in the text, each with `company` (the code), `field`
+    (organic_growth_pct, margin_pct, revenue_local_m, guidance or results_date), `period`
+    (the KPI row's or guidance record's; null for results_date), `text` (the figure exactly
+    as written in the read), `value` (the number on file for the three KPI fields, else
+    null), `ref` (the guidance record's id for guidance, else null) and `source_url` (the KPI
+    row's, the guidance record's or the event's).
+  - `drafted_by`: `"claude"`. `curated_at`: now, UTC, `YYYY-MM-DDTHH:MM:SSZ`.
+
 ## 7. Propose and wait
 
 Show tables of: new guidance records (id, metric_label, value, status, supersedes, verified),
 records they supersede, events to add, KPI rows to add, and anything dropped and why. Add a commentary
 block: company, source_type, theme, quote (first 12 words), FOUND/NOT FOUND, plus each
 company's headline (none in document mode).
+Then the Industry read (none in document mode): its text in full and a figures table
+(company, field, period, text, value on file).
+- On a `--read` run, check the draft before showing it, the read as one JSON object on stdin:
+
+  ```
+  uv run python -m pipeline.validate --check-reads - <<'EOF'
+  <the read>
+  EOF
+  ```
+
+  Show the result. A failing draft is fixed and checked again before it is offered.
+- On other runs, say that the read may cite this run's new records, which reach `data/` only
+  in step 8, so its check runs there.
+
 Then wait:
 - `yes`: write (step 8).
-- `edit <instructions>`: revise, re-verify changed quotes, show the tables again.
-- `no`: write nothing and stop.
+- `edit <instructions>`: revise, re-verify changed quotes (on a `--read` run, re-check the
+  read), show the tables again.
+- `edit drop read`: drop the read; the rest is written on `yes`.
+- `no`: write nothing and stop. On a `--read` run, this is how the read is dropped.
 
 ## 8. Write and commit (only on yes)
 
@@ -229,15 +294,21 @@ Then wait:
 2. Append to `data/events.yaml` and `data/kpis.yaml` with Edit so comments survive; never
    rewrite those files wholesale.
 3. Create `data/commentary.json` if missing as `{"headlines": [], "records": []}` (2-space
-   JSON). Append headlines and records; never edit or remove existing ones.
+   JSON). Append headlines and records; never edit or remove existing ones. Append the read
+   to `reads`, creating the key if missing; never edit or remove an earlier read.
 4. Update `data/curate_state.json`: `items_reviewed` increased by the number of releases
    read; `last_curate_at` = now (UTC, Z), except with `--commentary`, where it stays
    unchanged so releases still waiting for guidance and KPIs keep their "Curate needed" flag.
-   In document mode, leave `data/curate_state.json` unchanged.
-5. Run `make validate`. If it fails, fix the data or stop; never commit a failing state.
-6. `git add data/guidance.json data/events.yaml data/kpis.yaml data/commentary.json data/curate_state.json`
-7. Commit `curate: N guidance records, M kpi rows, K commentary quotes (YYYY-MM-DD)` (N, M,
-   K added; today's date).
+   In document mode and on a `--read` run, leave `data/curate_state.json` unchanged.
+5. Only when this run adds a read: run `uv run python -m pipeline.validate --check-reads`,
+   which checks the newest read against `data/` after the appends. If it fails, either fix
+   the read, show it again with its figures table and wait for `yes`, or take this run's
+   read back out and commit the rest. Never commit a read the maintainer has not seen.
+6. Run `make validate`. If it fails, fix the data or stop; never commit a failing state.
+7. `git add data/guidance.json data/events.yaml data/kpis.yaml data/commentary.json data/curate_state.json`
+8. Commit `curate: N guidance records, M kpi rows, K commentary quotes, 1 read (YYYY-MM-DD)`
+   (N, M, K added; ", 1 read" only when a read is added; today's date). A `--read` run
+   commits `curate: industry read (YYYY-MM-DD)`.
 
 ## 9. Hand back
 
