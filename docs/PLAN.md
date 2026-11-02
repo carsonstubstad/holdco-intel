@@ -861,24 +861,36 @@ six company badges, share price), a page per company, and Compare, with companie
 and metrics as rows. A Claude-drafted Industry read is written at each `/curate` run on the
 maintainer's laptop, its figures checked by a script and approved by the maintainer; the
 pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
-- Order: 24a, 24b, 25, 26a, 26b, 27a, 27b, 28, 29, 30, in number order. 24a, 24b and 25 push
+- Order (amended below): 24a, 24b, 25, 26a, 26b, 27a, 27b, 28, 29, 30, in number order. 24a, 24b and 25 push
   as usual; pushes are held from 26a until 28 is built, so the live page never shows half a
   redesign. `/curate` runs happen between steps, never during one: 24b is the first
   `/curate --read`. Dentsu's Q3 (about 13 Nov) is v2.1's 23b, a hand entry; it waits until 28
   is pushed unless it lands before 26a starts, and `/curate --read` then refreshes the read.
+- Amended at step 25 (2026-11-02, maintainer): 26a to 28 are built on a branch, `v3`, so
+  `main` stays the live page until v3.0 is whole. The daily run keeps committing to `main`;
+  `/curate` runs and hand entries (23b too) are made on `main` and go live at once, then
+  `main` is merged into `v3` (a merge, never a rebase or a force-push) at the start of each
+  session. While `v3` is open, `plan:` and `tweak:` commits go on `v3` too, so `main` takes
+  data only (a site tweak on `main` would collide with v3's rewrite). Each session checks
+  `git branch --show-current` first: `v3` to build, `main` for `/curate`. `v3` is pushed to
+  GitHub as a backup only on the maintainer's word (no workflow runs on it; Pages builds from
+  `main` only). After 28, `main` is merged into `v3` once more, the whole page is checked,
+  then `v3` is merged into `main` and pushed on the maintainer's word; if that push is
+  refused, `git pull --no-rebase`, never `--rebase` (it would flatten the merge). One revert
+  of that merge restores v2.1's page.
   Results from 2 Feb 2027 (PUB 2 Feb, Dentsu 12 Feb, Havas 16 Feb, Omnicom 17 Feb, WPP 25
   Feb, Stagwell 9 Mar, estimates) come after v3.0.
 - Reverses two v2.0 decisions: "no LLM-written summary on the site" (now the Industry read)
   and "no market cap" (now Size, with revenue in USD and price-to-sales, all labelled
   approximate; CLAUDE.md's money rule amended). DESIGN.md sections 1 and 9 are amended in 25.
-- Removed or moved: the capsule's chips become the badge row (the URL hash and Copy link
+- Removed or moved (amended below): the capsule's chips become the badge row (the URL hash and Copy link
   stay); the row-per-company Peer table becomes the badges and Compare; the two Key takeaways
   and What's new move into The read, What's new as an activity timeline; the four folds go
   (In their words to company pages and a Compare quote row, Press releases to the timeline
   and company pages, All guidance to company pages and Compare, Quarterly history to the
   badges' lines, company-page charts and Compare); Data health stays at the bottom, joined
   with How it's made.
-- Left out on purpose: real company logos (badges instead); a 3D chart or an industry map
+- Left out on purpose (amended below): real company logos (badges instead); a 3D chart or an industry map
   (index.html's CSP has no 'unsafe-eval', a rotating chart takes phone swipes, and the badges
   already compare); a guidance range bar (guidance values are text); EV multiples (they need
   net debt each half); a peer median (periods differ); an AI read that updates itself daily
@@ -886,6 +898,14 @@ pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
   news (Parked, with the 2026-10-29 probe); the Backlog (the maintainer kept it out of v3.0).
 - Design items from the 26a to 28 reviews that do not fit that step's polish round go to the
   Backlog marked "for 29".
+- Amended at step 25 (2026-11-02, maintainer picks; DESIGN.md's v3.0 revision is the
+  contract): The read comes first; six ranked rows replace the badges above; a tab row in the
+  masthead reaches every view; a flat "Results and the market" map (inline SVG) sits beside
+  the share chart, which moves to a log scale; there is no activity timeline (What's new's
+  job goes to The read, the rows' next results dates and the company pages, and Press
+  releases go to the company pages only); Quarterly history goes to the company-page charts
+  and Compare's last four quarters as text. Seven build sessions: 26a, 26b-1, 26b-2 (two
+  pipeline fields), 27a-1, 27a-2, 27b, 28.
 
 - [x] **24a Size and the read: build.** Executor, plan mode, no site change. (1) The Industry
   read: `data/commentary.json` gains `reads`, each with its date, two or three sentences
@@ -937,14 +957,14 @@ pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
   maintainer's word: Dentsu's H1 2026 (+0.3%) became Q2 2026 (−0.2%), the figure the page shows
   (the quarter wins a tie with the half-year). "Publicis, Havas and WPP held theirs" carries no
   figure, so the planning chat checked it by hand (every Q3 record held).
-- [ ] **25 Design v3.0.** Planning chat with Cowork, creative-director and design-reviewer; no
+- [x] **25 Design v3.0.** Planning chat with Cowork, creative-director and design-reviewer; no
   executor session. Keeps the Plot Sheet look (tokens, type, paper). One Cowork layout round
   (2 to 3 layouts; a second round only if needed), with real data and the 24b read, for the
   overview, a company page and Compare at 1440 and 375, and print page 1. It decides: the
   badges (one metric each with its small picture: an 8-quarter line for growth, a bar for
   margin and size, a mini price line for YTD; each naming its period and basis; contrast on
-  every badge, since white fails 4.5:1 on Publicis, Omnicom and Stagwell's colors and Havas's
-  is direction red); the activity timeline (six lanes from 30 days back to each company's
+  every badge, since white fails 4.5:1 on Publicis, Omnicom, Dentsu and Stagwell's colors and
+  Havas's is direction red); the activity timeline (six lanes from 30 days back to each company's
   next results, dots by type); the URL hash, defined once, with v2.0 links such as `#PUB,WPP`
   still working, plus Esc, Back and printing from a company page; Compare's rows and which
   guidance records they show; last-12-months revenue (the last four quarters, else the last
@@ -957,35 +977,70 @@ pipeline never calls an LLM (hard rule 2). Step prompts are in `prompts/v3.0/`.
   checks). Output: a DESIGN.md v3.0 revision with must items for 26a to 28, sections 1 and 9
   amended (company colors on badges; market cap, sparklines and the Claude-drafted read
   leave "out of scope"). Commit: `step 25: v3.0 design brief`.
-- [ ] **26a The read and the timeline.** Site only, one or two sessions. The header on one
-  line (with the 3D feature if 25 puts it there); The read under it: the newest Industry read
-  with its date and label, three computed lines, and the activity timeline in place of What's
-  new, its text rows kept for phones and screen readers. Acceptance: DESIGN.md's 26a items;
-  screenshots at 1440, 1024, 390 and 375; zero console errors. Commit: `step 26a: the read
-  and activity timeline`. Not pushed.
-- [ ] **26b Badges and share price.** Site only. The badge row replaces the capsule's chips and
-  the row-per-company Peer table: one metric each with its small picture, the Growth / Margin
-  / YTD / Size switch, Copy link. Share price shows % change from the window start with a 0%
-  line. Acceptance as 26a. Commit: `step 26b: company badges and percent-change chart`. Not
-  pushed.
-- [ ] **27a Company page.** Site only. A badge opens its company's page: Size (market cap,
-  last-12-months revenue in USD beside its own currency, price-to-sales), organic growth with
-  its 8-quarter chart, margin, every current guidance record, share moves, In their words
-  (all themes), 30 days of press releases, next results. Acceptance as 26a, with a page for
-  each of the six. Commit: `step 27a: company pages`. Not pushed.
-- [ ] **27b Compare.** Site only, plus `docs/ARCHITECTURE.md` section 7. "+ Compare" and
-  "Compare all six": metrics as rows, the chosen companies as columns, each figure with its
-  period (Size; Growth with the last four quarters; Profit; Guidance with ▲, = or ▼; Market;
-  a quote row for a chosen theme; Next results; definitions). The four folds go. Acceptance as
-  26a, with two columns at 375. Commit: `step 27b: compare view`. Not pushed.
-- [ ] **28 Print and How it's made.** Site only. The handout rebuilt: page 1 holds The read,
-  the badges and Compare with all six, then quotes; at most 5 pages on A4 and on Letter. How
-  it's made and Data health as one diagram at the bottom, each stage with its live status.
-  Acceptance as 26a, plus pages counted on A4 and Letter. Commit: `step 28: print handout
-  and how it's made`. Then push, on the maintainer's word.
+  Built 2026-11-01 to 02 by the planning chat (no executor session): four Cowork rounds and a
+  final hand-off (prompts/design/cowork/v3/, local), each reviewed by design-reviewer, with
+  creative-director on the 3D options. Maintainer picks: "Masthead" (an ink masthead as the
+  one dark element, with a tab row to every view and the next results date); The read first;
+  the six companies ranked by Growth, Margin, Year to date or Size, one line and one bar each
+  on a shared scale, with each next results date, in place of badges; no activity timeline;
+  share price on a log scale beside a flat "Results and the market" bubble map (growth
+  against the two-day move on results, area market cap, each bubble a link); a company page
+  of its own with a Growth strip and ranks as text; Compare with "+ add" pills, small bars
+  and its last four quarters as text; company names in the read as links;
+  creative-director's "maker's mark" at How it's made as the 3D feature (a header feature
+  scrolls away unseen); each view prints itself at 11px, press off paper, page 1 sized for a
+  450-character read; a `comparable_from` watchlist field so Omnicom's price-to-sales returns
+  once its 12 months are past the IPG close. Dropped after mockups: badges, the timeline, a
+  clickable share chart, tick-to-compare. DESIGN.md's v3.0 revision: must items T to X,
+  sections 1, 2, 3, 6, 7, 8 and 9 amended.
+- [ ] **26a Masthead, tabs, The read and How it's made.** Site only, one session. DESIGN.md
+  T1, T6, T2, T3, T5: the ink masthead with Copy link, the next results line and "Curated"
+  counting reads, and its tab row (Overview, the six companies, Compare all six); The read first (the newest Industry read, verbatim, dated and labelled, each
+  company's first mention a link, then up to three computed lines under their own label);
+  How it's made with Data health. What's new, the chart's Key takeaway and the Data health
+  footer line leave. Acceptance: DESIGN.md's T items; screenshots at 1440, 1024, 390 and 375;
+  zero console errors. Commit: `step 26a: masthead, tabs, the read and how it's made`. On
+  branch `v3`.
+- [ ] **26b Ranked rows, share price and the map.** Two sessions. 26b-1, site only (U1 to
+  U3): six ranked rows replace the capsule and the row-per-company Peer table (the switch
+  Growth / Margin / Year to date / Size, one bar each on a shared scale, the period and
+  change, the next results date); a stand-in router keeps `#WPP` links on the overview until
+  27a; share price as % change on a log scale with a 0% line. 26b-2 (V1, U4, T4): two fields
+  through the pipeline as 24a carried `shares_verified` (Omnicom's `comparable_from` from the
+  watchlist into companies.json; each reporting currency's USD rate into prices.json), with
+  tests; the "Results and the market" map beside the chart; the maker's mark. Acceptance as
+  26a, plus `make check` and `make validate` green after 26b-2. Commits: `step 26b: ranked
+  rows and log-scale chart`, then `step 26b: size inputs, results map and maker's mark`
+  (ticks the box). On branch `v3`.
+- [ ] **27a Company pages.** Site only, two sessions. 27a-1 (V2, V3, V4's head and Size): the
+  view switch (the hash, Back, Esc, focus, the tabs' Overview); the size figures (market
+  cap, last-12-months revenue in USD beside its own currency, price-to-sales); the company
+  page's top (name, exchange line, "Compare with" pills) and its Size panel, so a row, tab,
+  bubble or name opens a page. 27a-2 (the rest of V4, V5): Where it stands (a Growth
+  strip), organic growth with its 8-quarter chart, margin, every current guidance record,
+  share moves and chart, In their words (all themes), 30 days of press releases, next
+  results. Acceptance as 26a, with a page for each of the six. Commits: `step 27a: view
+  switch, size figures and page top`, then `step 27a: company pages` (ticks the box). On branch `v3`.
+- [ ] **27b Compare.** Site only, plus `docs/ARCHITECTURE.md` section 7. DESIGN.md W1 to W4:
+  "+ add" pills and the "Compare all six" tab: metrics as rows, the chosen companies as
+  columns, each figure with its period and, with three or more, a small bar (Size; Growth
+  with the last four quarters as text; Profit; Guidance with ▲, ▼ or × only when it moved;
+  Market; a quote row for a chosen theme; Next results; definitions); each column head
+  links to its page. All guidance and Quarterly history go (In their words and Press
+  releases left in 27a). Acceptance as 26a, with two columns at 375. Commit: `step 27b:
+  compare view`. On branch `v3`.
+- [ ] **28 Print.** Site only. DESIGN.md X1 to X3: each view prints itself: the overview's
+  handout (page 1 The read and Compare with all six; page 2 the chart and quotes; press off
+  paper), a company page, Compare's chosen companies; at most 5 pages on A4 and on Letter;
+  page 1's headroom tested with a 450-character read. Then DESIGN.md section 8's whole-page
+  checks. Acceptance as 26a, plus pages counted on A4 and Letter. Commit: `step 28: print
+  views` on branch `v3`. Then, on the maintainer's word: merge `main` into `v3`, recheck the
+  page, merge `v3` into `main` and push, and start the daily run at once (26b-2's two fields
+  reach the live data only through it); check the live page after it.
 - [ ] **29 Final design pass.** The planning chat and design-reviewer review the built page
-  with real data; the maintainer picks fixes, removal first; one executor session builds them.
-  Commit: `step 29: v3.0 final polish`.
+  with real data; the maintainer picks fixes, removal first; one executor session builds them,
+  plus any DESIGN.md section 8 "goes first" item that slipped. It runs on `main`, after 28's
+  merge. Commit: `step 29: v3.0 final polish`.
 - [ ] **30 Share it.** Executor. The README rewritten for v3.0 (what a reader gets, how it is
   built, where Claude is used and how its words are checked); the intro line and meta
   description; live checks after the push. Commit: `step 30: ready to share v3.0`.
