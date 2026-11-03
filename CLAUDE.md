@@ -119,6 +119,12 @@ data commit and the box is ticked in the step's closing commit.
 - Never run `git push` unless asked; when a PLAN step says to push, stop and ask first.
   From step 06 on, the daily bot commits to `main`, so always `git pull --rebase` before
   pushing. Never force-push. Never edit `.github/` without showing the diff first.
+- From step 26a until v3.0 is merged in step 28, site, plan: and tweak: commits go on
+  branch `v3`; `main` takes only the daily data and /curate. Start every session with
+  `git branch --show-current`: `v3` to build, `main` for /curate. Bring data into `v3` with
+  `git merge main` (never rebase `v3`, never force-push). If the final push of the merge into
+  `main` is refused, use `git pull --no-rebase`, not `--rebase`. docs/PLAN.md's v3.0 section
+  has the details.
 - Step prompts live in `prompts/` (gitignored, local only). They are guidance; this file
   and docs/PLAN.md win on any conflict.
 
