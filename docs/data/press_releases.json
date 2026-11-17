@@ -1,22 +1,47 @@
 {
- "as_of": "2026-11-16T02:19:57Z",
+ "as_of": "2026-11-17T04:42:02Z",
  "last_curate_at": "2026-10-29T14:48:21Z",
  "new_since_last_curate": [
+  "703d4002df5f",
   "6b60785bb3af",
   "0a376f0c7bc6"
  ],
  "items": [
   {
+   "id": "ec44b6154dcf",
+   "company": "DENTSU",
+   "title": "Dentsu Announces Global Management Team for 2027",
+   "url": "https://www.group.dentsu.com/en/news/release/pdf-cms/2026063-1116en.pdf",
+   "published": "2026-11-16",
+   "summary": "Dentsu Group Inc. (Tokyo: 4324; ISIN: JP3551520004; Head Office: Minato-ku, Tokyo; President & Global CEO: Takeshi Sano; Capital: 74,609.81 million yen) today announced the composition of its Global Management Team for 2027, designed to ensure the steady",
+   "category": "other",
+   "flagged": false,
+   "source": "dentsu:rss",
+   "fetched_at": "2026-11-17T04:42:08Z"
+  },
+  {
    "id": "b2e3cdcdb93a",
    "company": "HAVAS",
    "title": "Havas liquidity program documents",
    "url": "https://www.havas.com/press_release/havas-liquidity-program-documents/",
-   "published": "2026-11-09",
+   "published": "2026-11-16",
    "summary": null,
    "category": "other",
    "flagged": false,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
+  },
+  {
+   "id": "703d4002df5f",
+   "company": "DENTSU",
+   "title": "Notice of Announcement of Third Quarter FY2026 Consolidated Financial Results",
+   "url": "https://www.group.dentsu.com/en/news/release/001777.html",
+   "published": "2026-11-16",
+   "summary": "Notice of Announcement of Third Quarter FY2026 Consolidated Financial Results",
+   "category": "results",
+   "flagged": true,
+   "source": "dentsu:rss",
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "8b2bd4fc7b7f",
@@ -28,7 +53,7 @@
    "category": "other",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "babb7d4f31d7",
@@ -40,7 +65,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "a04ac2651f22",
@@ -52,7 +77,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "6b60785bb3af",
@@ -64,7 +89,7 @@
    "category": "results",
    "flagged": true,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "a1816e027613",
@@ -76,7 +101,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "0a376f0c7bc6",
@@ -88,7 +113,7 @@
    "category": "m_and_a",
    "flagged": true,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "86f319ce62fd",
@@ -100,7 +125,7 @@
    "category": "results",
    "flagged": true,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "46b8a0f49996",
@@ -112,7 +137,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "22b6c7bde614",
@@ -124,7 +149,7 @@
    "category": "results",
    "flagged": true,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "b1163c4ac5f3",
@@ -136,7 +161,7 @@
    "category": "other",
    "flagged": false,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "91e471e93d3f",
@@ -148,7 +173,7 @@
    "category": "results",
    "flagged": true,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "d6c65d2e6448",
@@ -160,7 +185,7 @@
    "category": "m_and_a",
    "flagged": true,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "ffe20ed0a3f9",
@@ -172,7 +197,7 @@
    "category": "results",
    "flagged": true,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "d681974552b7",
@@ -184,7 +209,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "bf4ac27adbaa",
@@ -196,7 +221,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "ac0a4d26c9da",
@@ -208,7 +233,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "a3fd8f3a25df",
@@ -220,7 +245,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "082616e50c71",
@@ -232,7 +257,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "c2f09046dee4",
@@ -244,7 +269,7 @@
    "category": "m_and_a",
    "flagged": true,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "92c5492635b5",
@@ -256,7 +281,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "6e728b35027f",
@@ -268,7 +293,7 @@
    "category": "results",
    "flagged": true,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "451271e34ce0",
@@ -280,7 +305,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "95f76cf97a73",
@@ -292,7 +317,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "7ae508b0f7c5",
@@ -304,7 +329,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "78b9483ea266",
@@ -316,7 +341,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "585dbe9fb6c1",
@@ -328,7 +353,7 @@
    "category": "results",
    "flagged": true,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "1bb092e1a0a7",
@@ -340,7 +365,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "db14ad96cb54",
@@ -352,7 +377,7 @@
    "category": "results",
    "flagged": true,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "c08bbae62c81",
@@ -364,7 +389,7 @@
    "category": "results",
    "flagged": true,
    "source": "stagwell:rss",
-   "fetched_at": "2026-11-16T02:20:05Z"
+   "fetched_at": "2026-11-17T04:42:09Z"
   },
   {
    "id": "ad93fb8e7260",
@@ -376,7 +401,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "12952fe67735",
@@ -400,7 +425,7 @@
    "category": "other",
    "flagged": false,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "3f99adf8cde0",
@@ -412,7 +437,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "2309f22cebf8",
@@ -424,7 +449,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "cebd0b78c3d6",
@@ -436,7 +461,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "06a4289965e7",
@@ -448,7 +473,7 @@
    "category": "other",
    "flagged": false,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "d5afd027ec2e",
@@ -460,7 +485,7 @@
    "category": "results",
    "flagged": true,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "bd14c1014f56",
@@ -472,7 +497,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "f8797be619d5",
@@ -496,7 +521,7 @@
    "category": "other",
    "flagged": false,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "2a83ccf60e48",
@@ -508,7 +533,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "032233977436",
@@ -520,7 +545,7 @@
    "category": "other",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "efed794cb826",
@@ -532,7 +557,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "0e461c73575d",
@@ -544,7 +569,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "f40debfc58f0",
@@ -556,7 +581,7 @@
    "category": "client",
    "flagged": false,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "95dd84537a81",
@@ -580,7 +605,7 @@
    "category": "other",
    "flagged": false,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "9ed0d8f6cf41",
@@ -616,7 +641,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "61cea9887409",
@@ -628,7 +653,7 @@
    "category": "other",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "f9fc701a89b4",
@@ -664,7 +689,7 @@
    "category": "m_and_a",
    "flagged": true,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "96aab5b67ab7",
@@ -676,7 +701,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "c5c01fa203c4",
@@ -688,7 +713,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "37375623f14a",
@@ -712,7 +737,7 @@
    "category": "other",
    "flagged": false,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "8b021400b5a6",
@@ -724,7 +749,7 @@
    "category": "results",
    "flagged": true,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "137897d1231d",
@@ -736,7 +761,7 @@
    "category": "results",
    "flagged": true,
    "source": "wpp:html",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "7db0fce7097d",
@@ -748,7 +773,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "616cf0fdd65c",
@@ -772,7 +797,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "49506d62af08",
@@ -796,7 +821,7 @@
    "category": "results",
    "flagged": true,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "4018bb495a98",
@@ -820,7 +845,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "33294915584e",
@@ -832,7 +857,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "2e84f63ac362",
@@ -844,7 +869,7 @@
    "category": "results",
    "flagged": true,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "d0dbc8d03fbb",
@@ -856,7 +881,7 @@
    "category": "results",
    "flagged": true,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "c3f441d07d72",
@@ -868,7 +893,7 @@
    "category": "m_and_a",
    "flagged": true,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "70efbd023bfb",
@@ -880,7 +905,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "1d4dc31fe145",
@@ -892,7 +917,7 @@
    "category": "results",
    "flagged": true,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "57654fda17a9",
@@ -904,7 +929,7 @@
    "category": "other",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "540d71a23694",
@@ -916,7 +941,7 @@
    "category": "results",
    "flagged": true,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "f5fad9038a98",
@@ -928,7 +953,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "bc4ef263ac97",
@@ -940,7 +965,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "f8556a9e41ad",
@@ -952,7 +977,7 @@
    "category": "m_and_a",
    "flagged": true,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "8533fd6cff20",
@@ -964,7 +989,7 @@
    "category": "results",
    "flagged": true,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "459926a0b452",
@@ -976,7 +1001,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "havas:rss",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "7c9a4e9b99a5",
@@ -988,7 +1013,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "0d266e487a56",
@@ -1000,7 +1025,7 @@
    "category": "results",
    "flagged": true,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "6600c381686a",
@@ -1012,7 +1037,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "904caae32302",
@@ -1036,7 +1061,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "910830267147",
@@ -1048,7 +1073,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "bdab0f22f04a",
@@ -1060,7 +1085,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "9cf4bb490e67",
@@ -1072,7 +1097,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "e95ee8fba2fb",
@@ -1108,7 +1133,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "c25a87fc0094",
@@ -1132,7 +1157,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "4b17ae6fda22",
@@ -1168,7 +1193,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "00fe97613237",
@@ -1180,7 +1205,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "dc2c912016b7",
@@ -1192,7 +1217,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "d7a3a91fe4c1",
@@ -1204,7 +1229,7 @@
    "category": "ai_and_products",
    "flagged": false,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "a49517d34f41",
@@ -1216,7 +1241,7 @@
    "category": "other",
    "flagged": false,
    "source": "omnicom:json",
-   "fetched_at": "2026-11-16T02:20:03Z"
+   "fetched_at": "2026-11-17T04:42:07Z"
   },
   {
    "id": "79e24bc9d508",
@@ -1252,7 +1277,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "9bccc2a98011",
@@ -1264,7 +1289,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "72130fcc09cc",
@@ -1276,7 +1301,7 @@
    "category": "other",
    "flagged": false,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   },
   {
    "id": "002206047621",
@@ -1288,7 +1313,7 @@
    "category": "other",
    "flagged": false,
    "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:08Z"
   },
   {
    "id": "9b28f12939ea",
@@ -1300,31 +1325,7 @@
    "category": "leadership",
    "flagged": false,
    "source": "publicis:html",
-   "fetched_at": "2026-11-16T02:20:01Z"
-  },
-  {
-   "id": "5ef499048dc4",
-   "company": "DENTSU",
-   "title": "Dentsu Ranks 2nd Overall for the Third Consecutive Year in the Fourth \u201cStartup Friendly Scoring\u201d Initiative by Keidanren",
-   "url": "https://www.group.dentsu.com/en/news/release/001664.html",
-   "published": "2026-05-20",
-   "summary": "Dentsu (Headquarters: Dentsu Group Inc.; Location: Minato-ku, Tokyo; President & Global CEO: Takeshi Sano) was ranked 2nd overall for the third consecutive year in the fourth \u201cStartup Friendly Scoring,\u201d an initiative organized by the Japan Business Federa",
-   "category": "other",
-   "flagged": false,
-   "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
-  },
-  {
-   "id": "17452d9e0b8d",
-   "company": "DENTSU",
-   "title": "Dentsu Launched Our New Consumer Vision Study: Mothers of Reinvention",
-   "url": "https://insight.dentsu.com/consumer-vision-mothers-of-reinvention/",
-   "published": "2026-05-20",
-   "summary": "Dentsu Launched Our New Consumer Vision Study: Mothers of Reinvention",
-   "category": "other",
-   "flagged": false,
-   "source": "dentsu:rss",
-   "fetched_at": "2026-11-16T02:20:04Z"
+   "fetched_at": "2026-11-17T04:42:05Z"
   }
  ]
 }
